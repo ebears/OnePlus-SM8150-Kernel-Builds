@@ -117,10 +117,10 @@ jobs:
       with:
         files: |
           ${{ env.OUTPUT_ZIP_NAME }}-v${{ steps.get_version.outputs.VERSION }}.zip
-        name: 😼SukiSU-Ultra for OnePlus 7 Series - v${{ steps.get_version.outputs.VERSION }}
+        name: "😼SukiSU-Ultra - v${{ steps.get_version.outputs.VERSION }}"
         tag_name: ${{ steps.get_version.outputs.VERSION }}
         body: |
-          📱**Device:** SM8150\
+          📱**Device:** OnePlus SM8150\
           ⏱️**Target:** Android 16 (YAAP)
           
           ⬇️APK: [SukiSU-Ultra](https://github.com/SukiSU-Ultra/SukiSU-Ultra/releases/latest)
