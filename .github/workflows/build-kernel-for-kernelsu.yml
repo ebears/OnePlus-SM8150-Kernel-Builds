@@ -103,13 +103,13 @@ jobs:
     - name: Create AnyKernel3 zip
       run: |
         cd AnyKernel3
-        zip -r ../${{ env.OUTPUT_ZIP_NAME }}-${{ steps.get_version.outputs.VERSION }}.zip *
+        zip -r ../${{ env.OUTPUT_ZIP_NAME }}-v${{ steps.get_version.outputs.VERSION }}.zip *
         cd ..
        
     - name: Upload zip
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ env.OUTPUT_ZIP_NAME }}-${{ steps.get_version.outputs.VERSION }}
+        name: ${{ env.OUTPUT_ZIP_NAME }}-v${{ steps.get_version.outputs.VERSION }}
         path: "AnyKernel3/*"
         
     - name: Push to releases
