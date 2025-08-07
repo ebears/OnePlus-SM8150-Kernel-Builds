@@ -30,11 +30,32 @@ The OnePlus-SM8150 Android kernel is based on Linux 4.14, meaning it is non-GKI 
 
 ---
 
+### My Method
+
+This is no doubt a hacky, work-around way of doing an update. You (and I) should probably find a better way of doing this, but...
+
+I recommend completely uninstalling [Magisk](https://github.com/topjohnwu/Magisk) (and modules) if it's installed.
+
+***If it's your first time flashing and you're NOT rooted:***
+- Download the [TWRP](https://twrp.me/Devices/OnePlus/) IMG file for your device (for example, [here](https://dl.twrp.me/guacamolev2/twrp-3.6.2_11-0-guacamolev2.img.html) is a functioning image file for the OnePlus 7 Pro and YAAP).
+    - I've personally had better luck using TWRP version 3.6.2 over 3.7.0 and 3.7.1 (probably since 3.6.2 is Android 11 based; YAAP is based on OxygenOS 11.).
+    - Opt to use the FBEv2 over FBEv1 (YAAP uses FBEv2; but idk how much this part *really* matters.)
+- Put your device in fastboot mode and connect it to another device with adb.
+- Boot the TWRP IMG file you downloaded: `fastboot boot <path-to-file>\<twrp-img>`.
+- In TWRP, enter adb sideloading mode.
+- Flash the kernel (and hope nothing explodes): `adb sideload <path-to-file>\<kernel-zip>`
+
+***If you already have a rooted kernel:***
+- Use [KernelFlasher](https://github.com/fatalcoder524/KernelFlasher/releases) to install the zip.
+
+---
+
 ### TODO:
+
 - [SusFS](github.com/kutemeikito/susfs4ksu/tree/kernel-4.14) support.
 - Pure [APatch](https://github.com/bmax121/APatch) support ([KernelPatch](https://github.com/bmax121/KernelPatch/)).
 
 ---
 
-***Builds are only (if ever) tested on a OnePlus 7 Pro.***\
-***Mainly for my personal use, so flash at your own risk.***
+*Builds are only (if ever) tested on a OnePlus 7 Pro.*\
+*Mainly for my personal use, so flash at your own risk.*
