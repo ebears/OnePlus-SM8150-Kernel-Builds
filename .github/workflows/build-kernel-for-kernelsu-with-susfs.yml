@@ -18,7 +18,7 @@ on:
       clang_version:
         description: 'Pre-built Clang version'
         required: true
-        default: 'clang-r547379'
+        default: 'r547379'
       output_name:
         description: 'Name of the output.zip'
         required: false
@@ -44,7 +44,7 @@ jobs:
       KERNEL_DEFCONFIG: ${{ github.event.inputs.kernel_defconfig || 'gulch_defconfig' }}
       
       # Clang versions here: https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+/refs/heads/main
-      CLANG_VERSION: ${{ github.event.inputs.clang_version || 'clang-r547379' }}
+      CLANG_VERSION: ${{ github.event.inputs.clang_version || 'r547379' }}
 
       KERNEL_CMDLINE: "ARCH=arm64 CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-androidkernel- CROSS_COMPILE_ARM32=arm-linux-gnueabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM=1 LLVM_IAS=1 LD=ld.lld O=out"
       
@@ -76,7 +76,9 @@ jobs:
       run: |
         mkdir toolchains
         cd toolchains
-        git clone https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 -b main --depth=1 --sparse aosp-clang && git sparse-checkout set "${{ env.OUTPUT_ZIP_NAME }}/"
+        wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-${{ env.CLANG_VERSION }}.tar.gz
+        mkdir aosp-clang
+        tar -xf clang-${{ env.CLANG_VERSION }}.tar.gz -C ./aosp-clang
         cd aosp-clang
 
     - name: Clone kernel source
