@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
   schedule:
     # http://crontab.guru
-    # Runs at 9 PM UTC, every Tuesday
-    - cron: '0 21 * * 2'
+    # Runs at 9:15 PM UTC, every Tuesday
+    - cron: '15 21 * * 2'
 
 jobs:
   build:
