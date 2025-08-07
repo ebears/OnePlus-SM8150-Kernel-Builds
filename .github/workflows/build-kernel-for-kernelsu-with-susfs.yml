@@ -74,12 +74,11 @@ jobs:
 
     - name: Install dependencies - AOSP Clang
       run: |
-        mkdir -p toolchains/aosp-clang
-        cd toolchains/aosp-clang
-        git remote add origin https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86
+        mkdir toolchains
+        cd toolchains
+        git clone --filter=blob:none --sparse -b main https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 aosp-clang
+        cd aosp-clang
         git sparse-checkout set clang-${{ env.CLANG_VERSION }}
-        git fetch --depth=1 origin master
-        git checkout main
 
     - name: Clone kernel source
       run: |
