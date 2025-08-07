@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
   schedule:
     # http://crontab.guru
-    # Runs at 9:15 PM UTC, every Tuesday
-    - cron: '15 21 * * 2'
+    # Runs at 9:20 PM UTC, every Tuesday
+    - cron: '20 21 * * 2'
 
 jobs:
   build:
@@ -121,9 +121,9 @@ jobs:
         tag_name: ${{ steps.get_version.outputs.VERSION }}
         body: |
           📱**Device:** SM8150\
-          ⏱️**Target:** Android 16 (YAAP)\
+          ⏱️**Target:** Android 16 (YAAP)
 
-          ⬇️APK: ☯️[KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next/releases/latest)\
+          ⬇️APK: ☯️[KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next/releases/latest)
 
           Built with [Neutron](https://github.com/Neutron-Toolchains) and [GitHub Actions](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/actions)
       env:

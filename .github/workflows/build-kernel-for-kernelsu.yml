@@ -121,9 +121,9 @@ jobs:
         tag_name: ${{ steps.get_version.outputs.VERSION }}
         body: |
           📱**Device:** SM8150\
-          ⏱️**Target:** Android 16 (YAAP)\
+          ⏱️**Target:** Android 16 (YAAP)
 
-          ⬇️APK: #️⃣[KernelSU](https://github.com/rsuntk/KernelSU/releases/latest)\
+          ⬇️APK: #️⃣[KernelSU](https://github.com/rsuntk/KernelSU/releases/latest)
 
           Built with [Neutron](https://github.com/Neutron-Toolchains) and [GitHub Actions](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/actions)
       env:
