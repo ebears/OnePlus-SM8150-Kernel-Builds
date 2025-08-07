@@ -1,0 +1,130 @@
+# I learned a lot from: https://github.com/hi4th/kernel_oneplus_sm8150 and https://github.com/midozalouk/android_kernel_oneplus_sm8150
+name: Build SukiSU-Ultra
+on:
+  workflow_dispatch:
+  schedule:
+    # http://crontab.guru
+    # Runs at 9 PM UTC, every Tuesday
+    - cron: '0 21 * * 2'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
+      CCACHE_NOHASHDIR: "true"
+      CCACHE_MAXSIZE: "2G"
+      CCACHE_HARDLINK: "true"
+      
+      KERNEL_DEFCONFIG:  ${{ github.event.inputs.kernel_defconfig || 'gulch_defconfig' }}
+      KERNEL_CMDLINE: "ARCH=arm64 CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM=1 LLVM_IAS=1 LD=ld.lld O=out"
+      KERNEL_SOURCE_URL: ${{ github.event.inputs.kernel_source_url || 'https://github.com/yaap/kernel_oneplus_sm8150' }}
+      KERNEL_BRANCH: ${{ github.event.inputs.kernel_branch || 'sixteen' }}
+
+      OUTPUT_ZIP_NAME: ${{ github.event.inputs.output_name || 'OnePlus-SM8150_YAAP-16_SukiSU-Ultra_neutron' }}
+    steps:
+    - name: Set up ccache
+      uses: hendrikmuhs/ccache-action@v1
+      
+    - name: Remove unnecessary files
+      run: |
+        sudo rm -rf /opt/ghc
+        sudo rm -rf "/usr/local/share/boost"
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+        
+    - name: Install dependencies - Ubuntu APT packages
+      run: |
+        sudo apt-get update -y 
+        sudo apt install gcc-aarch64-linux-gnu -y
+        sudo apt install gcc-arm-linux-gnueabi -y
+        sudo apt install clang-19 -y
+        sudo apt install libelf-dev libarchive-tools lld llvm axel binutils make python3 libssl-dev build-essential bc  bison flex unzip libssl-dev ca-certificates xz-utils mkbootimg cpio device-tree-compiler git git-lfs -y
+        
+    - name: Install dependencies - AnyKernel3 (walkonbothsides fork for 'oneplus7' branch)
+      run: |
+        git clone https://github.com/walkonbothsides/AnyKernel3 -b oneplus7 --depth=1
+        rm -rf AnyKernel3/.git
+
+    - name: Install dependencies - Neutron Clang (using AntMan)
+      run: |
+        mkdir -p "./toolchains/neutron-clang"
+        cd "./toolchains/neutron-clang"
+        curl -LO "https://raw.githubusercontent.com/Neutron-Toolchains/antman/main/antman"
+        chmod +x antman
+        ./antman --sync=latest
+        
+    - name: Clone kernel source
+      run: |
+        rm -rf kernel
+        git clone --depth=1 --branch "${KERNEL_BRANCH}" "${KERNEL_SOURCE_URL}" kernel
+        cd kernel
+        git submodule update --init --recursive
+        cd ..
+      env:
+        KERNEL_SOURCE_URL: ${{ env.KERNEL_SOURCE_URL }}
+        KERNEL_BRANCH: ${{ env.KERNEL_BRANCH }}
+        
+    - name: Manually backport path_umount and apply SukiSU-Ultra
+      # More info about the path_umount.patch here: https://kernelsu.org/guide/how-to-integrate-for-non-gki.html#how-to-backport-path-umount
+      run: |
+        cd kernel && patch -p1 < kernelsu.patch
+        curl -LOs https://raw.githubusercontent.com/ebears/KSU_autobuild_kernel_for_oneplus_sm8150/refs/heads/main/path_umount.patch
+        patch -p1 < path_umount.patch
+        curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s nongki
+        cd ..
+      
+    - name: Get version
+      id: get_version
+      run: |
+        cd kernel/KernelSU
+        git rev-list --count HEAD
+        echo "VERSION=$(expr $(git rev-list --count HEAD) + 10200)" >> $GITHUB_OUTPUT
+        cd ../../
+        
+    - name: Build kernel
+      run: |
+        export PATH=$(pwd)/toolchains/neutron-clang/bin/:$PATH
+        export ARCH=arm64
+        export SUBARCH=arm64
+        export LD=ld.lld
+        export BRAND_SHOW_FLAG=oneplus
+        export TARGET_PRODUCT=msmnile
+        cd kernel
+        make $KERNEL_CMDLINE $KERNEL_DEFCONFIG CC="ccache clang-19"
+        make $KERNEL_CMDLINE scripts CC="ccache clang-19"
+        make $KERNEL_CMDLINE prepare CC="ccache clang-19"
+        make $KERNEL_CMDLINE CC="ccache clang-19" -j$(nproc --all)
+        cp out/arch/arm64/boot/Image ../AnyKernel3
+        cd ..
+       
+    - name: Create AnyKernel3 zip
+      run: |
+        cd AnyKernel3
+        zip -r ../${{ env.OUTPUT_ZIP_NAME }}-${{ steps.get_version.outputs.VERSION }}.zip *
+        cd ..
+       
+    - name: Upload zip
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.OUTPUT_ZIP_NAME }}-${{ steps.get_version.outputs.VERSION }}
+        path: "AnyKernel3/*"
+        
+    - name: Push to releases
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          ${{ env.OUTPUT_ZIP_NAME }}-v${{ steps.get_version.outputs.VERSION }}.zip
+        name: SukiSU-Ultra for OnePlus 7 Series - v${{ steps.get_version.outputs.VERSION }}
+        tag_name: ${{ steps.get_version.outputs.VERSION }}
+        body: |
+          📱**Device:** SM8150\
+          ⏱️**Target:** Android 16 (YAAP)\
+          
+          ⬇️APK: 🙀[SukiSU-Ultra](https://github.com/SukiSU-Ultra/SukiSU-Ultra/releases/latest)\
+
+          Built with [Neutron](https://github.com/Neutron-Toolchains) and [GitHub Actions](https://github.com/ebears/KSU_autobuild_kernel_for_oneplus_sm8150/actions)
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
