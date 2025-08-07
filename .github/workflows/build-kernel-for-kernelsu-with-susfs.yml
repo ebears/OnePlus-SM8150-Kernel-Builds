@@ -2,6 +2,27 @@
 name: Build KernelSU with SusFS
 on:
   workflow_dispatch:
+    inputs:
+    kernel_source_url:
+      description: 'URL of the kernel source repository'
+      required: true
+      default: 'https://github.com/yaap/kernel_oneplus_sm8150'
+    kernel_branch:
+      description: 'Branch of the kernel source'
+      required: true
+      default: 'sixteen'
+    kernel_defconfig:
+      description: 'defconfig file to use'
+      required: true
+      default: 'gulch_defconfig'
+    clang_version:
+      description: 'Pre-built Clang version'
+      required: true
+      default: 'clang-r547379'
+    output_name:
+      description: 'Name of the output.zip'
+      required: false
+      default: 'OnePlus-SM8150_YAAP-16_KernelSU_SusFS'
   schedule:
     # http://crontab.guru
     # Runs at 9 PM UTC, every Tuesday
@@ -18,12 +39,15 @@ jobs:
       CCACHE_MAXSIZE: "2G"
       CCACHE_HARDLINK: "true"
 
-      KERNEL_DEFCONFIG:  ${{ github.event.inputs.kernel_defconfig || 'gulch_defconfig' }}
-      KERNEL_CMDLINE: "ARCH=arm64 CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM=1 LLVM_IAS=1 LD=ld.lld O=out"
       KERNEL_SOURCE_URL: ${{ github.event.inputs.kernel_source_url || 'https://github.com/yaap/kernel_oneplus_sm8150' }}
       KERNEL_BRANCH: ${{ github.event.inputs.kernel_branch || 'sixteen' }}
+      KERNEL_DEFCONFIG: ${{ github.event.inputs.kernel_defconfig || 'gulch_defconfig' }}
+      
+      CLANG_VERSION: ${{ github.event.inputs.clang_version || 'clang-r547379' }}
 
-      OUTPUT_ZIP_NAME: ${{ github.event.inputs.output_name || 'OnePlus-SM8150_YAAP-16_KernelSU_SusFS_neutron' }}
+      KERNEL_CMDLINE: "ARCH=arm64 CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM=1 LLVM_IAS=1 LD=ld.lld O=out"
+      
+      OUTPUT_ZIP_NAME: ${{ github.event.inputs.output_name || 'OnePlus-SM8150_YAAP-16_KernelSU_SusFS' }}
     steps:
     - name: Set up ccache
       uses: hendrikmuhs/ccache-action@v1
@@ -47,13 +71,18 @@ jobs:
         git clone https://github.com/walkonbothsides/AnyKernel3 -b oneplus7 --depth=1
         rm -rf AnyKernel3/.git
 
-    - name: Install dependencies - Neutron Clang (using AntMan)
+    - name: Install dependencies - AOSP Clang
       run: |
-        mkdir -p "./toolchains/neutron-clang"
-        cd "./toolchains/neutron-clang"
-        curl -LO "https://raw.githubusercontent.com/Neutron-Toolchains/antman/main/antman"
-        chmod +x antman
-        ./antman --sync=latest
+        git init ./toolchains/aosp-clang
+        cd ./toolchains/aosp-clang
+        git remote add -f origin https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86
+
+        git config core.sparseCheckout true
+
+        # This tells git which directories you want to checkout. Then you can pull just those directories
+        echo "${{ env.OUTPUT_ZIP_NAME }}/" >> .git/info/sparse-checkout
+
+        git pull origin master
 
     - name: Clone kernel source
       run: |
@@ -85,17 +114,17 @@ jobs:
 
     - name: Build kernel
       run: |
-        export PATH=$(pwd)/toolchains/neutron-clang/bin/:$PATH
+        export PATH=$(pwd)/toolchains/aosp-clang/bin/:$PATH
         export ARCH=arm64
         export SUBARCH=arm64
         export LD=ld.lld
         export BRAND_SHOW_FLAG=oneplus
         export TARGET_PRODUCT=msmnile
         cd kernel
-        make $KERNEL_CMDLINE $KERNEL_DEFCONFIG CC="ccache clang-19"
-        make $KERNEL_CMDLINE scripts CC="ccache clang-19"
-        make $KERNEL_CMDLINE prepare CC="ccache clang-19"
-        make $KERNEL_CMDLINE CC="ccache clang-19" -j$(nproc --all)
+        make $KERNEL_CMDLINE $KERNEL_DEFCONFIG CC="ccache clang"
+        make $KERNEL_CMDLINE scripts CC="ccache clang"
+        make $KERNEL_CMDLINE prepare CC="ccache clang"
+        make $KERNEL_CMDLINE CC="ccache clang" -j$(nproc --all)
         cp out/arch/arm64/boot/Image ../AnyKernel3
         cd ..
 
@@ -124,6 +153,6 @@ jobs:
 
           ⬇️APK: [KernelSU](https://github.com/rsuntk/KernelSU/releases/latest)
 
-          Built with [Neutron](https://github.com/Neutron-Toolchains) and [GitHub Actions](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/actions)
+          Built with [AOSP Clang](https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86) and [GitHub Actions](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/actions).
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
