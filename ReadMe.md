@@ -15,7 +15,7 @@ Includes weekly releases of the Android kernel with KernelSU, KernelSU Next, and
 *All versions are for non-GKI kernels since we're working with Linux 4.14 here...*
 
 ### TODO:
-- [SUSFS](github.com/kutemeikito/susfs4ksu/tree/kernel-4.14) support.
+- [SusFS](github.com/kutemeikito/susfs4ksu/tree/kernel-4.14) support.
 - Pure [APatch](https://github.com/bmax121/APatch) support ([KernelPatch](https://github.com/bmax121/KernelPatch/)).
 
 ---

@@ -71,7 +71,7 @@ jobs:
       # More info about the path_umount.patch here: https://kernelsu.org/guide/how-to-integrate-for-non-gki.html#how-to-backport-path-umount
       run: |
         cd kernel && patch -p1 < kernelsu.patch
-        curl -LOs https://raw.githubusercontent.com/ebears/KSU_autobuild_kernel_for_oneplus_sm8150/refs/heads/main/path_umount.patch
+        curl -LOs https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/path_umount.patch
         patch -p1 < path_umount.patch
         curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -
         cd ..
@@ -125,6 +125,6 @@ jobs:
 
           ⬇️APK: ☯️[KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next/releases/latest)\
 
-          Built with [Neutron](https://github.com/Neutron-Toolchains) and [GitHub Actions](https://github.com/ebears/KSU_autobuild_kernel_for_oneplus_sm8150/actions)
+          Built with [Neutron](https://github.com/Neutron-Toolchains) and [GitHub Actions](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/actions)
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
