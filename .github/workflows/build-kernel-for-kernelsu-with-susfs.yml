@@ -74,10 +74,9 @@ jobs:
 
     - name: Install dependencies - AOSP Clang
       run: |
-        mkdir -p /toolchains/aosp-clang
+        mkdir -p toolchains/aosp-clang
         cd toolchains/aosp-clang
         git remote add origin https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86
-        git sparse-checkout init
         git sparse-checkout set clang-${{ env.CLANG_VERSION }}
         git fetch --depth=1 origin master
         git checkout main
