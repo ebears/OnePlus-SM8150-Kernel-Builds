@@ -74,12 +74,13 @@ jobs:
 
     - name: Install dependencies - AOSP Clang
       run: |
-        mkdir toolchains
-        cd toolchains
-        wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-${{ env.CLANG_VERSION }}.tar.gz
-        mkdir aosp-clang
-        tar -xf clang-${{ env.CLANG_VERSION }}.tar.gz -C ./aosp-clang
-        cd aosp-clang
+        mkdir -p /toolchains/aosp-clang
+        cd toolchains/aosp-clang
+        git remote add origin https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86
+        git sparse-checkout init
+        git sparse-checkout set clang-${{ env.CLANG_VERSION }}
+        git fetch --depth=1 origin master
+        git checkout main
 
     - name: Clone kernel source
       run: |
@@ -96,7 +97,7 @@ jobs:
       # More info about the path_umount.patch here: https://kernelsu.org/guide/how-to-integrate-for-non-gki.html#how-to-backport-path-umount
       run: |
         cd kernel && patch -p1 < kernelsu.patch
-        curl -LOs https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/path_umount.patch
+        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/path_umount.patch
         patch -p1 < path_umount.patch
         curl -LSs "https://raw.githubusercontent.com/rsuntk/KernelSU/main/kernel/setup.sh" | bash -s main
         cd ..
