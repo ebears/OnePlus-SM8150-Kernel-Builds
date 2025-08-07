@@ -23,7 +23,7 @@ jobs:
       KERNEL_SOURCE_URL: ${{ github.event.inputs.kernel_source_url || 'https://github.com/yaap/kernel_oneplus_sm8150' }}
       KERNEL_BRANCH: ${{ github.event.inputs.kernel_branch || 'sixteen' }}
 
-      OUTPUT_ZIP_NAME: ${{ github.event.inputs.output_name || 'OnePlus-SM8150_YAAP-16_Ksu-Next_neutron' }}
+      OUTPUT_ZIP_NAME: ${{ github.event.inputs.output_name || 'OnePlus-SM8150_YAAP-16_KernelSU_neutron' }}
     steps:
     - name: Set up ccache
       uses: hendrikmuhs/ccache-action@v1
@@ -118,7 +118,7 @@ jobs:
         files: |
           ${{ env.OUTPUT_ZIP_NAME }}-v${{ steps.get_version.outputs.VERSION }}.zip
         name: "#️⃣KernelSU - v${{ steps.get_version.outputs.VERSION }}"
-        tag_name: ${{ steps.get_version.outputs.VERSION }}
+        tag_name: KernelSU
         body: |
           📱**Device:** OnePlus SM8150\
           ⏱️**Target:** Android 16 (YAAP)
