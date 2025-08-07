@@ -10,7 +10,7 @@ Includes weekly releases of the Android kernel with KernelSU, KernelSU Next, and
 ### Versions:
 - #️⃣[KernelSU](https://github.com/rsuntk/KernelSU)
 - ☯️[KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next)
-- 🙀[SukiSU-Ultra](https://github.com/SukiSU-Ultra/SukiSU-Ultra)
+- 😼[SukiSU-Ultra](https://github.com/SukiSU-Ultra/SukiSU-Ultra)
 
 *All versions are for non-GKI kernels since we're working with Linux 4.14 here...*
 
