@@ -46,7 +46,7 @@ jobs:
       # Clang versions here: https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+/refs/heads/main
       CLANG_VERSION: ${{ github.event.inputs.clang_version || 'r547379' }}
 
-      KERNEL_CMDLINE: "ARCH=arm64 CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LTO=thin THINLTO_USE_MLGO=false LLVM=1 LLVM_IAS=1 LD=ld.lld O=out"
+      KERNEL_CMDLINE: "ARCH=arm64 CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- LTO=thin THINLTO_USE_MLGO=false AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM=1 LLVM_IAS=1 LD=ld.lld O=out"
       
       OUTPUT_ZIP_NAME: ${{ github.event.inputs.output_name || 'OnePlus-SM8150_YAAP-16_KernelSU_SusFS' }}
     steps:
@@ -117,10 +117,10 @@ jobs:
         export BRAND_SHOW_FLAG=oneplus
         export TARGET_PRODUCT=msmnile
         cd kernel
-        make $KERNEL_CMDLINE $KERNEL_DEFCONFIG CC="ccache clang"
-        make $KERNEL_CMDLINE scripts CC="ccache clang"
-        make $KERNEL_CMDLINE prepare CC="ccache clang"
-        make $KERNEL_CMDLINE CC="ccache clang" -j$(nproc --all)
+        make $KERNEL_CMDLINE $KERNEL_DEFCONFIG CC="ccache clang-20"
+        make $KERNEL_CMDLINE scripts CC="ccache clang-20"
+        make $KERNEL_CMDLINE prepare CC="ccache clang-20"
+        make $KERNEL_CMDLINE CC="ccache clang-20" -j$(nproc --all)
         cp out/arch/arm64/boot/Image ../AnyKernel3
         cd ..
 
