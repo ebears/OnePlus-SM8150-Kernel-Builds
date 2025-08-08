@@ -1,5 +1,5 @@
 # I learned a lot from: https://github.com/hi4th/kernel_oneplus_sm8150 and https://github.com/midozalouk/android_kernel_oneplus_sm8150
-name: Build KernelSU (v0.9.5) with SusFS
+name: Build KernelSU with SusFS
 on:
   workflow_dispatch:
     inputs:
@@ -27,10 +27,10 @@ on:
         description: 'Name of the output.zip'
         required: true
         default: 'OnePlus-SM8150_YAAP-16_KernelSUv095_SusFS'
-  schedule:
+  # schedule:
     # http://crontab.guru
-    # Runs at 10:00 PM UTC, every Tuesday
-    - cron: '0 22 * * 2'
+    # Runs at 10:20 PM UTC, every Tuesday
+    # - cron: '20 22 * * 2'
 
 jobs:
   build:

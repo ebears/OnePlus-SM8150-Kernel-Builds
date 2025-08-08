@@ -193,5 +193,5 @@ jobs:
           <img src="https://i.imgur.com/nfpAazp.png" alt="amogus" width="45"/>
 
           Includes [SusFS](https://gitlab.com/simonpunk/susfs4ksu) support.\
-          Based on commit [${{ steps.get_version.outputs.VERSION }}](https://github.com/rsuntk/KernelSU/commit/${{ steps.get_version.outputs.VERSION }}).\
+          Based on [KernelSU](https://github.com/tiann/KernelSU/tree/v0.9.5) commit [${{ steps.get_version.outputs.VERSION }}](https://github.com/tiann/KernelSU/commit/${{ steps.get_version.outputs.VERSION }}).\
           Complied with [Clang ${CLANG_VERSION}](https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+/refs/heads/main/clang-${CLANG_COMMIT}/bin) using [GitHub Actions](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/actions).
