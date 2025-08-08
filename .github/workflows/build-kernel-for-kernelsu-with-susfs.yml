@@ -26,7 +26,7 @@ on:
       output_name:
         description: 'Name of the output.zip'
         required: true
-        default: 'OnePlus-SM8150_YAAP-16_KernelSUv095_SusFS'
+        default: 'OnePlus-SM8150_YAAP-16_KernelSU_SusFS'
   # schedule:
     # http://crontab.guru
     # Runs at 10:20 PM UTC, every Tuesday
@@ -54,7 +54,7 @@ jobs:
 
       KERNEL_CMDLINE: "CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM=1 LLVM_IAS=1 O=out"
       
-      OUTPUT_ZIP_NAME: ${{ github.event.inputs.output_name || 'OnePlus-SM8150_YAAP-16_KernelSUv095_SusFS' }}
+      OUTPUT_ZIP_NAME: ${{ github.event.inputs.output_name || 'OnePlus-SM8150_YAAP-16_KernelSU_SusFS' }}
     steps:
     - name: 🛠️Set up ccache
       uses: hendrikmuhs/ccache-action@v1
@@ -181,14 +181,14 @@ jobs:
       with:
         files: |
           ${{ env.OUTPUT_ZIP_NAME }}-${{ steps.get_version.outputs.VERSION }}.zip
-        name: "#️⃣🕵️KernelSU (v0.9.5) with SusFS - ${{ steps.get_version.outputs.VERSION }}"
-        tag_name: KernelSU-v0.9.5-SusFS
+        name: "#️⃣🕵️KernelSU with SusFS - ${{ steps.get_version.outputs.VERSION }}"
+        tag_name: KernelSU-SusFS
         token: ${{ secrets.GITHUB_TOKEN }}
         body: |
           📱**Device:** OnePlus SM8150\
           ⏱️**Target:** Android 16 (YAAP)
 
-          📦APK: [KernelSU (v0.9.5)](https://github.com/tiann/KernelSU/releases/tag/v0.9.5)
+          📦APK: [KernelSU](https://github.com/rsuntk/KernelSU/releases/latest)
           
           <img src="https://i.imgur.com/nfpAazp.png" alt="amogus" width="45"/>
 
