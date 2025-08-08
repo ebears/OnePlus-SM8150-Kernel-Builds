@@ -1217,7 +1217,6 @@ index 4ba20b04..e171e010 100644
 @@ -131,6 +139,83 @@ bool is_zygote(void *sec)
  	return result;
  }
- }
  
 +#ifdef CONFIG_KSU_SUSFS
 +static inline void susfs_set_sid(const char *secctx_name, u32 *out_sid)
@@ -1296,7 +1295,7 @@ index 4ba20b04..e171e010 100644
 +}
 +#endif
 +
- #define DEVPTS_DOMAIN "u:object_r:ksu_file:s0"
+ #define DEVPTS_DOMAIN "u:object_r:devpts:s0"
  
  u32 ksu_get_devpts_sid()
 diff --git a/kernel/selinux/selinux.h b/kernel/selinux/selinux.h
