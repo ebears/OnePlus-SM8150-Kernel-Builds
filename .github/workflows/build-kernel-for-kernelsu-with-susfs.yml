@@ -100,6 +100,7 @@ jobs:
 
     - name: ✍️Manually backport path_umount and apply KernelSU with SusFS
       # More info about the path_umount.patch here: https://kernelsu.org/guide/how-to-integrate-for-non-gki.html#how-to-backport-path-umount
+      continue-on-error: true
       run: |
         cd kernel && patch -p1 < kernelsu.patch
         wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/path_umount.patch
@@ -120,7 +121,24 @@ jobs:
         cd ..
         patch -p1 < 50_add_susfs_in_kernel.patch
         cd ..
+    
+    #
+    #
+    # Error handling for patch application
+    - name: Find .rej files
+      run: |
+        mkdir rej_files
+        find . -name "*.rej" -exec cp {} rej_files/ \;
 
+    - name: Upload .rej files
+      uses: actions/upload-artifact@v4
+      with:
+        name: patch-rejects
+        path: rej_files/
+    # End of error handling
+    #
+    #
+        
     - name: ℹ️Get version
       id: get_version
       run: |
