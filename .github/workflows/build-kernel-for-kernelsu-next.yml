@@ -16,7 +16,7 @@ on:
         required: true
         default: 'gulch_defconfig'
       clang_commit:
-        description: 'Clang version commit to use'
+        description: 'Clang commit to use'
         required: true
         default: 'r547379'
       clang_version:
