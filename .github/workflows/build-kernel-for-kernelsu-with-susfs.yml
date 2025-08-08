@@ -108,6 +108,7 @@ jobs:
         echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
         echo "CONFIG_KSU_SUSFS=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
         echo "KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
+        curl -LSs "https://raw.githubusercontent.com/rsuntk/KernelSU/main/kernel/setup.sh" | bash -s main
         git clone --depth=1 --branch kernel-4.14 https://gitlab.com/simonpunk/susfs4ksu.git susfs4ksu
         cd susfs4ksu
         cp ./kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ../KernelSU/
@@ -118,7 +119,6 @@ jobs:
         patch -p1 < 10_enable_susfs_for_ksu.patch
         cd ..
         patch -p1 < 50_add_susfs_in_kernel.patch
-        curl -LSs "https://raw.githubusercontent.com/rsuntk/KernelSU/main/kernel/setup.sh" | bash -s susfs-legacy
         cd ..
 
     - name: ℹ️Get version
