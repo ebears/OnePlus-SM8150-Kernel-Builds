@@ -2,6 +2,31 @@
 name: Build KernelSU-Next
 on:
   workflow_dispatch:
+    inputs:
+      kernel_source_url:
+        description: 'URL of the kernel source repository'
+        required: true
+        default: 'https://github.com/yaap/kernel_oneplus_sm8150'
+      kernel_branch:
+        description: 'Branch of the kernel source'
+        required: true
+        default: 'sixteen'
+      kernel_defconfig:
+        description: 'defconfig file to use'
+        required: true
+        default: 'gulch_defconfig'
+      clang_commit:
+        description: 'Clang version commit to use'
+        required: true
+        default: 'r547379'
+      clang_version:
+        description: 'Pre-built Clang version'
+        required: true
+        default: '20'
+      output_name:
+        description: 'Name of the output.zip'
+        required: true
+        default: 'OnePlus-SM8150_YAAP-16_KernelSU-Next'
   schedule:
     # http://crontab.guru
     # Runs at 9:20 PM UTC, every Tuesday
@@ -17,46 +42,52 @@ jobs:
       CCACHE_NOHASHDIR: "true"
       CCACHE_MAXSIZE: "2G"
       CCACHE_HARDLINK: "true"
-      
-      KERNEL_DEFCONFIG:  ${{ github.event.inputs.kernel_defconfig || 'gulch_defconfig' }}
-      KERNEL_CMDLINE: "ARCH=arm64 CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM=1 LLVM_IAS=1 LD=ld.lld O=out"
+
       KERNEL_SOURCE_URL: ${{ github.event.inputs.kernel_source_url || 'https://github.com/yaap/kernel_oneplus_sm8150' }}
       KERNEL_BRANCH: ${{ github.event.inputs.kernel_branch || 'sixteen' }}
-
-      OUTPUT_ZIP_NAME: ${{ github.event.inputs.output_name || 'OnePlus-SM8150_YAAP-16_KernelSU-Next_neutron' }}
-    steps:
-    - name: Set up ccache
-      uses: hendrikmuhs/ccache-action@v1
+      KERNEL_DEFCONFIG: ${{ github.event.inputs.kernel_defconfig || 'gulch_defconfig' }}
       
-    - name: Remove unnecessary files
+      # Clang commits here: https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+/refs/heads/main
+      # Clang version found at $CLANG_COMMIT/bin/clang-$CLANG_VERSION
+      CLANG_COMMIT: ${{ github.event.inputs.clang_commit || 'r547379' }}
+      CLANG_VERSION: ${{ github.event.inputs.clang_version || '20' }}
+
+      KERNEL_CMDLINE: "ARCH=arm64 CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM=1 LLVM_IAS=1 LD=ld.lld O=out"
+      
+      OUTPUT_ZIP_NAME: ${{ github.event.inputs.output_name || 'OnePlus-SM8150_YAAP-16_KernelSU-Next' }}
+    steps:
+    - name: 🛠️Set up ccache
+      uses: hendrikmuhs/ccache-action@v1
+
+    - name: ☢️Remove unnecessary files
       run: |
         sudo rm -rf /opt/ghc
         sudo rm -rf "/usr/local/share/boost"
         sudo rm -rf /usr/share/dotnet
         sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-        
-    - name: Install dependencies - Ubuntu APT packages
+
+    - name: ⬇️Install dependencies - Ubuntu APT packages
       run: |
         sudo apt-get update -y 
         sudo apt install gcc-aarch64-linux-gnu -y
         sudo apt install gcc-arm-linux-gnueabi -y
-        sudo apt install clang-19 -y
-        sudo apt install libelf-dev libarchive-tools lld llvm axel binutils make python3 libssl-dev build-essential bc  bison flex unzip libssl-dev ca-certificates xz-utils mkbootimg cpio device-tree-compiler git git-lfs -y
-        
-    - name: Install dependencies - AnyKernel3 (walkonbothsides fork for 'oneplus7' branch)
+        sudo apt install libelf-dev libarchive-tools lld llvm axel binutils make python3 libssl-dev build-essential bc bison flex unzip libssl-dev ca-certificates xz-utils mkbootimg cpio device-tree-compiler git git-lfs -y
+
+    - name: ⬇️Install dependencies - AnyKernel3 (walkonbothsides fork for 'oneplus7' branch)
       run: |
         git clone https://github.com/walkonbothsides/AnyKernel3 -b oneplus7 --depth=1
         rm -rf AnyKernel3/.git
 
-    - name: Install dependencies - Neutron Clang (using AntMan)
+    - name: ⬇️Install dependencies - AOSP Clang
       run: |
-        mkdir -p "./toolchains/neutron-clang"
-        cd "./toolchains/neutron-clang"
-        curl -LO "https://raw.githubusercontent.com/Neutron-Toolchains/antman/main/antman"
-        chmod +x antman
-        ./antman --sync=latest
-        
-    - name: Clone kernel source
+        mkdir toolchains
+        cd toolchains
+        git clone --filter=blob:none --sparse -b main https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 aosp-clang
+        cd aosp-clang
+        git sparse-checkout set clang-${{ env.CLANG_COMMIT }}
+        cd clang-${{ env.CLANG_COMMIT }}
+
+    - name: 📝Clone kernel source
       run: |
         rm -rf kernel
         git clone --depth=1 --branch "${KERNEL_BRANCH}" "${KERNEL_SOURCE_URL}" kernel
@@ -66,65 +97,66 @@ jobs:
       env:
         KERNEL_SOURCE_URL: ${{ env.KERNEL_SOURCE_URL }}
         KERNEL_BRANCH: ${{ env.KERNEL_BRANCH }}
-        
-    - name: Manually backport path_umount and apply KernelSU-Next
+
+    - name: ✍️Manually backport path_umount and apply KernelSU-Next
       # More info about the path_umount.patch here: https://kernelsu.org/guide/how-to-integrate-for-non-gki.html#how-to-backport-path-umount
       run: |
         cd kernel && patch -p1 < kernelsu.patch
-        curl -LOs https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/path_umount.patch
+        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/path_umount.patch
         patch -p1 < path_umount.patch
         curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -
         cd ..
-      
-    - name: Get version
+
+    - name: ℹ️Get version
       id: get_version
       run: |
-        cd kernel/KernelSU-Next
+        cd kernel/KernelSU
         git rev-list --count HEAD
-        echo "VERSION=$(expr $(git rev-list --count HEAD) + 10200)" >> $GITHUB_OUTPUT
+        echo "VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
         cd ../../
-        
-    - name: Build kernel
+
+    - name: 🏗️Build kernel
       run: |
-        export PATH=$(pwd)/toolchains/neutron-clang/bin/:$PATH
+        export PATH=$(pwd)/toolchains/aosp-clang/clang-${CLANG_COMMIT}/bin/:$PATH
         export ARCH=arm64
         export SUBARCH=arm64
         export LD=ld.lld
         export BRAND_SHOW_FLAG=oneplus
         export TARGET_PRODUCT=msmnile
         cd kernel
-        make $KERNEL_CMDLINE $KERNEL_DEFCONFIG CC="ccache clang-19"
-        make $KERNEL_CMDLINE scripts CC="ccache clang-19"
-        make $KERNEL_CMDLINE prepare CC="ccache clang-19"
-        make $KERNEL_CMDLINE CC="ccache clang-19" -j$(nproc --all)
+        make $KERNEL_CMDLINE $KERNEL_DEFCONFIG CC="ccache clang-${CLANG_VERSION}"
+        make $KERNEL_CMDLINE scripts CC="ccache clang-${CLANG_VERSION}"
+        make $KERNEL_CMDLINE prepare CC="ccache clang-${CLANG_VERSION}"
+        make $KERNEL_CMDLINE CC="ccache clang-${CLANG_VERSION}" -j$(nproc --all)
         cp out/arch/arm64/boot/Image ../AnyKernel3
         cd ..
-       
-    - name: Create AnyKernel3 zip
+
+    - name: 💾Create AnyKernel3 zip
       run: |
         cd AnyKernel3
-        zip -r ../${{ env.OUTPUT_ZIP_NAME }}-v${{ steps.get_version.outputs.VERSION }}.zip *
+        zip -r ../${{ env.OUTPUT_ZIP_NAME }}-${{ steps.get_version.outputs.VERSION }}.zip *
         cd ..
-       
-    - name: Upload zip
+
+    - name: ☁️Upload zip
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ env.OUTPUT_ZIP_NAME }}-v${{ steps.get_version.outputs.VERSION }}
+        name: ${{ env.OUTPUT_ZIP_NAME }}-${{ steps.get_version.outputs.VERSION }}
         path: "AnyKernel3/*"
         
-    - name: Push to releases
+    - name: 📢Push to releases
       uses: softprops/action-gh-release@v2
       with:
         files: |
-          ${{ env.OUTPUT_ZIP_NAME }}-v${{ steps.get_version.outputs.VERSION }}.zip
-        name: "☯️KernelSU-Next - v${{ steps.get_version.outputs.VERSION }}"
-        tag_name: KernelSU-Next
+          ${{ env.OUTPUT_ZIP_NAME }}-${{ steps.get_version.outputs.VERSION }}.zip
+        name: "☯️KernelSU-Next - ${{ steps.get_version.outputs.VERSION }}"
+        tag_name: KernelSU-Next-${{ steps.get_version.outputs.VERSION }}
         body: |
           📱**Device:** OnePlus SM8150\
           ⏱️**Target:** Android 16 (YAAP)
 
-          ⬇️APK: [KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next/releases/latest)
-
-          Built with [Neutron](https://github.com/Neutron-Toolchains) and [GitHub Actions](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/actions)
+          📦APK: [KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next/releases/latest)
+          
+          Based on commit [${{ steps.get_version.outputs.VERSION }}](https://github.com/KernelSU-Next/KernelSU-Next/commit/${{ steps.get_version.outputs.VERSION }})\
+          Built with [Clang ${CLANG_VERSION}](https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+/refs/heads/main/clang-${CLANG_COMMIT}/bin) using [GitHub Actions](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/actions).
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

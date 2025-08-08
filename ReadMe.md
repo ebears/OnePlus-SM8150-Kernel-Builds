@@ -1,6 +1,6 @@
 # OnePlus SM8150 Kernel Builds
 
-**ROM:** [YAAP (Yet another AOSP project)](https://mirror.codebucket.de/yaap/)\
+**ROM:** [YAAP (Yet another AOSP project)](https://mirror.codebucket.de/yaap)\
 **Version:** Android 16\
 **Kernel:** [yaap/kernel_oneplus_sm8150](https://github.com/yaap/kernel_oneplus_sm8150)\
 **Defconfig:** [Gulch](https://github.com/yaap/kernel_oneplus_sm8150/blob/sixteen/arch/arm64/configs/gulch_defconfig)
@@ -9,9 +9,9 @@ Releases are [AnyKernel3](https://github.com/osm0sis/AnyKernel3) ZIPs. Check out
 
 ## Versions
 
-- #️⃣[KernelSU](https://github.com/rsuntk/KernelSU) - Download[⬇️](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/releases/tag/KernelSU)
-- ☯️[KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next) - Download[⬇️](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/releases/tag/KernelSU-Next)
-- 😼[SukiSU-Ultra](https://github.com/SukiSU-Ultra/SukiSU-Ultra) - Download[⬇️](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/releases/tag/SukiSU-Ultra)
+- #️⃣[KernelSU](https://github.com/rsuntk/KernelSU)
+- ☯️[KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next)
+- 😼[SukiSU-Ultra](https://github.com/SukiSU-Ultra/SukiSU-Ultra)
 
 ## Technical Info
 
@@ -31,7 +31,7 @@ This is no doubt a workaround to unofficially flash a kernel. Follow and install
 *I recommend completely uninstalling [Magisk](https://github.com/topjohnwu/Magisk) if it's installed.*
 
 ***If your kernel is NOT rooted:***
-1) On a device capable and connected to USB adb, [download the TWRP IMG file for your model](https://twrp.me/Devices/OnePlus/).
+1) On a device capable and connected to USB adb, [download the TWRP IMG file for your model](https://twrp.me/Devices/OnePlus).
     - Use TWRP version 3.6.2 (YAAP is based on OxygenOS 11)
     - Pick FBEv2 (YAAP uses FBEv2)
     - Example: [twrp-3.6.2_11-0-guacamolev2.img](https://dl.twrp.me/guacamolev2/twrp-3.6.2_11-0-guacamolev2.img.html) is the IMG file for YAAP on OnePlus 7 Pro devices.
@@ -40,17 +40,18 @@ This is no doubt a workaround to unofficially flash a kernel. Follow and install
     - This will temporarily boot TWRP as an alternative recovery.
         - Do not Flash Current TWRP.
     - Default recovery is not possible since the files are unsigned.
-        - [Lineage Recovery](https://download.lineageos.org/devices/guacamole/builds) (boot.img) also probably works in place of TWRP.
+        - ~~[Lineage Recovery](https://download.lineageos.org/devices/guacamole/builds) (boot.img) also probably works in place of TWRP~~
+            - Actually, I am second guessing this since Lineage is based on OOS 12.
 4) From recovery, enter adb sideloading mode.
 5) Flash the kernel (and hope nothing explodes): `adb sideload <path-to-file>\<kernel.zip>`
 
 ***If you already have a rooted kernel:***
-1) Use [capntrips/KernelFlasher](https://github.com/capntrips/KernelFlasher) (or [fatalcoder524/KernelFlasher](https://github.com/fatalcoder524/KernelFlasher/releases)) to install as an AK3 ZIP.
+1) Use [capntrips/KernelFlasher](https://github.com/capntrips/KernelFlasher) (or [fatalcoder524/KernelFlasher](https://github.com/fatalcoder524/KernelFlasher)) to install as an AK3 ZIP.
 
 ## TODO
 
 - [SusFS](https://gitlab.com/simonpunk/susfs4ksu/-/tree/kernel-4.14) support.
-- Pure [APatch](https://github.com/bmax121/APatch)/KPM support ([KernelPatch](https://github.com/bmax121/KernelPatch/)).
+- Pure [APatch](https://github.com/bmax121/APatch)/KPM support ([KernelPatch](https://github.com/bmax121/KernelPatch)).
 
 ---
 
