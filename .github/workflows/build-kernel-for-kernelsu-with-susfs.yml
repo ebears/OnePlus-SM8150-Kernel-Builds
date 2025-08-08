@@ -109,6 +109,8 @@ jobs:
     - name: 🗣️Apply KernelSU with SusFS
       run: |
         cd kernel
+        curl -LSs "https://raw.githubusercontent.com/rsuntk/KernelSU/main/kernel/setup.sh" | bash -s main
+        rm -r ./KernelSU/kernel
         curl -LSs "https://raw.githubusercontent.com/rsuntk/KernelSU/main/kernel/setup.sh" | bash -s susfs-legacy
         echo "CONFIG_KSU=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
         echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
@@ -145,7 +147,7 @@ jobs:
         name: patch-rejects
         path: rej_files/
     #### END OF ERROR HANDLING ####
-    
+
     - name: ℹ️Get KernelSU version
       id: get_version
       run: |

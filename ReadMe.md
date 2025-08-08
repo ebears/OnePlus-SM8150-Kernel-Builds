@@ -55,7 +55,7 @@ This is no doubt a workaround to unofficially flash a kernel. Follow and install
 
 - ~~[SusFS](https://gitlab.com/simonpunk/susfs4ksu/-/tree/kernel-4.14) support.~~
     - Update SusFS to 1.5.5.
-    - SusFS with other kernel root methods.
+    - SusFS with [rsuntk/KernelSU](https://github.com/rsuntk/KernelSU)
 - Pure [APatch](https://github.com/bmax121/APatch)/KPM support ([KernelPatch](https://github.com/bmax121/KernelPatch)).
 
 ---
