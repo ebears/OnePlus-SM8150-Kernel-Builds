@@ -197,6 +197,6 @@ jobs:
           
           Includes [SusFS](https://gitlab.com/simonpunk/susfs4ksu) support.\
           Based on commit [${{ steps.get_version.outputs.VERSION }}](https://github.com/rsuntk/KernelSU/commit/${{ steps.get_version.outputs.VERSION }}).\
-          Built with [Clang ${CLANG_VERSION}](https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+/refs/heads/main/clang-${CLANG_COMMIT}/bin) using [GitHub Actions](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/actions).
+          Complied with [Clang ${CLANG_VERSION}](https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+/refs/heads/main/clang-${CLANG_COMMIT}/bin) using [GitHub Actions](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/actions).
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

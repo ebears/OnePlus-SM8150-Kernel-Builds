@@ -17,21 +17,21 @@ index 2f01b271023d..46d4fbde1682 100644
 --- a/fs/dcache.c
 +++ b/fs/dcache.c
 @@ -2252,6 +2252,12 @@ struct dentry *__d_lookup_rcu(const struct dentry *parent,
- 				continue;
- 			if (dentry_cmp(dentry, str, hashlen_len(hashlen)) != 0)
- 				continue;
+			continue;
+		if (dentry_cmp(dentry, str, hashlen_len(hashlen)) != 0)
+			continue;
 +
 +#ifdef CONFIG_KSU_SUSFS_SUS_PATH
-+			if (dentry->d_inode && unlikely(dentry->d_inode->i_state & 16777216) && likely(current_cred()->user->android_kabi_reserved1 & 16777216)) {
-+				continue;
-+			}
++		if (dentry->d_inode && unlikely(dentry->d_inode->i_state & 16777216) && likely(current_cred()->user->android_kabi_reserved1 & 16777216)) {
++			continue;
++		}
 +#endif
  		}
  		*seqp = seq;
  		return dentry;
 @@ -2334,6 +2334,12 @@ struct dentry *__d_lookup(const struct dentry *parent, const struct qstr *name)
- 		if (dentry->d_name.hash != hash)
- 			continue;
+		if (dentry->d_name.hash != hash)
+			continue;
  
 +#ifdef CONFIG_KSU_SUSFS_SUS_PATH
 +		if (dentry->d_inode && unlikely(dentry->d_inode->i_state & 16777216) && likely(current_cred()->user->android_kabi_reserved1 & 16777216)) {
