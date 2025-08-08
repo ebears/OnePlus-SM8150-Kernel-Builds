@@ -142,14 +142,19 @@ jobs:
       with:
         name: ${{ env.OUTPUT_ZIP_NAME }}-${{ steps.get_version.outputs.VERSION }}
         path: "AnyKernel3/*"
+        retention-days: 7 # on artifacts, not releases
+        overwrite: true
         
     - name: 📢Push to releases
       uses: softprops/action-gh-release@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         files: |
           ${{ env.OUTPUT_ZIP_NAME }}-${{ steps.get_version.outputs.VERSION }}.zip
         name: "☯️KernelSU-Next - ${{ steps.get_version.outputs.VERSION }}"
-        tag_name: KernelSU-Next-${{ steps.get_version.outputs.VERSION }}
+        tag_name: KernelSU-Next
+        token: ${{ secrets.GITHUB_TOKEN }}
         body: |
           📱**Device:** OnePlus SM8150\
           ⏱️**Target:** Android 16 (YAAP)
@@ -158,5 +163,3 @@ jobs:
           
           Based on [KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next) commit [${{ steps.get_version.outputs.VERSION }}](https://github.com/KernelSU-Next/KernelSU-Next/commit/${{ steps.get_version.outputs.VERSION }}).\
           Complied with [Clang ${{ env.CLANG_VERSION }}](https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+/refs/heads/main/clang-${{ env.CLANG_COMMIT }}/bin) using [GitHub Actions](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/actions).
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

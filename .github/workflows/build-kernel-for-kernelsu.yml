@@ -142,6 +142,8 @@ jobs:
       with:
         name: ${{ env.OUTPUT_ZIP_NAME }}-${{ steps.get_version.outputs.VERSION }}
         path: "AnyKernel3/*"
+        retention-days: 7 # on artifacts, not releases
+        overwrite: true
         
     - name: 📢Push to releases
       uses: softprops/action-gh-release@v2
@@ -149,7 +151,7 @@ jobs:
         files: |
           ${{ env.OUTPUT_ZIP_NAME }}-${{ steps.get_version.outputs.VERSION }}.zip
         name: "#️⃣KernelSU - ${{ steps.get_version.outputs.VERSION }}"
-        tag_name: KernelSU-${{ steps.get_version.outputs.VERSION }}
+        tag_name: KernelSU
         body: |
           📱**Device:** OnePlus SM8150\
           ⏱️**Target:** Android 16 (YAAP)
