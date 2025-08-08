@@ -107,6 +107,7 @@ jobs:
         cd ..
 
     - name: 🗣️Apply KernelSU with SusFS
+      continue-on-error: true
       run: |
         cd kernel
         curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s v0.9.5
@@ -121,14 +122,11 @@ jobs:
         echo "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
         echo "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
         echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
-        git clone --depth=1 --branch 1.4.2-kernel-4.14 https://gitlab.com/simonpunk/susfs4ksu.git susfs4ksu
+        git clone --depth=1 --branch kernel-4.14 https://gitlab.com/simonpunk/susfs4ksu.git susfs4ksu
         cd susfs4ksu
         cp ./kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ../KernelSU/
-        cp ./kernel_patches/KernelSU/kernel/sucompat.h ../KernelSU/kernel/
-        cp ./kernel_patches/fs/susfs.c ../fs/
-        cp ./kernel_patches/include/linux/susfs.h ../include/linux/
-        cp ./kernel_patches/fs/sus_su.c ../fs/
-        cp ./kernel_patches/include/linux/sus_su.h ../include/linux/
+        cp ./kernel_patches/fs/* ../fs/
+        cp ./kernel_patches/include/linux/* ../include/linux/
         cd ../KernelSU
         patch -p1 < 10_enable_susfs_for_ksu.patch
         cd ..

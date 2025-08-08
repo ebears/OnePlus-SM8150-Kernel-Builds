@@ -107,6 +107,7 @@ jobs:
         cd ..
 
     - name: 🗣️Apply KernelSU with SusFS
+      continue-on-error: true
       run: |
         cd kernel
         curl -LSs "https://raw.githubusercontent.com/rsuntk/KernelSU/main/kernel/setup.sh" | bash -s main
