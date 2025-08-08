@@ -157,6 +157,6 @@ jobs:
           📦APK: [KernelSU](https://github.com/rsuntk/KernelSU/releases/latest)
           
           Based on commit [${{ steps.get_version.outputs.VERSION }}](https://github.com/rsuntk/KernelSU/commit/${{ steps.get_version.outputs.VERSION }})\
-          Built with [Clang ${CLANG_VERSION}](https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+/refs/heads/main/clang-${CLANG_COMMIT}/bin) using [GitHub Actions](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/actions).
+          Built with [Clang ${{ env.CLANG_VERSION }}](https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+/refs/heads/main/clang-${{ env.CLANG_COMMIT }}/bin) using [GitHub Actions](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/actions).
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
