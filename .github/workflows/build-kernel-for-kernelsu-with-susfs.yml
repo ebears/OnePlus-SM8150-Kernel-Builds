@@ -133,6 +133,19 @@ jobs:
         patch -p1 < 50_add_susfs_in_kernel-4.14.patch
         cd ..
 
+    #### ERROR HANDLING ####
+    - name: 🛠️Check for patch errors
+      run: |
+        mkdir rej_files
+        find . -name "*.rej" -exec cp {} rej_files/ \;
+
+    - name: 📤Upload patch rejects
+      uses: actions/upload-artifact@v4
+      with:
+        name: patch-rejects
+        path: rej_files/
+    #### END OF ERROR HANDLING ####
+    
     - name: ℹ️Get KernelSU version
       id: get_version
       run: |
