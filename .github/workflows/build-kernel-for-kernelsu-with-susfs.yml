@@ -112,11 +112,11 @@ jobs:
         curl -LSs "https://raw.githubusercontent.com/rsuntk/KernelSU/main/kernel/setup.sh" | bash -s susfs-legacy
         git clone --depth=1 --branch kernel-4.14 https://gitlab.com/simonpunk/susfs4ksu.git susfs4ksu
         cd susfs4ksu
-        cp ./kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ../KernelSU/
         cp ./kernel_patches/50_add_susfs_in_kernel-4.14.patch ../
         cp ./kernel_patches/fs/* ../fs/
         cp ./kernel_patches/include/linux/* ../include/linux/
         cd ../KernelSU
+        wget https://raw.githubusercontent.com/ayuschatterjee/android_kernel_oneplus_sm8150/refs/heads/main/10_enable_susfs_for_ksu.patch
         patch -p1 < 10_enable_susfs_for_ksu.patch
         cd ..
         patch -p1 < 50_add_susfs_in_kernel.patch
