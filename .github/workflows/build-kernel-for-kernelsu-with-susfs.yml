@@ -79,6 +79,7 @@ jobs:
         git clone --filter=blob:none --sparse -b main https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 aosp-clang
         cd aosp-clang
         git sparse-checkout set clang-${{ env.CLANG_VERSION }}
+        cd clang-${{ env.CLANG_VERSION }}
 
     - name: Clone kernel source
       run: |
@@ -110,7 +111,7 @@ jobs:
 
     - name: Build kernel
       run: |
-        export PATH=$(pwd)/toolchains/aosp-clang/bin/:$PATH
+        export PATH=$(pwd)/toolchains/aosp-clang/clang-${CLANG_VERSION}/bin/:$PATH
         export ARCH=arm64
         export SUBARCH=arm64
         export LD=ld.lld
