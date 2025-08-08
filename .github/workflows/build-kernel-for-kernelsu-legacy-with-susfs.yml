@@ -120,12 +120,12 @@ jobs:
         git clone --depth=1 --branch 1.4.2-kernel-4.14 https://gitlab.com/simonpunk/susfs4ksu.git susfs4ksu
         cd susfs4ksu
         cp kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ../KernelSU/
-        cp kernel_patches/50_add_susfs_in_kernel-4.14.patch ../
         cp kernel_patches/fs/* ../fs/
         cp kernel_patches/include/linux/* ../include/linux/
         cd ../KernelSU
         patch -p1 < 10_enable_susfs_for_ksu.patch
         cd ..
+        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/50_add_susfs_in_kernel-4.14.patch
         patch -p1 < 50_add_susfs_in_kernel-4.14.patch
         cd ..
     
