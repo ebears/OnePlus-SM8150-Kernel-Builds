@@ -22,7 +22,7 @@ on:
       clang_version:
         description: 'Pre-built Clang version'
         required: true
-        default: 'r547379'
+        default: '20'
       output_name:
         description: 'Name of the output.zip'
         required: false
