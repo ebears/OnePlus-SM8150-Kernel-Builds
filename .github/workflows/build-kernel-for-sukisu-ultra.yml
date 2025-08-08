@@ -147,6 +147,8 @@ jobs:
         
     - name: 📢Push to releases
       uses: softprops/action-gh-release@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         files: |
           ${{ env.OUTPUT_ZIP_NAME }}-${{ steps.get_version.outputs.VERSION }}.zip
@@ -160,5 +162,3 @@ jobs:
           
           Based on [SukiSU-Ultra](https://github.com/SukiSU-Ultra/SukiSU-Ultra) commit [${{ steps.get_version.outputs.VERSION }}](https://github.com/SukiSU-Ultra/SukiSU-Ultra/commit/${{ steps.get_version.outputs.VERSION }}).\
           Complied with [Clang ${{ env.CLANG_VERSION }}](https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+/refs/heads/main/clang-${{ env.CLANG_COMMIT }}/bin) using [GitHub Actions](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/actions).
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
