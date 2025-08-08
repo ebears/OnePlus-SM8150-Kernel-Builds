@@ -110,7 +110,7 @@ jobs:
     - name: ℹ️Get version
       id: get_version
       run: |
-        cd kernel/KernelSU
+        cd kernel/KernelSU-Next
         git rev-list --count HEAD
         echo "VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
         cd ../../
