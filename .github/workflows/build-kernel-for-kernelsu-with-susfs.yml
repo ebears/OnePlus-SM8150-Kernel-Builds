@@ -29,8 +29,8 @@ on:
         default: 'OnePlus-SM8150_YAAP-16_KernelSU_SusFS'
   schedule:
     # http://crontab.guru
-    # Runs at 9:00 PM UTC, every Tuesday
-    - cron: '0 21 * * 2'
+    # Runs at 10:00 PM UTC, every Tuesday
+    - cron: '0 22 * * 2'
 
 jobs:
   build:
@@ -106,8 +106,18 @@ jobs:
         patch -p1 < path_umount.patch
         echo "CONFIG_KSU=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
         echo "CONFIG_KSU_SUSFS=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
+        echo "KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
         curl -LSs "https://raw.githubusercontent.com/rsuntk/KernelSU/main/kernel/setup.sh" | bash -s susfs-legacy
+        git clone --depth=1 --branch kernel-4.14 https://gitlab.com/simonpunk/susfs4ksu.git susfs4ksu
+        cd susfs4ksu
+        cp ./kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ../KernelSU/
+        cp ./kernel_patches/50_add_susfs_in_kernel-4.14.patch ../
+        cp ./kernel_patches/fs/* ../fs/
+        cp ./kernel_patches/include/linux/* ../include/linux/
+        cd ../KernelSU
+        patch -p1 < 10_enable_susfs_for_ksu.patch
         cd ..
+        patch -p1 < 50_add_susfs_in_kernel.patch
 
     - name: ℹ️Get version
       id: get_version
