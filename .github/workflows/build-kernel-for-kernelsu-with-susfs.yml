@@ -126,10 +126,10 @@ jobs:
         echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
         git clone --depth=1 --branch kernel-4.19 https://gitlab.com/simonpunk/susfs4ksu.git susfs4ksu
         cd susfs4ksu
-        cp ./kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ../KernelSU/
         cp ./kernel_patches/fs/* ../fs/
         cp ./kernel_patches/include/linux/* ../include/linux/
         cd ../KernelSU
+        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/10_enable_susfs_for_ksu.patch
         patch -p1 < 10_enable_susfs_for_ksu.patch
         cd ..
         wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/50_add_susfs_in_kernel-4.14.patch
