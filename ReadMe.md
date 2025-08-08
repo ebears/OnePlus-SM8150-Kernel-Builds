@@ -5,13 +5,15 @@
 **Kernel:** [yaap/kernel_oneplus_sm8150](https://github.com/yaap/kernel_oneplus_sm8150)\
 **Defconfig:** [Gulch](https://github.com/yaap/kernel_oneplus_sm8150/blob/sixteen/arch/arm64/configs/gulch_defconfig)
 
-Releases are [AnyKernel3](https://github.com/osm0sis/AnyKernel3) ZIPs. Check out the [Actions](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/actions) and [workflow files](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/tree/main/.github/workflows) for details.
+Releases are [AnyKernel3](https://github.com/osm0sis/AnyKernel3) ZIPs. Check out the [actions](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/actions) and [workflow files](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/tree/main/.github/workflows) for details.
 
 ## Versions
 
 - #️⃣[KernelSU](https://github.com/rsuntk/KernelSU)
 - ☯️[KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next)
 - 😼[SukiSU-Ultra](https://github.com/SukiSU-Ultra/SukiSU-Ultra)
+
+Kernel downloads are found under [releases](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/releases).
 
 ## Technical Info
 

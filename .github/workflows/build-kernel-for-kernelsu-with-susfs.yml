@@ -52,7 +52,7 @@ jobs:
       CLANG_COMMIT: ${{ github.event.inputs.clang_commit || 'r547379' }}
       CLANG_VERSION: ${{ github.event.inputs.clang_version || '20' }}
 
-      KERNEL_CMDLINE: "ARCH=arm64 CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM=1 LLVM_IAS=1 LD=ld.lld O=out"
+      KERNEL_CMDLINE: "CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM=1 LLVM_IAS=1 O=out"
       
       OUTPUT_ZIP_NAME: ${{ github.event.inputs.output_name || 'OnePlus-SM8150_YAAP-16_KernelSU_SusFS' }}
     steps:
@@ -170,7 +170,8 @@ jobs:
 
           📦APK: [KernelSU](https://github.com/rsuntk/KernelSU/releases/latest)
           
-          Based on commit [${{ steps.get_version.outputs.VERSION }}](https://github.com/rsuntk/KernelSU/commit/${{ steps.get_version.outputs.VERSION }})\
+          Includes [SusFS](https://gitlab.com/simonpunk/susfs4ksu) support.\
+          Based on commit [${{ steps.get_version.outputs.VERSION }}](https://github.com/rsuntk/KernelSU/commit/${{ steps.get_version.outputs.VERSION }}).\
           Built with [Clang ${CLANG_VERSION}](https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+/refs/heads/main/clang-${CLANG_COMMIT}/bin) using [GitHub Actions](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/actions).
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
