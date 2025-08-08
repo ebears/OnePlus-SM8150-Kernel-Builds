@@ -1206,8 +1206,8 @@ index 4ba20b04..e171e010 100644
  	char *domain;
  	u32 seclen;
 @@ -113,7 +121,7 @@ bool is_ksu_domain()
-	return result;
-}
+ 	return result;
+ }
  
 -bool is_zygote(void *sec)
 +bool ksu_is_zygote(void *sec)
@@ -1215,8 +1215,9 @@ index 4ba20b04..e171e010 100644
  	struct task_security_struct *tsec = (struct task_security_struct *)sec;
  	if (!tsec) {
 @@ -131,6 +139,83 @@ bool is_zygote(void *sec)
-	return result;
-}
+ 	return result;
+ }
+ }
  
 +#ifdef CONFIG_KSU_SUSFS
 +static inline void susfs_set_sid(const char *secctx_name, u32 *out_sid)
