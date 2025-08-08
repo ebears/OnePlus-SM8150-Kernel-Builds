@@ -125,7 +125,7 @@ jobs:
         echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=n" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
         git clone --depth=1 --branch kernel-4.14 https://gitlab.com/simonpunk/susfs4ksu.git susfs4ksu
         cd susfs4ksu
-        cp ./kernel_patches/50_add_susfs_in_kernel-4.14.patch ../
+        cp ./kernel_patches/50_add_susfs_in_kernel-4.14.patch ..
         cp ./kernel_patches/fs/* ../fs/
         cp ./kernel_patches/include/linux/* ../include/linux/
         cd ../KernelSU
