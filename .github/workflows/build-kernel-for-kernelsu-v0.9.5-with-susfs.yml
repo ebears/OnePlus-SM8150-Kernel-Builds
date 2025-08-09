@@ -171,16 +171,25 @@ jobs:
         cp out/arch/arm64/boot/Image ../AnyKernel3
         cd ..
 
+    - name: 🐕Get custom repo version
+      id: get_repo_version
+      run: |
+        DAY=$(date +%d)
+        MONTH=$(date +%m)
+        SUM=$((DAY + MONTH))
+        COMMIT_COUNT=$(git rev-list --count HEAD)
+        echo "GENERATED_VERSION=${PRODUCT}${COMMIT_COUNT}" >> $GITHUB_OUTPUT
+
     - name: 💾Create AnyKernel3 zip
       run: |
         cd AnyKernel3
-        zip -r ../${{ env.OUTPUT_ZIP_NAME }}-${{ steps.get_version.outputs.VERSION }}.zip *
+        zip -r ../${{ env.OUTPUT_ZIP_NAME }}-${{ steps.get_repo_version.outputs.GENERATED_VERSION }}.zip *
         cd ..
 
     - name: ☁️Upload zip
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ env.OUTPUT_ZIP_NAME }}-${{ steps.get_version.outputs.VERSION }}
+        name: ${{ env.OUTPUT_ZIP_NAME }}-${{ steps.get_repo_version.outputs.GENERATED_VERSION }}
         path: "AnyKernel3/*"
         retention-days: 7 # on artifacts, not releases
         overwrite: true
@@ -191,9 +200,9 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         files: |
-          ${{ env.OUTPUT_ZIP_NAME }}-${{ steps.get_version.outputs.VERSION }}.zip
-        name: "#️⃣🕵️KernelSU (v0.9.5) with SusFS - ${{ steps.get_version.outputs.VERSION }}"
-        tag_name: KernelSU-v0.9.5-SusFS
+          ${{ env.OUTPUT_ZIP_NAME }}-${{ steps.get_repo_version.outputs.GENERATED_VERSION }}.zip
+        name: "🕰️KernelSU (v0.9.5) with 🕵️SusFS - ${{ steps.get_repo_version.outputs.GENERATED_VERSION }}"
+        tag_name: KernelSU-v0.9.5-SusFS-${{ steps.get_repo_version.outputs.GENERATED_VERSION }}
         token: ${{ secrets.GITHUB_TOKEN }}
         body: |
           📱**Device:** OnePlus SM8150\
