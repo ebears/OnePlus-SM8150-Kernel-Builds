@@ -1,5 +1,5 @@
 # I learned a lot from: https://github.com/hi4th/kernel_oneplus_sm8150 and https://github.com/midozalouk/android_kernel_oneplus_sm8150
-name: Build KernelSU (v0.9.5) with SusFS
+name: Build KernelSU-Next with SusFS
 on:
   workflow_dispatch:
     inputs:
@@ -26,11 +26,11 @@ on:
       output_name:
         description: 'Name of the output.zip'
         required: true
-        default: 'OnePlus-SM8150_YAAP-16_KernelSUv095_SusFS'
-  schedule:
+        default: 'OnePlus-SM8150_YAAP-16_KernelSU-Next_SusFS'
+  # schedule:
     # http://crontab.guru
-    # Runs at 10:00 PM UTC, every Tuesday
-    - cron: '0 22 * * 2'
+    # Runs at 10:20 PM UTC, every Tuesday
+    # - cron: '20 22 * * 2'
 
 jobs:
   build:
@@ -54,7 +54,7 @@ jobs:
 
       KERNEL_CMDLINE: "CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM=1 LLVM_IAS=1 O=out"
       
-      OUTPUT_ZIP_NAME: ${{ github.event.inputs.output_name || 'OnePlus-SM8150_YAAP-16_KernelSUv095_SusFS' }}
+      OUTPUT_ZIP_NAME: ${{ github.event.inputs.output_name || 'OnePlus-SM8150_YAAP-16_KernelSU-Next_SusFS' }}
     steps:
     - name: 🛠️Set up ccache
       uses: hendrikmuhs/ccache-action@v1
@@ -106,11 +106,11 @@ jobs:
         patch -p1 < path_umount.patch
         cd ..
 
-    - name: 🗣️Apply KernelSU with SusFS
+    - name: 🗣️Apply KernelSU-Next with SusFS
       continue-on-error: true
       run: |
         cd kernel
-        curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s v0.9.5
+        curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -
         echo "CONFIG_KSU=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
         echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
         echo "CONFIG_KSU_SUSFS=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
@@ -122,13 +122,14 @@ jobs:
         echo "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
         echo "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
         echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
-        git clone --depth=1 --branch kernel-4.14 https://gitlab.com/simonpunk/susfs4ksu.git susfs4ksu
+        echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
+        git clone --depth=1 --branch kernel-4.19 https://gitlab.com/simonpunk/susfs4ksu.git susfs4ksu
         cd susfs4ksu
         cp ./kernel_patches/fs/* ../fs/
         cp ./kernel_patches/include/linux/* ../include/linux/
         cd ../KernelSU
-        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/10_enable_susfs_for_ksu-for-kernelsu-v095.patch
-        patch -p1 < 10_enable_susfs_for_ksu-for-kernelsu-v095.patch
+        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/10_enable_susfs_for_ksu-for-kernelsu-next.patch
+        patch -p1 < 10_enable_susfs_for_ksu-for-kernelsu-next.patch
         cd ..
         wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/50_add_susfs_in_kernel-for-kernel-4.14.patch
         patch -p1 < 50_add_susfs_in_kernel-for-kernel-4.14.patch
@@ -147,7 +148,7 @@ jobs:
         path: rej_files/
     #### END OF ERROR HANDLING ####
 
-    - name: ℹ️Get KernelSU version
+    - name: ℹ️Get KernelSU-Next version
       id: get_version
       run: |
         cd kernel/KernelSU
@@ -205,18 +206,18 @@ jobs:
       with:
         files: |
           ${{ env.OUTPUT_ZIP_NAME }}-${{ steps.get_repo_version.outputs.GENERATED_VERSION }}.zip
-        name: "🕰️KernelSU (v0.9.5) with 🕵️SusFS - ${{ steps.get_repo_version.outputs.GENERATED_VERSION }}"
-        tag_name: KernelSU-v0.9.5-SusFS-${{ steps.get_repo_version.outputs.GENERATED_VERSION }}
+        name: "☯️KernelSU-Next with 🕵️SusFS - ${{ steps.get_repo_version.outputs.GENERATED_VERSION }}"
+        tag_name: KernelSU-Next-SusFS-${{ steps.get_repo_version.outputs.GENERATED_VERSION }}
         token: ${{ secrets.GITHUB_TOKEN }}
         body: |
           📱**Device:** OnePlus SM8150\
           ⏱️**Target:** Android 16 (YAAP)
 
-          📦APK: [KernelSU (v0.9.5)](https://github.com/tiann/KernelSU/releases/tag/v0.9.5)
+          📦APK: [KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next/releases/latest)
           🗃️Module: [susfs4ksu-module](https://github.com/sidex15/susfs4ksu-module)
           
           <img src="https://i.imgur.com/nfpAazp.png" alt="amogus" width="45"/>
 
           Includes [SusFS](https://gitlab.com/simonpunk/susfs4ksu) support.\
-          Based on [KernelSU](https://github.com/tiann/KernelSU/tree/v0.9.5) commit [${{ steps.get_version.outputs.VERSION }}](https://github.com/tiann/KernelSU/commit/${{ steps.get_version.outputs.VERSION }}).\
+          Based on commit [${{ steps.get_version.outputs.VERSION }}](https://github.com/KernelSU-Next/KernelSU-Next/commit/${{ steps.get_version.outputs.VERSION }}).\
           Complied with [Clang ${{ env.CLANG_VERSION }}](https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+/refs/heads/main/clang-${CLANG_COMMIT}/bin) using [GitHub Actions](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/actions).

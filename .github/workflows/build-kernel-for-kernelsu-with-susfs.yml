@@ -98,7 +98,7 @@ jobs:
         KERNEL_SOURCE_URL: ${{ env.KERNEL_SOURCE_URL }}
         KERNEL_BRANCH: ${{ env.KERNEL_BRANCH }}
 
-    - name: ✍️Manually backport path_umount and apply KernelSU
+    - name: ✍️Manually backport path_umount
       # More info about the path_umount.patch here: https://kernelsu.org/guide/how-to-integrate-for-non-gki.html#how-to-backport-path-umount
       run: |
         cd kernel && patch -p1 < kernelsu.patch
@@ -122,10 +122,14 @@ jobs:
         echo "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
         echo "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
         echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
+        echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
         git clone --depth=1 --branch kernel-4.19 https://gitlab.com/simonpunk/susfs4ksu.git susfs4ksu
         cd susfs4ksu
         cp ./kernel_patches/fs/* ../fs/
         cp ./kernel_patches/include/linux/* ../include/linux/
+        cd ../KernelSU
+        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/10_enable_susfs_for_ksu-for-kernelsu.patch
+        patch -p1 < 10_enable_susfs_for_ksu-for-kernelsu.patch
         cd ..
         wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/50_add_susfs_in_kernel-for-kernel-4.14.patch
         patch -p1 < 50_add_susfs_in_kernel-for-kernel-4.14.patch
