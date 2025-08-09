@@ -305,7 +305,6 @@ index ba8b73f2..9af28285 100644
 --- a/kernel/apk_sign.c
 +++ b/kernel/apk_sign.c
 @@ -314,7 +314,12 @@ module_param_cb(ksu_debug_manager_uid, &expected_size_ops,
- 
  #endif
  
 -bool is_manager_apk(char *path)
@@ -316,7 +315,6 @@ index bed501c4..e02aa514 100644
 --- a/kernel/apk_sign.h
 +++ b/kernel/apk_sign.h
 @@ -3,6 +3,6 @@
- 
  #include <linux/types.h>
  
 -bool is_manager_apk(char *path);
