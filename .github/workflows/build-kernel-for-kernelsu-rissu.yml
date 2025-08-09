@@ -1,5 +1,5 @@
 # I learned a lot from: https://github.com/hi4th/kernel_oneplus_sm8150 and https://github.com/midozalouk/android_kernel_oneplus_sm8150
-name: "🏗️Build #️⃣KernelSU"
+name: "🏗️Build #️⃣KernelSU-Rissu"
 on:
   workflow_dispatch:
     inputs:
@@ -26,7 +26,7 @@ on:
       output_name:
         description: 'Name of the output.zip'
         required: true
-        default: 'OnePlus-SM8150_YAAP-16_KernelSU'
+        default: 'OnePlus-SM8150_YAAP-16_KernelSU-Rissu'
   schedule:
     # http://crontab.guru
     # Runs at 9:00 PM UTC, every Tuesday
@@ -54,7 +54,7 @@ jobs:
 
       KERNEL_CMDLINE: "CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM=1 LLVM_IAS=1 O=out"
       
-      OUTPUT_ZIP_NAME: ${{ github.event.inputs.output_name || 'OnePlus-SM8150_YAAP-16_KernelSU' }}
+      OUTPUT_ZIP_NAME: ${{ github.event.inputs.output_name || 'OnePlus-SM8150_YAAP-16_KernelSU-Rissu' }}
     steps:
     - name: 🛠️Set up ccache
       uses: hendrikmuhs/ccache-action@v1
@@ -98,7 +98,7 @@ jobs:
         KERNEL_SOURCE_URL: ${{ env.KERNEL_SOURCE_URL }}
         KERNEL_BRANCH: ${{ env.KERNEL_BRANCH }}
 
-    - name: ✍️Manually backport path_umount and apply KernelSU
+    - name: ✍️Manually backport path_umount and apply KernelSU-Rissu
       # More info about the path_umount.patch here: https://kernelsu.org/guide/how-to-integrate-for-non-gki.html#how-to-backport-path-umount
       run: |
         cd kernel && patch -p1 < kernelsu.patch
@@ -165,14 +165,14 @@ jobs:
       with:
         files: |
           ${{ env.OUTPUT_ZIP_NAME }}-${{ steps.get_repo_version.outputs.GENERATED_VERSION }}.zip
-        name: "#️⃣KernelSU - ${{ steps.get_repo_version.outputs.GENERATED_VERSION }}"
-        tag_name: KernelSU-${{ steps.get_repo_version.outputs.GENERATED_VERSION }}
+        name: "#️⃣KernelSU-Rissu - ${{ steps.get_repo_version.outputs.GENERATED_VERSION }}"
+        tag_name: KernelSU-Rissu-${{ steps.get_repo_version.outputs.GENERATED_VERSION }}
         token: ${{ secrets.GITHUB_TOKEN }}
         body: |
           📱**Device:** OnePlus SM8150\
           ⏱️**Target:** Android 16 (YAAP)
 
-          📦APK: [KernelSU](https://github.com/rsuntk/KernelSU/releases/latest)
+          📦APK: [KernelSU (Rissu Fork)](https://github.com/rsuntk/KernelSU/releases/latest)
           
-          Based on [KernelSU](https://github.com/rsuntk/KernelSU) commit [${{ steps.get_version.outputs.VERSION }}](https://github.com/rsuntk/KernelSU/commit/${{ steps.get_version.outputs.VERSION }}).\
+          Based on [rsuntk/KernelSU](https://github.com/rsuntk/KernelSU) commit [${{ steps.get_version.outputs.VERSION }}](https://github.com/rsuntk/KernelSU/commit/${{ steps.get_version.outputs.VERSION }}).\
           Complied with [Clang ${{ env.CLANG_VERSION }}](https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+/refs/heads/main/clang-${{ env.CLANG_COMMIT }}/bin) using [GitHub Actions](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/actions).
