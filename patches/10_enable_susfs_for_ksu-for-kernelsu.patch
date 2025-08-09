@@ -244,31 +244,31 @@ index 4fbba935..31fd5b2d 100644
  {
 @@ -267,7 +267,7 @@ bool __ksu_is_allow_uid(uid_t uid)
  
-	if (unlikely(uid == 0)) {
-		// already root, but only allow our domain.
+ 	if (unlikely(uid == 0)) {
+ 		// already root, but only allow our domain.
 -		return is_ksu_domain();
 +		return ksu_is_ksu_domain();
-	}
+ 	}
  
-	if (forbid_system_uid(uid)) {
+ 	if (forbid_system_uid(uid)) {
 @@ -352,7 +352,7 @@ bool ksu_get_allow_list(int *array, int *length, bool allow)
-	return true;
+ 	return true;
  }
  
 -void do_save_allow_list(struct work_struct *work)
 +static void do_save_allow_list(struct work_struct *work)
  {
-	u32 magic = FILE_MAGIC;
-	u32 version = FILE_FORMAT_VERSION;
-@@ -392,7 +392,7 @@ exit:
-	filp_close(fp, 0);
+ 	u32 magic = FILE_MAGIC;
+ 	u32 version = FILE_FORMAT_VERSION;
+@@ -394,7 +394,7 @@ exit:
+ 	filp_close(fp, 0);
  }
  
 -void do_load_allow_list(struct work_struct *work)
 +static void do_load_allow_list(struct work_struct *work)
  {
-	loff_t off = 0;
-	ssize_t ret = 0;
+ 	loff_t off = 0;
+ 	ssize_t ret = 0;
 @@ -484,7 +484,7 @@ void ksu_prune_allowlist(bool (*is_uid_valid)(uid_t, char *, void *), void *data
  }
  
@@ -276,7 +276,7 @@ index 4fbba935..31fd5b2d 100644
 -bool persistent_allow_list(void)
 +static bool persistent_allow_list(void)
  {
-	return ksu_queue_work(&ksu_save_work);
+ 	return ksu_queue_work(&ksu_save_work);
  }
 diff --git a/kernel/apk_sign.c b/kernel/apk_sign.c
 index ba8b73f2..9af28285 100644
@@ -288,6 +288,7 @@ index ba8b73f2..9af28285 100644
  
 -bool is_manager_apk(char *path)
 +bool ksu_is_manager_apk(char *path)
+\ No newline at end of file
 diff --git a/kernel/apk_sign.h b/kernel/apk_sign.h
 index bed501c4..e02aa514 100644
 --- a/kernel/apk_sign.h
