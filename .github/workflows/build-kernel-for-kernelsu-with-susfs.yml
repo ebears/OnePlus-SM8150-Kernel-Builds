@@ -110,8 +110,6 @@ jobs:
       continue-on-error: true
       run: |
         cd kernel
-        curl -LSs "https://raw.githubusercontent.com/rsuntk/KernelSU/main/kernel/setup.sh" | bash -s main
-        rm -r ./KernelSU/kernel
         curl -LSs "https://raw.githubusercontent.com/rsuntk/KernelSU/main/kernel/setup.sh" | bash -s susfs-legacy
         echo "CONFIG_KSU=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
         echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
@@ -128,12 +126,9 @@ jobs:
         cd susfs4ksu
         cp ./kernel_patches/fs/* ../fs/
         cp ./kernel_patches/include/linux/* ../include/linux/
-        cd ../KernelSU
-        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/10_enable_susfs_for_ksu-kernel-4.14-branch.patch
-        patch -p1 < 10_enable_susfs_for_ksu-kernel-4.14-branch.patch
         cd ..
-        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/50_add_susfs_in_kernel-4.14-branch.patch
-        patch -p1 < 50_add_susfs_in_kernel-4.14-branch.patch
+        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/50_add_susfs_in_kernel-for-kernel-4.14.patch
+        patch -p1 < 50_add_susfs_in_kernel-for-kernel-4.14.patch
         cd ..
 
     #### ERROR HANDLING ####

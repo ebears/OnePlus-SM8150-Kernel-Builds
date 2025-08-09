@@ -127,11 +127,11 @@ jobs:
         cp ./kernel_patches/fs/* ../fs/
         cp ./kernel_patches/include/linux/* ../include/linux/
         cd ../KernelSU
-        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/10_enable_susfs_for_ksu-kernel-4.14-branch.patch
-        patch -p1 < 10_enable_susfs_for_ksu-kernel-4.14-branch.patch
+        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/10_enable_susfs_for_ksu-for-kernelsu095.patch
+        patch -p1 < 10_enable_susfs_for_ksu-for-kernelsu095.patch
         cd ..
-        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/50_add_susfs_in_kernel-4.14-branch.patch
-        patch -p1 < 50_add_susfs_in_kernel-4.14-branch.patch
+        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/50_add_susfs_in_kernel-for-kernel-4.14.patch
+        patch -p1 < 50_add_susfs_in_kernel-for-kernel-4.14.patch
         cd ..
 
     #### ERROR HANDLING ####
