@@ -98,18 +98,10 @@ jobs:
         KERNEL_SOURCE_URL: ${{ env.KERNEL_SOURCE_URL }}
         KERNEL_BRANCH: ${{ env.KERNEL_BRANCH }}
 
-    - name: 🩹Backport path_umount
-      # More info about the path_umount.patch here: https://kernelsu.org/guide/how-to-integrate-for-non-gki.html#how-to-backport-path-umount
-      run: |
-        cd kernel && patch -p1 < kernelsu.patch
-        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/path_umount.patch
-        patch -p1 < path_umount.patch
-        cd ..
-
     - name: 🗣️Apply KernelSU with SusFS
       continue-on-error: true
       run: |
-        cd kernel
+        cd kernel && patch -p1 < kernelsu.patch
         curl -LSs "https://raw.githubusercontent.com/rsuntk/KernelSU/main/kernel/setup.sh" | bash -s main
         rm -r ./KernelSU/kernel
         curl -LSs "https://raw.githubusercontent.com/rsuntk/KernelSU/main/kernel/setup.sh" | bash -s susfs-legacy
@@ -202,6 +194,7 @@ jobs:
           ⏱️**Target:** Android 16 (YAAP)
 
           📦APK: [KernelSU](https://github.com/rsuntk/KernelSU/releases/latest)
+          🗃️Module: [susfs4ksu-module](https://github.com/sidex15/susfs4ksu-module)
           
           <img src="https://i.imgur.com/nfpAazp.png" alt="amogus" width="45"/>
 
