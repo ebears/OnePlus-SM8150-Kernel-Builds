@@ -143,7 +143,7 @@ diff --git a/kernel/Makefile b/kernel/Makefile
 index 66929756..10cd0f99 100644
 --- a/kernel/Makefile
 +++ b/kernel/Makefile
-@@ -33,14 +33,6 @@ ifeq ($(strip $(CONFIG_KSU_MANUAL_HOOK)),y)
+@@ -37,6 +37,1 @@ ifeq ($(strip $(CONFIG_KSU_MANUAL_HOOK)),y)
  ccflags-y += -DCONFIG_KSU_KPROBES_HOOK
  endif
  
@@ -156,7 +156,7 @@ index 66929756..10cd0f99 100644
 -endif
 -
  # Handle optional backports
-@@ -56,14 +48,84 @@ ifeq ($(shell grep "ssize_t kernel_write" $(srctree)/fs/read_write.c | grep -q "const void" ; echo $$?),0)
+@@ -56,1 +48,9 @@ ifeq ($(shell grep "ssize_t kernel_write" $(srctree)/fs/read_write.c | grep -q "const void" ; echo $$?),0)
  ccflags-y += -DKSU_OPTIONAL_KERNEL_WRITE
  endif
  
@@ -174,7 +174,7 @@ index 66929756..10cd0f99 100644
 +endif
 +
  endif
-@@ -88,14 +100,84 @@ $(info -- Supported KernelSU Manager(s): tiann, rsuntk, 5ec1cff) 
+@@ -88,3 +100,50 @@ $(info -- Supported KernelSU Manager(s): tiann, rsuntk, 5ec1cff) 
  
 -ccflags-y += -Wno-implicit-function-declaration -Wno-strict-prototypes -Wno-int-conversion -Wno-gcc-compat
 -ccflags-y += -Wno-declaration-after-statement -Wno-unused-function
