@@ -288,7 +288,6 @@ index ba8b73f2..9af28285 100644
  
 -bool is_manager_apk(char *path)
 +bool ksu_is_manager_apk(char *path)
-\ No newline at end of file
 diff --git a/kernel/apk_sign.h b/kernel/apk_sign.h
 index bed501c4..e02aa514 100644
 --- a/kernel/apk_sign.h
