@@ -174,7 +174,7 @@ index 66929756..10cd0f99 100644
 +endif
 +
  endif
-@@ -56,14 +48,84 @@ $(info -- Supported KernelSU Manager(s): tiann, rsuntk, 5ec1cff) 
+@@ -88,14 +100,84 @@ $(info -- Supported KernelSU Manager(s): tiann, rsuntk, 5ec1cff) 
  
 -ccflags-y += -Wno-implicit-function-declaration -Wno-strict-prototypes -Wno-int-conversion -Wno-gcc-compat
 -ccflags-y += -Wno-declaration-after-statement -Wno-unused-function
