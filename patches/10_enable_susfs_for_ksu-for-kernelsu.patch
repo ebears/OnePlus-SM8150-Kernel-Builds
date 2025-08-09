@@ -156,9 +156,6 @@ index 66929756..10cd0f99 100644
 -endif
 -
  # Handle optional backports
- ifeq ($(shell grep -q "strncpy_from_user_nofault" $(srctree)/include/linux/uaccess.h; echo $$?),0)
- ccflags-y += -DKSU_OPTIONAL_STRNCPY
- endif
 @@ -55,14 +48,84 @@ ifeq ($(shell grep "ssize_t kernel_write" $(srctree)/fs/read_write.c | grep -q "const void" ; echo $$?),0)
  ccflags-y += -DKSU_OPTIONAL_KERNEL_WRITE
  endif
