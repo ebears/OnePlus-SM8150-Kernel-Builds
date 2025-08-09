@@ -1,5 +1,5 @@
 # I learned a lot from: https://github.com/hi4th/kernel_oneplus_sm8150 and https://github.com/midozalouk/android_kernel_oneplus_sm8150
-name: 🚧Build KernelSU with SusFS
+name: ✅Build KernelSU with SusFS
 on:
   workflow_dispatch:
     inputs:
@@ -27,10 +27,10 @@ on:
         description: 'Name of the output.zip'
         required: true
         default: 'OnePlus-SM8150_YAAP-16_KernelSU_SusFS'
-  # schedule:
+  schedule:
     # http://crontab.guru
     # Runs at 10:20 PM UTC, every Tuesday
-    # - cron: '20 22 * * 2'
+    - cron: '20 22 * * 2'
 
 jobs:
   build:
@@ -127,9 +127,6 @@ jobs:
         cd susfs4ksu
         cp ./kernel_patches/fs/* ../fs/
         cp ./kernel_patches/include/linux/* ../include/linux/
-        cd ../KernelSU
-        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/10_enable_susfs_for_ksu-for-kernelsu.patch
-        patch -p1 < 10_enable_susfs_for_ksu-for-kernelsu.patch
         cd ..
         wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/50_add_susfs_in_kernel-for-kernel-4.14.patch
         patch -p1 < 50_add_susfs_in_kernel-for-kernel-4.14.patch
