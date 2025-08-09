@@ -1,5 +1,5 @@
 # I learned a lot from: https://github.com/hi4th/kernel_oneplus_sm8150 and https://github.com/midozalouk/android_kernel_oneplus_sm8150
-name: Build KernelSU-Next with SusFS
+name: 🚧Build KernelSU-Next with SusFS
 on:
   workflow_dispatch:
     inputs:

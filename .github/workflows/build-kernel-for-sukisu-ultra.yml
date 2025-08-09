@@ -1,5 +1,5 @@
 # I learned a lot from: https://github.com/hi4th/kernel_oneplus_sm8150 and https://github.com/midozalouk/android_kernel_oneplus_sm8150
-name: Build SukiSU-Ultra
+name: ✅Build SukiSU-Ultra
 on:
   workflow_dispatch:
     inputs:
