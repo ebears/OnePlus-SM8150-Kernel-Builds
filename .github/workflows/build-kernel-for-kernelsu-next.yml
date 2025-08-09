@@ -134,11 +134,15 @@ jobs:
     - name: 🐕Get custom repo version
       id: get_repo_version
       run: |
+        git clone https://github.com/ebears/OnePlus-SM8150-Kernel-Builds.git temp-repo
+        cd temp-repo
+        git rev-list --count HEAD
         DAY=$(date +%d)
         MONTH=$(date +%m)
         SUM=$((DAY + MONTH))
         COMMIT_COUNT=$(git rev-list --count HEAD)
         echo "GENERATED_VERSION=${PRODUCT}${COMMIT_COUNT}" >> $GITHUB_OUTPUT
+        cd ..
 
     - name: 💾Create AnyKernel3 zip
       run: |
