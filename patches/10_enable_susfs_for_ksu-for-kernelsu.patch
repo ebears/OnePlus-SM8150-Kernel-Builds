@@ -143,11 +143,7 @@ diff --git a/kernel/Makefile b/kernel/Makefile
 index 66929756..10cd0f99 100644
 --- a/kernel/Makefile
 +++ b/kernel/Makefile
-@@ -37,6 +37,1 @@ ifeq ($(strip $(CONFIG_KSU_MANUAL_HOOK)),y)
- ccflags-y += -DCONFIG_KSU_KPROBES_HOOK
- endif
- 
- # SELinux drivers check
+@@ -41,6 +41,0 @@ # SELinux drivers check
 -ifeq ($(shell grep -q "current_sid(void)" $(srctree)/security/selinux/include/objsec.h; echo $$?),0)
 -ccflags-y += -DKSU_COMPAT_HAS_CURRENT_SID
 -endif
