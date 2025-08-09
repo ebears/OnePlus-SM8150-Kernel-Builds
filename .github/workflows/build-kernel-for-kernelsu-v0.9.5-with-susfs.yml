@@ -98,10 +98,18 @@ jobs:
         KERNEL_SOURCE_URL: ${{ env.KERNEL_SOURCE_URL }}
         KERNEL_BRANCH: ${{ env.KERNEL_BRANCH }}
 
+    - name: ✍️Manually backport path_umount and apply KernelSU
+      # More info about the path_umount.patch here: https://kernelsu.org/guide/how-to-integrate-for-non-gki.html#how-to-backport-path-umount
+      run: |
+        cd kernel && patch -p1 < kernelsu.patch
+        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/path_umount.patch
+        patch -p1 < path_umount.patch
+        cd ..
+
     - name: 🗣️Apply KernelSU with SusFS
       continue-on-error: true
       run: |
-        cd kernel && patch -p1 < kernelsu.patch
+        cd kernel
         curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s v0.9.5
         echo "CONFIG_KSU=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
         echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}

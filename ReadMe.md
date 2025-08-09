@@ -12,7 +12,7 @@ Releases are [AnyKernel3](https://github.com/osm0sis/AnyKernel3) ZIPs. Check out
 - #️⃣[KernelSU](https://github.com/rsuntk/KernelSU)
 - ☯️[KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next)
 - 😼[SukiSU-Ultra](https://github.com/SukiSU-Ultra/SukiSU-Ultra)
-- #️⃣[KernelSU (v0.9.5)](https://github.com/rsuntk/KernelSU) with 🕵️‍♀️[SusFS 1.4.2](https://gitlab.com/simonpunk/susfs4ksu/-/tree/1.4.2-kernel-4.14)
+- #️⃣[KernelSU (v0.9.5)](https://github.com/rsuntk/KernelSU) with 🕵️‍♀️[SusFS 1.5.5](https://gitlab.com/simonpunk/susfs4ksu/-/tree/1.4.2-kernel-4.14)
 
 Kernel downloads are found under [releases](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/releases).
 
@@ -54,7 +54,7 @@ This is no doubt a workaround to unofficially flash a kernel. Follow and install
 ## TODO
 
 - ~~[SusFS](https://gitlab.com/simonpunk/susfs4ksu/-/tree/kernel-4.14) support.~~
-    - Update SusFS to 1.5.5.
+    - ~~Update SusFS to 1.5.5.~~
     - SusFS with [rsuntk/KernelSU](https://github.com/rsuntk/KernelSU)
 - Pure [APatch](https://github.com/bmax121/APatch)/KPM support ([KernelPatch](https://github.com/bmax121/KernelPatch)).
 
