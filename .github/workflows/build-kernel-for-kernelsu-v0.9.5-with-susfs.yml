@@ -29,8 +29,8 @@ on:
         default: 'OnePlus-SM8150_YAAP-16_KernelSUv095_SusFS'
   schedule:
     # http://crontab.guru
-    # Runs at 10:00 PM UTC, every Tuesday
-    - cron: '0 22 * * 2'
+    # Runs at 11:00 PM UTC on the 1st of the month
+    - cron: '0 23 1 * *'
 
 jobs:
   build:
