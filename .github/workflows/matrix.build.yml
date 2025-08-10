@@ -30,6 +30,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    continue-on-error: true # Ensure a release is created even if some builds fail
     strategy:
       fail-fast: false
       matrix:
