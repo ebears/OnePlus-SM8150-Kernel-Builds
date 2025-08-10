@@ -172,7 +172,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.OUTPUT_NAME_SUFFIX }}
-        path: "AnyKernel3/*"
+        path: "OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.OUTPUT_NAME_SUFFIX }}.zip"
         retention-days: 2
 
   release:
