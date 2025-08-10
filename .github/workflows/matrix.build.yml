@@ -1,0 +1,178 @@
+name: "🏗️Build Kernels"
+on:
+  workflow_dispatch:
+    inputs:
+      kernel_source_url:
+        description: 'URL of the kernel source repository'
+        required: true
+        default: 'https://github.com/yaap/kernel_oneplus_sm8150'
+      kernel_branch:
+        description: 'Branch of the kernel source'
+        required: true
+        default: 'sixteen'
+      kernel_defconfig:
+        description: 'defconfig file to use'
+        required: true
+        default: 'gulch_defconfig'
+      clang_commit:
+        description: 'Clang commit to use'
+        required: true
+        default: 'r547379'
+      clang_version:
+        description: 'Pre-built Clang version'
+        required: true
+        default: '20'
+  schedule:
+    # http://crontab.guru
+    # Runs at 9:00 PM UTC, every Tuesday
+    - cron: '0 21 * * 2'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        kernel_variant:
+          - name: "🕰️KernelSU (v0.9.5)"
+            tag: "KernelSU-v0.9.5"
+            setup_script: "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh"
+            setup_arg: "v0.9.5"
+            dir_name: "KernelSU"
+          - name: "😼SukiSU-Ultra"
+            tag: "SukiSU-Ultra"
+            setup_script: "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh"
+            setup_arg: "nongki"
+            dir_name: "KernelSU"
+          - name: "☯️KernelSU-Next"
+            tag: "KernelSU-Next"
+            setup_script: "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh"
+            setup_arg: ""
+            dir_name: "KernelSU-Next"
+          - name: "#️⃣KernelSU-Rissu"
+            tag: "KernelSU-Rissu"
+            setup_script: "https://raw.githubusercontent.com/rsuntk/KernelSU/main/kernel/setup.sh"
+            setup_arg: "main"
+            dir_name: "KernelSU"
+        susfs: [true, false]
+
+    env:
+      CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
+      CCACHE_NOHASHDIR: "true"
+      CCACHE_MAXSIZE: "2G"
+      KERNEL_SOURCE_URL: ${{ github.event.inputs.kernel_source_url }}
+      KERNEL_BRANCH: ${{ github.event.inputs.kernel_branch }}
+      KERNEL_DEFCONFIG: ${{ github.event.inputs.kernel_defconfig }}
+      CLANG_COMMIT: ${{ github.event.inputs.clang_commit }}
+      CLANG_VERSION: ${{ github.event.inputs.clang_version }}
+      KERNEL_CMDLINE: "CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM=1 LLVM_IAS=1 O=out"
+      OUTPUT_NAME_SUFFIX: ${{ matrix.susfs && '_SusFS' || '' }}
+
+    steps:
+    - name: "🗃️Ccache"
+      uses: hendrikmuhs/ccache-action@v1
+
+    - name: "💥Remove unnecessary files and install deps"
+      run: |
+        sudo rm -rf /opt/ghc "/usr/local/share/boost" /usr/share/dotnet "$AGENT_TOOLSDIRECTORY"
+        sudo apt-get update -y
+        sudo apt-get install -y gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi libelf-dev libarchive-tools lld llvm make python3 libssl-dev build-essential bc bison flex unzip xz-utils mkbootimg cpio device-tree-compiler git
+        git clone https://github.com/walkonbothsides/AnyKernel3 -b oneplus7 --depth=1
+        rm -rf AnyKernel3/.git
+        mkdir -p toolchains/aosp-clang
+        cd toolchains/aosp-clang
+        git clone --filter=blob:none --sparse -b main https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 .
+        git sparse-checkout set clang-${{ env.CLANG_COMMIT }}
+
+    - name: "👯‍♀️Clone kernel source"
+      run: |
+        git clone --depth=1 --branch "${KERNEL_BRANCH}" "${KERNEL_SOURCE_URL}" kernel
+        cd kernel && git submodule update --init --recursive
+
+    - name: "🛠️Apply Kernel Variant and Patches"
+      run: |
+        cd kernel
+        patch -p1 < kernelsu.patch
+        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/path_umount.patch
+        patch -p1 < path_umount.patch
+        curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s ${{ matrix.kernel_variant.setup_arg }}
+
+    - name: "🕵️‍♀️Apply SusFS (if enabled)"
+      if: matrix.susfs
+      run: |
+        cd kernel
+        echo "CONFIG_KSU_SUSFS=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
+        # Add other SusFS configurations here
+        git clone --depth=1 --branch kernel-4.14 https://gitlab.com/simonpunk/susfs4ksu.git susfs4ksu
+        cp susfs4ksu/kernel_patches/fs/* fs/
+        cp susfs4ksu/kernel_patches/include/linux/* include/linux/
+        # Apply specific patches for each variant if needed
+        # Example for KernelSU v0.9.5
+        if [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-v0.9.5" ]; then
+          cd ${{ matrix.kernel_variant.dir_name }}
+          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/10_enable_susfs_for_ksu-for-kernelsu-v095.patch
+          patch -p1 < 10_enable_susfs_for_ksu-for-kernelsu-v095.patch
+          cd ..
+        fi
+        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/50_add_susfs_in_kernel-for-kernel-4.14.patch
+        patch -p1 < 50_add_susfs_in_kernel-for-kernel-4.14.patch
+
+    - name: "👷‍♀️Build kernel"
+      run: |
+        export PATH=$(pwd)/toolchains/aosp-clang/clang-${CLANG_COMMIT}/bin/:$PATH
+        export ARCH=arm64 && export SUBARCH=arm64 && export LD=ld.lld
+        cd kernel
+        make $KERNEL_CMDLINE $KERNEL_DEFCONFIG CC="ccache clang-${CLANG_VERSION}"
+        make $KERNEL_CMDLINE -j$(nproc --all) CC="ccache clang-${CLANG_VERSION}"
+        cp out/arch/arm64/boot/Image ../AnyKernel3
+
+    - name: "📦Create AnyKernel3 Zip"
+      run: |
+        cd AnyKernel3
+        zip -r ../OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.OUTPUT_NAME_SUFFIX }}.zip *
+        cd ..
+
+    - name: "🌬️Upload Artifact"
+      uses: actions/upload-artifact@v4
+      with:
+        name: OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.OUTPUT_NAME_SUFFIX }}.zip
+        path: "AnyKernel3/*"
+        retention-days: 2
+
+  release:
+    name: "🍊Aggregate and Release"
+    needs: build # This ensures this job runs only after all 'build' jobs are complete
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required to create a release
+    
+    steps:
+    - name: "💫Download all build artifacts"
+      uses: actions/download-artifact@v4
+      with:
+        path: release-artifacts # All artifacts will be downloaded here
+
+    - name: "🥳Generate Release Body"
+      id: generate_body
+      run: |
+        echo "## Kernel Builds for YAAP on OnePlus SM8150" > release_body.md
+        echo "" >> release_body.md
+        echo "This release contains multiple kernel variants. Download the ZIP file for the kernel you wish to use." >> release_body.md
+        echo "" >> release_body.md
+        echo "### Flashable ZIPs" >> release_body.md
+        find release-artifacts -type f -name "*.zip" | while read -r file; do
+          BASENAME=$(basename "$file")
+          echo "- \`$BASENAME\`" >> release_body.md
+        done
+        echo "body_path=release_body.md" >> $GITHUB_OUTPUT
+
+    - name: "🎉Create Final GitHub Release"
+      uses: softprops/action-gh-release@v2
+      with:
+        name: "Kernel Builds - ${{ github.run_number }}"
+        tag_name: "build-${{ github.run_id }}" # Creates a unique tag for the workflow run
+        prerelease: false
+        body_path: ${{ steps.generate_body.outputs.body_path }}
+        files: release-artifacts/**/*.zip # Uploads all zips from all subdirectories
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
