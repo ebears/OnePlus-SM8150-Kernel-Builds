@@ -202,24 +202,27 @@ jobs:
         SUSFS_FOUND=0
         find release-artifacts -type f -name "*.zip" | while read -r file; do
           BASENAME=$(basename "$file")
-          KERNEL_TAG=$(echo "$BASENAME" | sed -E 's/OnePlus-SM8150_YAAP-16_([^_]+).*/\1/')
+          KERNEL_TAG=$(echo "$BASENAME" | sed -E 's/OnePlus-SM8150_YAAP-16_([^\.]+).*/\1/')
+          COMMON_NAME=""
+          ICON=""
+          APK_LINK=""
           case "$KERNEL_TAG" in
-            "KernelSU-v0.9.5")
+            KernelSU-v0.9.5*)
               ICON="🕰️"
               COMMON_NAME="KernelSU"
               APK_LINK="[APK](https://github.com/tiann/KernelSU/releases/tag/v0.9.5)"
               ;;
-            "SukiSU-Ultra")
+            SukiSU-Ultra*)
               ICON="😼"
               COMMON_NAME="SukiSU-Ultra"
               APK_LINK="[APK](https://github.com/SukiSU-Ultra/SukiSU-Ultra/releases/latest)"
               ;;
-            "KernelSU-Next")
+            KernelSU-Next*)
               ICON="☯️"
               COMMON_NAME="KernelSU-Next"
               APK_LINK="[APK](https://github.com/KernelSU-Next/KernelSU-Next/releases/latest)"
               ;;
-            "KernelSU-Rissu")
+            KernelSU-Rissu*)
               ICON="#️⃣"
               COMMON_NAME="KernelSU-Rissu"
               APK_LINK="[APK](https://github.com/rsuntk/KernelSU/releases/latest)"
@@ -230,10 +233,12 @@ jobs:
               APK_LINK=""
               ;;
           esac
-          echo "- $ICON $COMMON_NAME: \`$BASENAME\` $APK_LINK" >> release_body.md
-          if [[ "$BASENAME" == *SusFS* ]]; then
+          # Add SusFS to common name if present
+          if [[ "$KERNEL_TAG" == *SusFS* ]]; then
+            COMMON_NAME="$COMMON_NAME SusFS"
             SUSFS_FOUND=1
           fi
+          echo "- $ICON $COMMON_NAME: \`$BASENAME\` $APK_LINK" >> release_body.md
         done
         if [ "$SUSFS_FOUND" -eq 1 ]; then
           echo "" >> release_body.md
