@@ -191,21 +191,60 @@ jobs:
     - name: "🥳Generate Release Body"
       id: generate_body
       run: |
-        echo "## Kernel Builds for YAAP on OnePlus SM8150" > release_body.md
+        echo "## YAAP OnePlus SM8150 Kernel Builds v${{ github.run_number }}" > release_body.md
+        echo "" >> release_body.md
+        echo "📱**Device:** OnePlus SM8150" >> release_body.md
+        echo "⏱️**Target:** Android 16 (YAAP)" >> release_body.md
         echo "" >> release_body.md
         echo "This release contains multiple kernel variants. Download the ZIP file for the kernel you wish to use." >> release_body.md
         echo "" >> release_body.md
         echo "### Flashable ZIPs" >> release_body.md
+        SUSFS_FOUND=0
         find release-artifacts -type f -name "*.zip" | while read -r file; do
           BASENAME=$(basename "$file")
-          echo "- \`$BASENAME\`" >> release_body.md
+          KERNEL_TAG=$(echo "$BASENAME" | sed -E 's/OnePlus-SM8150_YAAP-16_([^_]+).*/\1/')
+          case "$KERNEL_TAG" in
+            "KernelSU-v0.9.5")
+              ICON="🕰️"
+              COMMON_NAME="KernelSU"
+              APK_LINK="[APK](https://github.com/tiann/KernelSU/releases/tag/v0.9.5)"
+              ;;
+            "SukiSU-Ultra")
+              ICON="😼"
+              COMMON_NAME="SukiSU-Ultra"
+              APK_LINK="[APK](https://github.com/SukiSU-Ultra/SukiSU-Ultra/releases/latest)"
+              ;;
+            "KernelSU-Next")
+              ICON="☯️"
+              COMMON_NAME="KernelSU-Next"
+              APK_LINK="[APK](https://github.com/KernelSU-Next/KernelSU-Next/releases/latest)"
+              ;;
+            "KernelSU-Rissu")
+              ICON="#️⃣"
+              COMMON_NAME="KernelSU-Rissu"
+              APK_LINK="[APK](https://github.com/rsuntk/KernelSU/releases/latest)"
+              ;;
+            *)
+              ICON="📦"
+              COMMON_NAME="$KERNEL_TAG"
+              APK_LINK=""
+              ;;
+          esac
+          echo "- $ICON $COMMON_NAME: \`$BASENAME\` $APK_LINK" >> release_body.md
+          if [[ "$BASENAME" == *SusFS* ]]; then
+            SUSFS_FOUND=1
+          fi
         done
+        if [ "$SUSFS_FOUND" -eq 1 ]; then
+          echo "" >> release_body.md
+          echo "🗃️SusFS Module: [susfs4ksu-module](https://github.com/sidex15/susfs4ksu-module)" >> release_body.md
+        fi
         echo "body_path=release_body.md" >> $GITHUB_OUTPUT
 
     - name: "🎉Create Final GitHub Release"
       uses: softprops/action-gh-release@v2
       with:
-        name: "Kernel Builds - ${{ github.run_number }}"
+        name: "🎈Kernel Builds v${{ github.run_number }}"
         tag_name: "build-${{ github.run_id }}" # Creates a unique tag for the workflow run
         prerelease: false
         body_path: ${{ steps.generate_body.outputs.body_path }}
