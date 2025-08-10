@@ -56,6 +56,16 @@ jobs:
             dir_name: "KernelSU"
         susfs: [true, false]
 
+        # Exclude combinations that are WIP
+        exclude:
+          - kernel_variant:
+              tag: "KernelSU-Next"
+            susfs: true
+          - kernel_variant:
+              tag: "SukiSU-Ultra"
+            susfs: true
+        # End of exclusions
+
     env:
       CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
       CCACHE_NOHASHDIR: "true"
@@ -113,6 +123,10 @@ jobs:
           wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/10_enable_susfs_for_ksu-for-kernelsu-v095.patch
           patch -p1 < 10_enable_susfs_for_ksu-for-kernelsu-v095.patch
           cd ..
+        elif [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-Rissu" ]; then
+          cd ..
+          curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s susfs-legacy
+          cd kernel
         fi
         wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/50_add_susfs_in_kernel-for-kernel-4.14.patch
         patch -p1 < 50_add_susfs_in_kernel-for-kernel-4.14.patch
