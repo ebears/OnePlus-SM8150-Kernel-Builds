@@ -59,8 +59,8 @@ This is no doubt a workaround to unofficially flash a kernel. Follow and install
     - ~~🕵️‍♀️SusFS with #️⃣[rsuntk/KernelSU](https://github.com/rsuntk/KernelSU).~~
     - 🧐Dare to smash 🕵️‍♀️susfs and ☯️KSU-Next/😼SukiSU-Ultra together.
 - 👽Pure [APatch](https://github.com/bmax121/APatch)/KPM support ([KernelPatch](https://github.com/bmax121/KernelPatch)).
-- 🧹Fix release/tag mess.
-- 🫧Refine workflows.
+- ~~🧹Fix release/tag mess.~~
+- ~~🫧Refine workflows.~~
 
 ---
 

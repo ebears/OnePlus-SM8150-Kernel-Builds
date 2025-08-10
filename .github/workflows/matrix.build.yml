@@ -105,31 +105,52 @@ jobs:
         patch -p1 < kernelsu.patch
         wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/path_umount.patch
         patch -p1 < path_umount.patch
-        curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s ${{ matrix.kernel_variant.setup_arg }}
+        curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s "${{ matrix.kernel_variant.setup_arg }}"
 
     - name: "🕵️‍♀️Apply SusFS (if enabled)"
       if: matrix.susfs
       run: |
         cd kernel
-        echo "CONFIG_KSU_SUSFS=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
-        # Add other SusFS configurations here
         git clone --depth=1 --branch kernel-4.14 https://gitlab.com/simonpunk/susfs4ksu.git susfs4ksu
+        echo "CONFIG_KSU=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
+        echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
+        echo "CONFIG_KSU_SUSFS=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
+        echo "CONFIG_KSU_SUSFS_SUS_PATH=n" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
+        echo "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
+        echo "CONFIG_KSU_SUSFS_SUS_KSTAT=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
+        echo "CONFIG_KSU_SUSFS_SUS_OVERLAYFS=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
+        echo "CONFIG_KSU_SUSFS_TRY_UMOUNT=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
+        echo "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
+        echo "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
+        echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
         cp susfs4ksu/kernel_patches/fs/* fs/
         cp susfs4ksu/kernel_patches/include/linux/* include/linux/
         # Apply specific patches for each variant if needed
         # Example for KernelSU v0.9.5
         if [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-v0.9.5" ]; then
-          cd ${{ matrix.kernel_variant.dir_name }}
+          cd KernelSU
           wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/10_enable_susfs_for_ksu-for-kernelsu-v095.patch
           patch -p1 < 10_enable_susfs_for_ksu-for-kernelsu-v095.patch
           cd ..
         elif [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-Rissu" ]; then
-          cd ..
+          echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
           curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s susfs-legacy
-          cd kernel
         fi
         wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/50_add_susfs_in_kernel-for-kernel-4.14.patch
         patch -p1 < 50_add_susfs_in_kernel-for-kernel-4.14.patch
+
+    - name: ⚠️Check for patch errors
+      if: failure()
+      run: |
+        mkdir rej_files
+        find . -name "*.rej" -exec cp {} rej_files/ \;
+
+    - name: 📤Upload patch rejects
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: patch-rejects
+        path: rej_files/
 
     - name: "👷‍♀️Build kernel"
       run: |
