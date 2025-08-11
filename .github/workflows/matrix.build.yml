@@ -179,18 +179,15 @@ jobs:
         echo "📱**Device:** OnePlus SM8150" >> release.md
         echo "⏱️**Target:** Android 16 (YAAP)" >> release.md
         echo "" >> release.md
-        echo "This release contains multiple kernel variants. Download the ZIP file for the kernel you wish to use." >> release.md
-        echo "" >> release.md
-        echo "### Flashable ZIPs" >> release.md
         SUSFS_FOUND=0
         find release-artifacts -type f -name "*.zip" | while read -r file; do
-          BASENAME=$(basename "$file")
-          KERNEL_TAG=$(echo "$BASENAME" | sed -E 's/OnePlus-SM8150_YAAP-16_([^\.]+).*/\1/')
+          FILE_NAME=$(basename "$file")
+          KERNEL_TAG=$(echo "$FILE_NAME" | sed -E 's/OnePlus-SM8150_YAAP-16_([^\.]+).*/\1/')
           COMMON_NAME=""
           ICON=""
           APK_LINK=""
           case "$KERNEL_TAG" in
-            KernelSU-v0*)
+            KernelSU-v*)
               ICON="🕰️"
               COMMON_NAME="KernelSU"
               APK_LINK="[APK](https://github.com/tiann/KernelSU/releases/tag/v0.9.5)"
@@ -216,15 +213,15 @@ jobs:
               APK_LINK=""
               ;;
           esac
-          if [[ "$KERNEL_TAG" == *SusFS* ]]; then
+          if (( KERNEL_TAG == *SusFS* )); then
             COMMON_NAME="$COMMON_NAME SusFS"
             SUSFS_FOUND=1
           fi
-          echo "- $ICON $COMMON_NAME: \`$BASENAME\` $APK_LINK" >> release.md
+          echo "- $ICON $COMMON_NAME: \`$FILE_NAME\` $APK_LINK" >> release.md
         done
-        if [[ "$SUSFS_FOUND" -eq 1 ]]; then
+        if (( SUSFS_FOUND == 1 )); then
           echo "" >> release.md
-          echo "- 🗃️SusFS Module: [susfs4ksu-module](https://github.com/sidex15/susfs4ksu-module)" >> release.md
+          echo "🗃️SusFS Module: [susfs4ksu-module](https://github.com/sidex15/susfs4ksu-module)" >> release.md
         fi
         echo "body_path=release.md" >> $GITHUB_OUTPUT
     - name: "🎉Create Final GitHub Release"
