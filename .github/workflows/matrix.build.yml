@@ -30,7 +30,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    continue-on-error: true # Ensure a release is created even if some builds fail
+    continue-on-error: true # Ensure the release job runs even if some build jobs fail
     strategy:
       fail-fast: false
       matrix:
@@ -56,8 +56,7 @@ jobs:
             setup_arg: "main"
             dir_name: "KernelSU"
         susfs: [true, false]
-
-        # Exclude combinations that are WIP
+        # Exclude combinations
         exclude:
           - kernel_variant:
               tag: "KernelSU-Next"
@@ -66,7 +65,6 @@ jobs:
               tag: "SukiSU-Ultra"
             susfs: true
         # End of exclusions
-
     env:
       CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
       CCACHE_NOHASHDIR: "true"
@@ -78,11 +76,9 @@ jobs:
       CLANG_VERSION: ${{ github.event.inputs.clang_version }}
       KERNEL_CMDLINE: "CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM=1 LLVM_IAS=1 O=out"
       OUTPUT_NAME_SUFFIX: ${{ matrix.susfs && '_SusFS' || '' }}
-
     steps:
     - name: "🗃️Ccache"
       uses: hendrikmuhs/ccache-action@v1
-
     - name: "💥Remove unnecessary files and install deps"
       run: |
         sudo rm -rf /opt/ghc "/usr/local/share/boost" /usr/share/dotnet "$AGENT_TOOLSDIRECTORY"
@@ -94,20 +90,17 @@ jobs:
         cd toolchains/aosp-clang
         git clone --filter=blob:none --sparse -b main https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 .
         git sparse-checkout set clang-${{ env.CLANG_COMMIT }}
-
     - name: "👯‍♀️Clone kernel source"
       run: |
         git clone --depth=1 --branch "${KERNEL_BRANCH}" "${KERNEL_SOURCE_URL}" kernel
         cd kernel && git submodule update --init --recursive
-
-    - name: "🛠️Apply Kernel Variant and Patches"
+    - name: "🛠️Apply kernel patches"
       run: |
         cd kernel
         patch -p1 < kernelsu.patch
         wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/path_umount.patch
         patch -p1 < path_umount.patch
         curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s "${{ matrix.kernel_variant.setup_arg }}"
-
     - name: "🕵️‍♀️Apply SusFS (if enabled)"
       if: matrix.susfs
       run: |
@@ -126,8 +119,6 @@ jobs:
         echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> ./arch/arm64/configs/${{ env.KERNEL_DEFCONFIG }}
         cp susfs4ksu/kernel_patches/fs/* fs/
         cp susfs4ksu/kernel_patches/include/linux/* include/linux/
-        # Apply specific patches for each variant if needed
-        # Example for KernelSU v0.9.5
         if [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-v0.9.5" ]; then
           cd KernelSU
           wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/10_enable_susfs_for_ksu-for-kernelsu-v095.patch
@@ -139,20 +130,17 @@ jobs:
         fi
         wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/50_add_susfs_in_kernel-for-kernel-4.14.patch
         patch -p1 < 50_add_susfs_in_kernel-for-kernel-4.14.patch
-
     - name: ⚠️Check for patch errors
       if: failure()
       run: |
         mkdir rej_files
         find . -name "*.rej" -exec cp {} rej_files/ \;
-
     - name: 📤Upload patch rejects
       if: failure()
       uses: actions/upload-artifact@v4
       with:
         name: patch-rejects
         path: rej_files/
-
     - name: "👷‍♀️Build kernel"
       run: |
         export PATH=$(pwd)/toolchains/aosp-clang/clang-${CLANG_COMMIT}/bin/:$PATH
@@ -161,44 +149,39 @@ jobs:
         make $KERNEL_CMDLINE $KERNEL_DEFCONFIG CC="ccache clang-${CLANG_VERSION}"
         make $KERNEL_CMDLINE -j$(nproc --all) CC="ccache clang-${CLANG_VERSION}"
         cp out/arch/arm64/boot/Image ../AnyKernel3
-
-    - name: "📦Create AnyKernel3 Zip"
+    - name: "📦Create AnyKernel3 ZIP"
       run: |
         cd AnyKernel3
         zip -r ../OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.OUTPUT_NAME_SUFFIX }}.zip *
         cd ..
-
-    - name: "🌬️Upload Artifact"
+    - name: "🌬️Upload artifact"
       uses: actions/upload-artifact@v4
       with:
         name: OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.OUTPUT_NAME_SUFFIX }}
         path: "OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.OUTPUT_NAME_SUFFIX }}.zip"
         retention-days: 2
-
   release:
-    name: "🍊Aggregate and Release"
-    needs: build # This ensures this job runs only after all 'build' jobs are complete
+    name: "🍊Aggregate and publish"
+    needs: build
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Required to create a release
-    
+      contents: write
     steps:
     - name: "💫Download all build artifacts"
       uses: actions/download-artifact@v5
       with:
-        path: release-artifacts # All artifacts will be downloaded here
-
-    - name: "🥳Generate Release Body"
+        path: release-artifacts
+    - name: "🥳Generate release.md"
       id: generate_body
       run: |
-        echo "## YAAP OnePlus SM8150 Kernel Builds v${{ github.run_number }}" > release_body.md
-        echo "" >> release_body.md
-        echo "📱**Device:** OnePlus SM8150" >> release_body.md
-        echo "⏱️**Target:** Android 16 (YAAP)" >> release_body.md
-        echo "" >> release_body.md
-        echo "This release contains multiple kernel variants. Download the ZIP file for the kernel you wish to use." >> release_body.md
-        echo "" >> release_body.md
-        echo "### Flashable ZIPs" >> release_body.md
+        echo "## YAAP OnePlus SM8150 Kernel Builds v${{ github.run_number }}" > release.md
+        echo "" >> release.md
+        echo "📱**Device:** OnePlus SM8150" >> release.md
+        echo "⏱️**Target:** Android 16 (YAAP)" >> release.md
+        echo "" >> release.md
+        echo "This release contains multiple kernel variants. Download the ZIP file for the kernel you wish to use." >> release.md
+        echo "" >> release.md
+        echo "### Flashable ZIPs" >> release.md
         SUSFS_FOUND=0
         find release-artifacts -type f -name "*.zip" | while read -r file; do
           BASENAME=$(basename "$file")
@@ -207,7 +190,7 @@ jobs:
           ICON=""
           APK_LINK=""
           case "$KERNEL_TAG" in
-            KernelSU-v0.9.5*)
+            KernelSU-v0*)
               ICON="🕰️"
               COMMON_NAME="KernelSU"
               APK_LINK="[APK](https://github.com/tiann/KernelSU/releases/tag/v0.9.5)"
@@ -233,24 +216,22 @@ jobs:
               APK_LINK=""
               ;;
           esac
-          # Add SusFS to common name if present
           if [[ "$KERNEL_TAG" == *SusFS* ]]; then
             COMMON_NAME="$COMMON_NAME SusFS"
             SUSFS_FOUND=1
           fi
-          echo "- $ICON $COMMON_NAME: \`$BASENAME\` $APK_LINK" >> release_body.md
+          echo "- $ICON $COMMON_NAME: \`$BASENAME\` $APK_LINK" >> release.md
         done
-        if [ "$SUSFS_FOUND" -eq 1 ]; then
-          echo "" >> release_body.md
-          echo "🗃️SusFS Module: [susfs4ksu-module](https://github.com/sidex15/susfs4ksu-module)" >> release_body.md
+        if [[ "$SUSFS_FOUND" -eq 1 ]]; then
+          echo "" >> release.md
+          echo "- 🗃️SusFS Module: [susfs4ksu-module](https://github.com/sidex15/susfs4ksu-module)" >> release.md
         fi
-        echo "body_path=release_body.md" >> $GITHUB_OUTPUT
-
+        echo "body_path=release.md" >> $GITHUB_OUTPUT
     - name: "🎉Create Final GitHub Release"
       uses: softprops/action-gh-release@v2
       with:
         name: "🎈Kernel Builds v${{ github.run_number }}"
-        tag_name: "build-${{ github.run_id }}" # Creates a unique tag for the workflow run
+        tag_name: "build-${{ github.run_id }}"
         prerelease: false
         body_path: ${{ steps.generate_body.outputs.body_path }}
         files: release-artifacts/**/*.zip
