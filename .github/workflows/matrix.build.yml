@@ -24,8 +24,8 @@ on:
         default: '20'
   schedule:
     # http://crontab.guru
-    # Runs at 9:00 PM UTC, every Tuesday
-    - cron: '0 21 * * 2'
+    # Runs at 8:00 PM UTC, every Friday
+    - cron: "0 20 * * FRI"
 
 jobs:
   build:
