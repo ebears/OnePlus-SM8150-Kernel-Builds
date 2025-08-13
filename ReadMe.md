@@ -11,7 +11,6 @@ Releases are [AnyKernel3](https://github.com/osm0sis/AnyKernel3) ZIPs. Check out
 
 - #️⃣[KernelSU-Rissu](https://github.com/rsuntk/KernelSU)
     - Including a 🕵️‍♀️[SusFS v1.5.5](https://gitlab.com/simonpunk/susfs4ksu/-/tree/kernel-4.14) version
-    - Also includes the older, upstream 🕰️[v0.9.5](https://github.com/tiann/KernelSU/tree/v0.9.5) with 🕵️‍♀️SusFS (just because, no idea why you'd need this version)
 - ☯️[KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next)
 - 😼[SukiSU-Ultra](https://github.com/SukiSU-Ultra/SukiSU-Ultra)
 
