@@ -1,11 +1,11 @@
 # OnePlus SM8150 Kernel Builds
 
-**🐮ROM:** [YAAP (Yet another AOSP project)](https://mirror.codebucket.de/yaap)\
+**🐮ROM:** [YAAP (Yet another AOSP project)](https://yaaprom.org)\
 **🤟Version:** Android 16\
 **🍿Kernel:** [yaap/kernel_oneplus_sm8150](https://github.com/yaap/kernel_oneplus_sm8150)\
 **⚙️Defconfig:** [Gulch](https://github.com/yaap/kernel_oneplus_sm8150/blob/sixteen/arch/arm64/configs/gulch_defconfig)
 
-Releases are [AnyKernel3](https://github.com/osm0sis/AnyKernel3) ZIPs. Check out the [actions](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/actions) and [workflow files](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/tree/main/.github/workflows) for details.
+Releases are [AnyKernel3](https://github.com/osm0sis/AnyKernel3) ZIPs. Check out the [actions](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/actions) and [workflow file](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/tree/main/.github/workflows) for details.
 
 ## Versions
 
