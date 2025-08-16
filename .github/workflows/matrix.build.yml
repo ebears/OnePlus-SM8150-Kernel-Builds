@@ -22,10 +22,11 @@ on:
         description: 'Clang binary version'
         required: true
         default: '20'
-  schedule:
-    # http://crontab.guru
-    # Runs at 7:00 PM UTC, on the 1st and 15th of every month
-    - cron: "0 19 1,15 * *"
+# NOT COMPATIBLE with workflow_dispatch inputs above.
+#   schedule:
+#     # http://crontab.guru
+#     # Runs at 7:00 PM UTC, on the 1st and 15th of every month
+#     - cron: "0 19 1,15 * *"
 
 jobs:
   build:
