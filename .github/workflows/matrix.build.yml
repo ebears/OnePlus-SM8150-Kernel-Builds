@@ -57,6 +57,9 @@ jobs:
         # Exclude incompatible/WIP combinations
         exclude:
           - kernel_variant:
+              tag: "KernelSU-Next"
+            susfs: true
+          - kernel_variant:
               tag: "SukiSU-Ultra"
             susfs: true
         # END exclusions
