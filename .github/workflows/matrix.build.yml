@@ -57,9 +57,6 @@ jobs:
         # Exclude incompatible/WIP combinations
         exclude:
           - kernel_variant:
-              tag: "KernelSU-Next"
-            susfs: true
-          - kernel_variant:
               tag: "SukiSU-Ultra"
             susfs: true
         # END exclusions
@@ -144,10 +141,11 @@ jobs:
           curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s susfs-legacy
         elif [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-Next" ]; then
           # For KernelSU-Next, we need to apply the SusFS patch
-          cd KernelSU-Next
-          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/10_enable_susfs_for_ksu-next.patch
-          patch -p1 < 10_enable_susfs_for_ksu-next.patch
-          cd ..
+          # cd KernelSU-Next
+          # wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/10_enable_susfs_for_ksu-next.patch
+          # patch -p1 < 10_enable_susfs_for_ksu-next.patch
+          # cd ..
+          curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s next-susfs-a13-5.15-dev
         else
           echo "Unsupported KernelSU variant for SusFS patching: ${{ matrix.kernel_variant.tag }}"
           exit 1
@@ -177,7 +175,7 @@ jobs:
         export PATH=$(pwd)/toolchains/aosp-clang/clang-${{ github.event.inputs.clang_commit }}/bin/:$PATH
         export ARCH=arm64 && export SUBARCH=arm64 && export LD=ld.lld
         cd kernel
-        make $KERNEL_CMDLINE $KERNEL_DEFCONFIG CC="ccache clang-${{ github.event.inputs.clang_version }}"
+        make $KERNEL_CMDLINE ${{ github.event.inputs.kernel_defconfig }} CC="ccache clang-${{ github.event.inputs.clang_version }}"
         make $KERNEL_CMDLINE -j$(nproc --all) CC="ccache clang-${{ github.event.inputs.clang_version }}"
         cp out/arch/arm64/boot/Image ../AnyKernel3
     - name: "📦Create AnyKernel3 ZIP"
