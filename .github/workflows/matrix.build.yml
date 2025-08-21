@@ -57,9 +57,6 @@ jobs:
         # Exclude incompatible/WIP combinations
         exclude:
           - kernel_variant:
-              tag: "KernelSU-Next"
-            susfs: true
-          - kernel_variant:
               tag: "SukiSU-Ultra"
             susfs: true
         # END exclusions
@@ -140,8 +137,17 @@ jobs:
         cp susfs4ksu/kernel_patches/fs/* fs/
         cp susfs4ksu/kernel_patches/include/linux/* include/linux/
         if [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-Rissu" ]; then
-          # We can skip patching SusFS for KernelSU since the Rissu fork already has a compatible branch 
+          # We can skip patching SusFS for KernelSU since the Rissu fork already has a compatible branch
           curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s susfs-legacy
+        elif [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-Next" ]; then
+          # For KernelSU-Next, we need to apply the SusFS patch
+          cd KernelSU
+          wget get https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/10_enable_susfs_for_ksu-next.patch
+          patch -p1 < 10_enable_susfs_for_ksu-next.patch
+          cd ..
+        else
+          echo "Unsupported KernelSU variant for SusFS patching: ${{ matrix.kernel_variant.tag }}"
+          exit 1
         fi
 
         # Download and apply SusFS patches to the kernel source
