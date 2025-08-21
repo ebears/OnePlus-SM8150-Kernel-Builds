@@ -141,12 +141,10 @@ jobs:
           curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s susfs-legacy
         elif [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-Next" ]; then
           # For KernelSU-Next, we need to apply the SusFS patch
-          # EXPERIMENTAL: changing KSU-Next branch to susfs to maybe make patching easier
-          curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s next-susfs-a13-5.15-dev
-          # cd KernelSU-Next
-          # wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/10_enable_susfs_for_ksu-next.patch
-          # patch -p1 < 10_enable_susfs_for_ksu-next.patch
-          # cd ..
+          cd KernelSU-Next
+          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/10_enable_susfs_for_ksu-next.patch
+          patch -p1 < 10_enable_susfs_for_ksu-next.patch
+          cd ..
         else
           echo "Unsupported KernelSU variant for SusFS patching: ${{ matrix.kernel_variant.tag }}"
           exit 1
