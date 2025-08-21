@@ -144,7 +144,7 @@ jobs:
           # EXPERIMENTAL: changing KSU-Next branch to susfs to maybe make patching easier
           curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s next-susfs-a13-5.15-dev
           cd KernelSU-Next
-          wget get https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/10_enable_susfs_for_ksu-next.patch
+          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/10_enable_susfs_for_ksu-next.patch
           patch -p1 < 10_enable_susfs_for_ksu-next.patch
           cd ..
         else
