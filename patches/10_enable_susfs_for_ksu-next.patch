@@ -234,29 +234,6 @@ index 4fbba935..31fd5b2d 100644
  {
  	return ksu_queue_work(&ksu_save_work);
  }
-diff --git a/kernel/apk_sign.c b/kernel/apk_sign.c
-index ba8b73f2..9af28285 100644
---- a/kernel/apk_sign.c
-+++ b/kernel/apk_sign.c
-@@ -365,2 +365,2 @@
- 
- #endif
- 
--bool is_manager_apk(char *path)
-+bool ksu_is_manager_apk(char *path)
-\ No newline at end of file
-diff --git a/kernel/apk_sign.h b/kernel/apk_sign.h
-index bed501c4..e02aa514 100644
---- a/kernel/apk_sign.h
-+++ b/kernel/apk_sign.h
-@@ -3,6 +3,6 @@
- 
- #include <linux/types.h>
- 
--bool is_manager_apk(char *path);
-+bool ksu_is_manager_apk(char *path);
- 
- #endif
 diff --git a/kernel/core_hook.c b/kernel/core_hook.c
 index 9a8e774c..11dd3c39 100644
 --- a/kernel/core_hook.c
@@ -1321,15 +1298,6 @@ diff --git a/kernel/throne_tracker.c b/kernel/throne_tracker.c
 index 725c9103..e7ae295e 100644
 --- a/kernel/throne_tracker.c
 +++ b/kernel/throne_tracker.c
-@@ -182,7 +182,7 @@ FILLDIR_RETURN_TYPE my_actor(struct dir_context *ctx, const char *name,
- 				}
- 			}
- 
--			bool is_manager = is_manager_apk(dirpath);
-+			bool is_manager = ksu_is_manager_apk(dirpath);
- 			pr_info("Found new base.apk at path: %s, is_manager: %d\n",
- 				dirpath, is_manager);
- 			if (is_manager) {
 @@ -278,7 +278,7 @@ static bool is_uid_exist(uid_t uid, char *package, void *data)
  	return exist;
  }
