@@ -238,7 +238,7 @@ diff --git a/kernel/apk_sign.c b/kernel/apk_sign.c
 index ba8b73f2..9af28285 100644
 --- a/kernel/apk_sign.c
 +++ b/kernel/apk_sign.c
-@@ -314,2 +314,2 @@ module_param_cb(ksu_debug_manager_uid, &expected_size_ops,
+@@ -365,2 +365,2 @@
  
  #endif
  
