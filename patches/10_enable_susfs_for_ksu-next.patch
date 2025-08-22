@@ -158,7 +158,7 @@ index 66929756..10cd0f99 100644
  ifeq ($(shell grep -q "strncpy_from_user_nofault" $(srctree)/include/linux/uaccess.h; echo $$?),0)
  ccflags-y += -DKSU_STRNCPY_FROM_USER_NOFAULT
  endif
-@@ -117,3 +117,25 @@
+@@ -120,3 +120,26 @@
  ccflags-y += -Wno-implicit-function-declaration -Wno-strict-prototypes -Wno-int-conversion -Wno-gcc-compat
  ccflags-y += -Wno-declaration-after-statement -Wno-unused-function
  
@@ -184,6 +184,7 @@ index 66929756..10cd0f99 100644
 +$(info -- You have not integrate susfs in your kernel.)
 +$(info -- Read: https://gitlab.com/simonpunk/susfs4ksu)
 +endif
++
  # Keep a new line here!! Because someone may append config
 diff --git a/kernel/allowlist.c b/kernel/allowlist.c
 index 4fbba935..31fd5b2d 100644
