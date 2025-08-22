@@ -158,7 +158,7 @@ index 66929756..10cd0f99 100644
  ifeq ($(shell grep -q "strncpy_from_user_nofault" $(srctree)/include/linux/uaccess.h; echo $$?),0)
  ccflags-y += -DKSU_STRNCPY_FROM_USER_NOFAULT
  endif
-@@ -117,14 +117,84 @@
+@@ -117,1 +117,23 @@
  ccflags-y += -Wno-declaration-after-statement -Wno-unused-function
  
 +ifneq ($(shell grep -Eq "get_cred_rcu" $(srctree)/include/linux/cred.h; echo $$?),0)
