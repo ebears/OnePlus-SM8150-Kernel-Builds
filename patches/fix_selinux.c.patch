@@ -1,6 +1,6 @@
 --- a/kernel/selinux/selinux.c
 +++ b/kernel/selinux/selinux.c
-@@ -60,7 +60,7 @@
+@@ -52,7 +52,7 @@
  }*/
  }
  
@@ -9,7 +9,7 @@
  {
  #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
  #ifdef KSU_COMPAT_USE_SELINUX_STATE
-@@ -71,7 +71,7 @@
+@@ -63,7 +63,7 @@
  #endif
  }
  

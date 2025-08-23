@@ -1,8 +1,6 @@
-diff --git a/kernel/apk_sign.c b/kernel/apk_sign.c
-index c1e803d7..1e8f98e6 100644
 --- a/kernel/apk_sign.c
 +++ b/kernel/apk_sign.c
-@@ -315,7 +315,7 @@ module_param_cb(ksu_debug_manager_uid, &expected_size_ops,
+@@ -315,7 +315,7 @@
  
  #endif
  
@@ -11,7 +9,7 @@ index c1e803d7..1e8f98e6 100644
  {
  	int tries = 0;
  
-@@ -332,6 +332,10 @@ bool is_manager_apk(char *path)
+@@ -332,6 +332,10 @@
  		pr_info("%s: timeout for %s\n", __func__, path);
  		return false;
  	}
