@@ -1,10 +1,7 @@
 --- a/kernel/core_hook.c
 +++ b/kernel/core_hook.c
-@@ -44,20 +44,96 @@
- #include "manager.h"
- #include "selinux/selinux.h"
+@@ -47,17 +47,94 @@
  #include "throne_tracker.h"
--#include "throne_tracker.h"
  #include "kernel_compat.h"
  
 -static bool ksu_module_mounted = false;
@@ -17,7 +14,8 @@
 +	}
 +	return ksu_is_allow_uid(current_uid().val);
 +}
-+
+ 
+-extern int handle_sepolicy(unsigned long arg3, void __user *arg4);
 +extern u32 susfs_zygote_sid;
 +extern bool susfs_is_mnt_devname_ksu(struct path *path);
 +#ifdef CONFIG_KSU_SUSFS_ENABLE_LOG
@@ -46,7 +44,8 @@
 +extern bool susfs_is_sus_su_hooks_enabled __read_mostly;
 +extern bool ksu_devpts_hook;
 +#endif // #ifdef CONFIG_KSU_SUSFS_SUS_SU
-+
+ 
+-static bool ksu_su_compat_enabled = true;
 +static inline void susfs_on_post_fs_data(void) {
 +	struct path path;
 +#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
@@ -86,11 +85,9 @@
 +#endif // #ifdef CONFIG_KSU_SUSFS
 +
 +bool ksu_module_mounted = false;
- 
--extern int handle_sepolicy(unsigned long arg3, void __user *arg4);
++
 +extern int ksu_handle_sepolicy(unsigned long arg3, void __user *arg4);
- 
--static bool ksu_su_compat_enabled = true;
++
 +bool ksu_su_compat_enabled = true
  extern void ksu_sucompat_init();
  extern void ksu_sucompat_exit();
@@ -102,7 +99,7 @@
  		// we are manager, allow!
  		return true;
  	}
-@@ -586,12 +662,43 @@
+@@ -586,12 +663,43 @@
  		return;
  	}
  
@@ -146,7 +143,7 @@
  int ksu_handle_setuid(struct cred *new, const struct cred *old)
  {
  	// this hook is used for umounting overlayfs for some uid, if there isn't any module mounted, just ignore it!
-@@ -644,25 +751,31 @@
+@@ -644,25 +752,31 @@
  		current->pid);
  #endif
  
