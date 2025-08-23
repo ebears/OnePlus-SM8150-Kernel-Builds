@@ -1,5 +1,5 @@
---- core_hook-stupid-original.c	2025-08-22 23:27:11.873105200 -0400
-+++ core_hook-stupid-new.c	2025-08-23 16:19:34.819684325 -0400
+--- a/kernel/apk_sign.c
++++ b/kernel/apk_sign.c
 @@ -44,7 +44,6 @@
  #include "manager.h"
  #include "selinux/selinux.h"

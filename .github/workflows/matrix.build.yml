@@ -149,6 +149,8 @@ jobs:
           # Fixes from: https://github.com/WildKernels/kernel_patches/tree/main/next
           wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/fix_apk_sign.c.patch
           patch -p1 < fix_apk_sign.c.patch
+          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/fix_core_hook-stupid.c.patch
+          patch -p1 < fix_core_hook-stupid.c.patch
           wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/fix_core_hook.c.patch
           patch -p1 < fix_core_hook.c.patch
           wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/fix_ksud.c.patch

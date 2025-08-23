@@ -1,5 +1,5 @@
---- core_hook-original.c	2025-08-22 23:27:11.873105200 -0400
-+++ core_hook-new.c	2025-08-23 16:17:45.224682970 -0400
+--- a/kernel/apk_sign.c
++++ b/kernel/apk_sign.c
 @@ -47,17 +47,94 @@
  #include "throne_tracker.h"
  #include "kernel_compat.h"
