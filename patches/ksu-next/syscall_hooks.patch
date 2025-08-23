@@ -1,5 +1,5 @@
---- ./fs/exec.c	2025-03-09 22:09:25.345432623 -0400
-+++ ./fs/exec.c	2025-03-09 22:17:37.030204419 -0400
+--- a/fs/exec.c
++++ b/fs/exec.c
 @@ -2102,11 +2099,26 @@
  	set_mask_bits(&mm->flags, MMF_DUMPABLE_MASK, value);
  }

@@ -1,10 +1,10 @@
---- ./kernel/apk_sign.c	2025-05-04 23:17:31.686152813 -0400
-+++ ./kernel/apk_sign.c	2025-05-04 23:20:30.307512274 -0400
+--- a/kernel/apk_sign.c
++++ b/kernel/apk_sign.c
 @@ -316,5 +316,10 @@
  
  bool ksu_is_manager_apk(char *path)
  {
--	return check_v2_signature(path, EXPECTED_NEXT_SIZE, EXPECTED_NEXT_HASH);
+-	return check_v2_signature(path, EXPECTED_SIZE, EXPECTED_HASH);
 -}
 \ No newline at end of file
 +	return (check_v2_signature(path, EXPECTED_NEXT_SIZE, EXPECTED_NEXT_HASH)
