@@ -155,8 +155,6 @@ jobs:
           patch -p1 < fix_selinux.c.patch
           wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/ksu-next/fix_sucompat.c.patch
           patch -p1 < fix_sucompat.c.patch
-          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/ksu-next/manager.patch
-          patch -p1 < manager.patch
           wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/ksu-next/next_hooks_4.14.patch
           patch -p1 < next_hooks_4.14.patch
           wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/ksu-next/scope_min_manual_hooks_v1.3.patch
