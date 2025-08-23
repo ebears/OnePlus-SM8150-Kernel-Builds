@@ -1,5 +1,5 @@
---- a/fs/exec.c
-+++ b/fs/exec.c
+--- ./fs/exec.c
++++ ./fs/exec.c
 @@ -2102,11 +2099,26 @@
  	set_mask_bits(&mm->flags, MMF_DUMPABLE_MASK, value);
  }
@@ -38,8 +38,8 @@
  	return compat_do_execve(getname(filename), argv, envp);
  }
  
---- a/fs/open.c	2025-02-25
-+++ b/fs/open.c	2025-02-25
+--- ./fs/open.c	2025-02-25
++++ ./fs/open.c	2025-02-25
 @@ -466,8 +466,16 @@
  	return res;
  }
@@ -57,8 +57,8 @@
  	return do_faccessat(dfd, filename, mode, 0);
  }
  
---- a/fs/read_write.c
-+++ b/fs/read_write.c
+--- ./fs/read_write.c
++++ ./fs/read_write.c
 @@ -628,8 +628,18 @@
  	return ret;
  }
@@ -78,8 +78,8 @@
  	return ksys_read(fd, buf, count);
  }
  
---- a/fs/stat.c	2025-02-25
-+++ b/fs/stat.c	2025-02-25
+--- ./fs/stat.c	2025-02-25
++++ ./fs/stat.c	2025-02-25
 @@ -401,6 +401,10 @@
  	return cp_new_stat(&stat, statbuf);
  }
@@ -111,8 +111,8 @@
  	error = vfs_fstatat(dfd, filename, &stat, flag);
  	if (error)
  		return error;
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
+--- ./drivers/input/input.c
++++ ./drivers/input/input.c
 @@ -446,11 +446,21 @@
   * to 'seed' initial state of a switch or initial position of absolute
   * axis, etc.
@@ -135,8 +135,8 @@
  	if (is_event_supported(type, dev->evbit, EV_MAX)) {
  
  		spin_lock_irqsave(&dev->event_lock, flags);
---- a/drivers/tty/pty.c
-+++ b/drivers/tty/pty.c
+--- ./drivers/tty/pty.c
++++ ./drivers/tty/pty.c
 @@ -702,11 +702,18 @@
   *	This provides our locking for the tty pointer.
   */
