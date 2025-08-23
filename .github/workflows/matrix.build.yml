@@ -142,17 +142,22 @@ jobs:
           # We can skip patching SusFS for KernelSU since the Rissu fork already has a compatible branch
           curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s susfs-legacy
         elif [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-Next" ]; then
-          # EXPERIMENTING
-          curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s next-susfs-a13-5.15-dev
+          # For KernelSU-Next, we need to apply the SusFS patch -- WIP doesn't work right now
           cd KernelSU-Next
-          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/10_enable_susfs_for_ksu-next_small.patch
-          patch -p1 < 10_enable_susfs_for_ksu-next_small.patch
+          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/10_enable_susfs_for_ksu-next.patch
+          patch -p1 < 10_enable_susfs_for_ksu-next.patch
+          # Fixes from: https://github.com/WildKernels/kernel_patches/tree/main/next
+          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/fix_apk_sign.c.patch
+          patch -p1 < fix_apk_sign.c.patch
+          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/fix_core_hook.c.patch
+          patch -p1 < fix_core_hook.c.patch
+          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/fix_ksud.c.patch
+          patch -p1 < fix_ksud.c.patch
+          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/fix_selinux.c.patch
+          patch -p1 < fix_selinux.c.patch
+          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/fix_sucompat.c.patch
+          patch -p1 < fix_sucompat.c.patch
           cd ..
-          # # For KernelSU-Next, we need to apply the SusFS patch -- WIP doesn't work right now
-          # cd KernelSU-Next
-          # wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/10_enable_susfs_for_ksu-next.patch
-          # patch -p1 < 10_enable_susfs_for_ksu-next.patch
-          # cd ..
         else
           echo "Unsupported KernelSU variant for SusFS patching: ${{ matrix.kernel_variant.tag }}"
           exit 1
