@@ -1,6 +1,6 @@
 --- a/kernel/core_hook.c
 +++ b/kernel/core_hook.c
-@@ -47,20 +47,96 @@
+@@ -48,20 +48,96 @@
  #include "manager.h"
  #include "selinux/selinux.h"
  #include "throne_tracker.h"
