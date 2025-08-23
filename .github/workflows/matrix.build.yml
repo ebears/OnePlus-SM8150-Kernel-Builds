@@ -144,7 +144,11 @@ jobs:
         elif [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-Next" ]; then
           # EXPERIMENTING
           curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s next-susfs-a13-5.15-dev
-          # # For KernelSU-Next, we need to apply the SusFS patch
+          cd KernelSU-Next
+          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/10_enable_susfs_for_ksu-next_small.patch
+          patch -p1 < 10_enable_susfs_for_ksu-next_small.patch
+          cd ..
+          # # For KernelSU-Next, we need to apply the SusFS patch -- WIP doesn't work right now
           # cd KernelSU-Next
           # wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/10_enable_susfs_for_ksu-next.patch
           # patch -p1 < 10_enable_susfs_for_ksu-next.patch
