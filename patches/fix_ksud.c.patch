@@ -1,5 +1,5 @@
---- ./kernel/ksud.c	2025-05-22 14:52:56.039963900 -0400
-+++ ./kernel/ksud.c	2025-05-22 14:53:18.150237090 -0400
+--- a/kernel/ksud.c
++++ b/kernel/ksud.c
 @@ -64,6 +64,9 @@
  bool ksu_execveat_hook __read_mostly = true;
  bool ksu_input_hook __read_mostly = true;

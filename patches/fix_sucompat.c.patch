@@ -1,5 +1,5 @@
---- ./kernel/sucompat.c	2025-05-22 14:38:43.251286100 -0400
-+++ ./kernel/sucompat.c	2025-05-22 14:45:17.519249254 -0400
+--- a/kernel/sucompat.c
++++ b/kernel/sucompat.c
 @@ -13,6 +13,9 @@
  #else
  #include <linux/sched.h>
