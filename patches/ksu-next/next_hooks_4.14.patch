@@ -38,8 +38,8 @@
  	return do_execveat_common(AT_FDCWD, filename, argv, envp, 0);
  }
  
---- ./fs/open.c.orig	2025-03-04 17:17:54.681091900 -0500
-+++ ./fs/open.c	2025-03-04 18:31:55.378112407 -0500
+--- a/fs/open.c
++++ b/fs/open.c
 @@ -354,6 +354,11 @@
  	return error;
  }
@@ -63,8 +63,8 @@
  	if (mode & ~S_IRWXO)	/* where's F_OK, X_OK, W_OK, R_OK? */
  		return -EINVAL;
  
---- ./fs/read_write.c.orig	2025-03-04 17:17:54.691068100 -0500
-+++ ./fs/read_write.c	2025-03-04 18:34:52.369169021 -0500
+--- a/fs/read_write.c
++++ b/fs/read_write.c
 @@ -568,6 +568,12 @@
  		file->f_pos = pos;
  }
@@ -89,8 +89,8 @@
  		ret = vfs_read(f.file, buf, count, &pos);
  		if (ret >= 0)
  			file_pos_write(f.file, pos);
---- ./fs/stat.c.orig	2025-03-04 17:17:54.691068100 -0500
-+++ ./fs/stat.c	2025-03-04 18:38:15.118635804 -0500
+--- ./fs/stat.c
++++ ./fs/stat.c
 @@ -354,6 +354,10 @@
  	return cp_new_stat(&stat, statbuf);
  }
@@ -122,8 +122,8 @@
  	error = vfs_fstatat(dfd, filename, &stat, flag);
  	if (error)
  		return error;
---- ./drivers/tty/pty.c.orig	2025-03-04 17:17:54.371828100 -0500
-+++ ./drivers/tty/pty.c	2025-03-04 18:41:55.481709045 -0500
+--- ./drivers/tty/pty.c
++++ ./drivers/tty/pty.c
 @@ -721,11 +721,19 @@
   *	This provides our locking for the tty pointer.
   */
@@ -144,8 +144,8 @@
  	mutex_lock(&devpts_mutex);
  	tty = devpts_get_priv(file->f_path.dentry);
  	mutex_unlock(&devpts_mutex);
---- ./drivers/input/input.c.orig	2025-03-04 17:17:52.925157600 -0500
-+++ ./drivers/input/input.c	2025-03-04 18:39:57.073281472 -0500
+--- ./drivers/input/input.c
++++ ./drivers/input/input.c
 @@ -432,11 +432,21 @@
   * to 'seed' initial state of a switch or initial position of absolute
   * axis, etc.
