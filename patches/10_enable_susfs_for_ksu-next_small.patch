@@ -2,10 +2,11 @@ diff --git a/kernel/Makefile b/kernel/Makefile
 index 66929756..10cd0f99 100644
 --- a/kernel/Makefile
 +++ b/kernel/Makefile
-@@ -127,4 +127,29 @@
- if (!cred)\n\t\t\
- 	return NULL;\n\t\
+@@ -125,6 +125,6 @@
+ 	if (!cred)\n\t\t\
+ 		return NULL;\n\t\
 -if (!atomic_inc_not_zero(&nonconst_cred->usage))\n\t\t\
 +if (!atomic_long_inc_not_zero(&nonconst_cred->usage))\n\t\t\
- 	return NULL;\n\t\
-	validate_creds(cred);\n\t\
+ 		return NULL;\n\t\
+		validate_creds(cred);\n\t\
+ }\n
