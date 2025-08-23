@@ -2,7 +2,7 @@ diff --git a/kernel/Makefile b/kernel/Makefile
 index 66929756..10cd0f99 100644
 --- a/kernel/Makefile
 +++ b/kernel/Makefile
-@@ -125,6 +125,6 @@
+@@ -123,9 +123,9 @@
  {\n\t\
  	struct cred *nonconst_cred = (struct cred *) cred;\n\t\
  	if (!cred)\n\t\t\
