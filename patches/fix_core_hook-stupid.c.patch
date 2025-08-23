@@ -1,0 +1,10 @@
+--- core_hook-stupid-original.c	2025-08-22 23:27:11.873105200 -0400
++++ core_hook-stupid-new.c	2025-08-23 16:19:34.819684325 -0400
+@@ -44,7 +44,6 @@
+ #include "manager.h"
+ #include "selinux/selinux.h"
+ #include "throne_tracker.h"
+-#include "throne_tracker.h"
+ #include "kernel_compat.h"
+ 
+ static bool ksu_module_mounted = false;
