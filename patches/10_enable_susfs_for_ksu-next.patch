@@ -226,14 +226,19 @@ diff --git a/kernel/apk_sign.c b/kernel/apk_sign.c
 index ba8b73f2..9af28285 100644
 --- a/kernel/apk_sign.c
 +++ b/kernel/apk_sign.c
-@@ -314,7 +314,12 @@ module_param_cb(ksu_debug_manager_uid, &expected_size_ops,
+@@ -318,6 +318,6 @@
  
  #endif
  
 -bool is_manager_apk(char *path)
 +bool ksu_is_manager_apk(char *path)
  {
--	return check_v2_signature(path, EXPECTED_SIZE, EXPECTED_HASH);
+ 	int tries = 0;
+@@ -336,5 +336,10 @@
+ 		return false;
+ 	}
+ 
+-	return check_v2_signature(path, EXPECTED_NEXT_SIZE, EXPECTED_NEXT_HASH);
 -}
 \ No newline at end of file
 +	return (check_v2_signature(path, EXPECTED_NEXT_SIZE, EXPECTED_NEXT_HASH)
