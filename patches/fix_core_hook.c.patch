@@ -1,6 +1,6 @@
 --- ./kernel/core_hook.c	2025-05-22 14:38:43.251286100 -0400
 +++ ./kernel/core_hook.c	2025-05-22 15:02:32.003703565 -0400
-@@ -48,24 +48,100 @@
+@@ -48,20 +48,96 @@
  #include "manager.h"
  #include "selinux/selinux.h"
  #include "throne_tracker.h"
