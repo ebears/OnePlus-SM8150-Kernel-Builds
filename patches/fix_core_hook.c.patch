@@ -1,6 +1,10 @@
 --- a/kernel/core_hook.c
 +++ b/kernel/core_hook.c
+<<<<<<< Updated upstream
 @@ -48,20 +48,96 @@
+=======
+@@ -44,20 +44,96 @@
+>>>>>>> Stashed changes
  #include "manager.h"
  #include "selinux/selinux.h"
  #include "throne_tracker.h"
@@ -17,7 +21,8 @@
 +	}
 +	return ksu_is_allow_uid(current_uid().val);
 +}
-+
+ 
+-extern int handle_sepolicy(unsigned long arg3, void __user *arg4);
 +extern u32 susfs_zygote_sid;
 +extern bool susfs_is_mnt_devname_ksu(struct path *path);
 +#ifdef CONFIG_KSU_SUSFS_ENABLE_LOG
@@ -46,7 +51,8 @@
 +extern bool susfs_is_sus_su_hooks_enabled __read_mostly;
 +extern bool ksu_devpts_hook;
 +#endif // #ifdef CONFIG_KSU_SUSFS_SUS_SU
-+
+ 
+-static bool ksu_su_compat_enabled = true;
 +static inline void susfs_on_post_fs_data(void) {
 +	struct path path;
 +#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
@@ -86,12 +92,10 @@
 +#endif // #ifdef CONFIG_KSU_SUSFS
 +
 +bool ksu_module_mounted = false;
- 
--extern int handle_sepolicy(unsigned long arg3, void __user *arg4);
++
 +extern int ksu_handle_sepolicy(unsigned long arg3, void __user *arg4);
- 
--static bool ksu_su_compat_enabled = true;
-+bool ksu_su_compat_enabled = true;
++
++bool ksu_su_compat_enabled = true
  extern void ksu_sucompat_init();
  extern void ksu_sucompat_exit();
  
@@ -106,11 +110,11 @@
  		return;
  	}
  
-+#if defined(CONFIG_KSU_SUSFS_TRY_UMOUNT) && defined(CONFIG_KSU_SUSFS_ENABLE_LOG)
-+	if (susfs_is_log_enabled) {
-+		pr_info("susfs: umounting '%s' for uid: %d\n", mnt, uid);
-+	}
-+#endif
++	#if defined(CONFIG_KSU_SUSFS_TRY_UMOUNT) && defined(CONFIG_KSU_SUSFS_ENABLE_LOG)
++		if (susfs_is_log_enabled) {
++			pr_info("susfs: umounting '%s' for uid: %d\n", mnt, uid);
++		}
++	#endif
 +
  	err = ksu_umount_mnt(&path, flags);
  	if (err) {
@@ -146,7 +150,7 @@
  int ksu_handle_setuid(struct cred *new, const struct cred *old)
  {
  	// this hook is used for umounting overlayfs for some uid, if there isn't any module mounted, just ignore it!
-@@ -708,25 +829,31 @@
+@@ -708,25 +815,31 @@
  		current->pid);
  #endif
  
