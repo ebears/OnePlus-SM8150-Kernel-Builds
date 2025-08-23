@@ -1,5 +1,5 @@
---- a/kernel/apk_sign.c
-+++ b/kernel/apk_sign.c
+--- a/kernel/core_hook.c
++++ b/kernel/core_hook.c
 @@ -44,20 +44,96 @@
  #include "manager.h"
  #include "selinux/selinux.h"
