@@ -151,8 +151,6 @@ jobs:
           wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/0001-kernel-implement-susfs-v1.5.5-v1.5.7-KSUN-v1.0.8.patch
           patch -p1 < 0001-kernel-implement-susfs-v1.5.5-v1.5.7-KSUN-v1.0.8.patch
           cd ..
-          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/extra-ksu-patch.patch
-          patch -p1 < extra-ksu-patch.patch
         else
           echo "Unsupported KernelSU variant for SusFS patching: ${{ matrix.kernel_variant.tag }}"
           exit 1
