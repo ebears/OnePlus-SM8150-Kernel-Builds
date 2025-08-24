@@ -1,32 +1,3 @@
-From 44f8b7c947a175b5671c3e7512bd650d76a21262 Mon Sep 17 00:00:00 2001
-From: sidex15 <24408329+sidex15@users.noreply.github.com>
-Date: Thu, 26 Jun 2025 15:11:09 +0800
-Subject: [PATCH] kernel: implement susfs v1.5.5-v1.5.7 KSUN v1.0.8
-
----
- .gitignore               |   3 +
- kernel/.gitignore        |   3 +
- kernel/Kconfig           | 144 ++++++++++
- kernel/Makefile          |  77 ++++++
- kernel/allowlist.c       |  10 +-
- kernel/apk_sign.c        |   2 +-
- kernel/apk_sign.h        |   2 +-
- kernel/core_hook.c       | 561 +++++++++++++++++++++++++++++++++++++--
- kernel/kernel_compat.c   |  10 +
- kernel/kernel_compat.h   |   1 +
- kernel/ksu.c             |  16 +-
- kernel/ksud.c            |  21 +-
- kernel/ksud.h            |   2 +-
- kernel/manager.h         |   2 +-
- kernel/selinux/rules.c   |  16 +-
- kernel/selinux/selinux.c |  95 ++++++-
- kernel/selinux/selinux.h |  24 +-
- kernel/sucompat.c        |  72 ++++-
- kernel/throne_tracker.c  |   4 +-
- kernel/throne_tracker.h  |   2 +-
- 20 files changed, 1003 insertions(+), 64 deletions(-)
- create mode 100644 kernel/.gitignore
-
 diff --git a/.gitignore b/.gitignore
 index 706fd07f..cf9cce53 100644
 --- a/.gitignore
@@ -1279,10 +1250,10 @@ index be5bbced..93fa2678 100644
  {
  	return unlikely(ksu_manager_uid == current_uid().val);
  }
-diff --git a/kernel/selinux/rules.c b/kernel/selinux/rules.c
+diff --git a/drivers/kernelsu/selinux/rules.c b/drivers/kernelsu/selinux/rules.c
 index dc1ca5d4..727911ff 100644
---- a/kernel/selinux/rules.c
-+++ b/kernel/selinux/rules.c
+--- a/drivers/kernelsu/selinux/rules.c
++++ b/drivers/kernelsu/selinux/rules.c
 @@ -36,9 +36,9 @@ static struct policydb *get_policydb(void)
  	return db;
  }

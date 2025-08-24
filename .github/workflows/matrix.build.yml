@@ -103,11 +103,12 @@ jobs:
       run: |
         cd kernel
 
-        # TEMPORARILY NOT RUNNING since we are testing `next_hooks_4.14.patch` below
-        # # kernelsu.patch is provided by the YAAP kernel source
-        # patch -p1 < kernelsu.patch
+        # kernelsu.patch is provided by the YAAP kernel source
+        # Reference: https://kernelsu.org/guide/how-to-integrate-for-non-gki.html#manually-modify-the-kernel-source
+        patch -p1 < kernelsu.patch
 
         # Download and apply path_umount.patch to backport umount functionality necessary for KernelSU
+        # Reference: https://kernelsu.org/guide/how-to-integrate-for-non-gki.html#how-to-backport-path-umount
         wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/path_umount.patch
         patch -p1 < path_umount.patch
 
@@ -144,13 +145,9 @@ jobs:
           curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s susfs-legacy
         elif [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-Next" ]; then
           # For KernelSU-Next, we need to apply SusFS patches
-          cd KernelSU-Next
           # Patch from: https://github.com/WildKernels/kernel_patches/tree/main/next
           wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/0001-kernel-implement-susfs-v1.5.5-v1.5.7-KSUN-v1.0.8.patch
           patch -p1 < 0001-kernel-implement-susfs-v1.5.5-v1.5.7-KSUN-v1.0.8.patch
-          cd ..
-          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/next_hooks_4.14.patch
-          patch -p1 < next_hooks_4.14.patch
         else
           echo "Unsupported KernelSU variant for SusFS patching: ${{ matrix.kernel_variant.tag }}"
           exit 1
