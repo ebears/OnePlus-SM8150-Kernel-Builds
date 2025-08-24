@@ -144,10 +144,9 @@ jobs:
         elif [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-Next" ]; then
           # For KernelSU-Next, we need to apply SusFS patches
           cd KernelSU-Next
-          # Fixes from: https://github.com/WildKernels/kernel_patches/tree/main/next
-          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/0001-kernel-implement-susfs-v1.5.8-KernelSU-Next-v1.0.8.patch
-          patch -p1 < 0001-kernel-implement-susfs-v1.5.8-KernelSU-Next-v1.0.8.patch
-          # TODO: try susfs updates from WildKernels patches repo
+          # Patch from: https://github.com/WildKernels/kernel_patches/tree/main/next
+          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/0001-kernel-implement-susfs-v1.5.5-v1.5.7-KSUN-v1.0.8.patch
+          patch -p1 < 0001-kernel-implement-susfs-v1.5.5-v1.5.7-KSUN-v1.0.8.patch
           cd ..
         else
           echo "Unsupported KernelSU variant for SusFS patching: ${{ matrix.kernel_variant.tag }}"
