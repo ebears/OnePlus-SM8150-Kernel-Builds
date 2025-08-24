@@ -162,6 +162,15 @@ jobs:
 
     # START error handling
     # Error handling for patching
+    - name: ⚠️Check rules.c
+      run: |
+        mkdir uploadme
+        cp kernel-source/drivers/kernelsu/selinux/rules.c uploadme/
+    - name: 📤Upload rules.c
+      uses: actions/upload-artifact@v4
+      with:
+        name: rules-file
+        path: uploadme/
     - name: ⚠️Search for patch errors
       if: failure()
       run: |
