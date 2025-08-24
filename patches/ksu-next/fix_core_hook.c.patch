@@ -72,7 +72,7 @@
  
 +#if defined(CONFIG_KSU_SUSFS_TRY_UMOUNT) && defined(CONFIG_KSU_SUSFS_ENABLE_LOG)
 +	if (susfs_is_log_enabled) {
-+		pr_info("susfs: umounting '%s' for uid: %d\n", mnt, uid);
++		pr_info("susfs: umounting '%s' for uid: %d\n", mnt);
 +	}
 +#endif
 +
