@@ -96,12 +96,12 @@ jobs:
         git sparse-checkout set clang-${{ github.event.inputs.clang_commit }}
     - name: "👯‍♀️Clone kernel source"
       run: |
-        git clone --depth=1 --branch "${{ github.event.inputs.kernel_branch }}" "${{ github.event.inputs.kernel_source_url }}" kernel
-        cd kernel && git submodule update --init --recursive
+        git clone --depth=1 --branch "${{ github.event.inputs.kernel_branch }}" "${{ github.event.inputs.kernel_source_url }}" kernel-source
+        cd kernel-source && git submodule update --init --recursive
     - name: "🛠️Apply KernelSU patches"
       # https://kernelsu.org/guide/how-to-integrate-for-non-gki.html
       run: |
-        cd kernel
+        cd kernel-source
 
         # kernelsu.patch is provided by the YAAP kernel source
         # Reference: https://kernelsu.org/guide/how-to-integrate-for-non-gki.html#manually-modify-the-kernel-source
@@ -117,7 +117,7 @@ jobs:
     - name: "🕵️‍♀️Apply SusFS (if enabled)"
       if: matrix.susfs
       run: |
-        cd kernel
+        cd kernel-source
         git clone --depth=1 --branch kernel-4.14 https://gitlab.com/simonpunk/susfs4ksu.git susfs4ksu
 
         # Add necessary SusFS configurations to the kernel defconfig
@@ -144,10 +144,15 @@ jobs:
           # We can skip patching SusFS for KernelSU since the Rissu fork already has a compatible branch
           curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s susfs-legacy
         elif [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-Next" ]; then
+          curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s
+          cd KernelSU-Next
           # For KernelSU-Next, we need to apply SusFS patches
           # Patch from: https://github.com/WildKernels/kernel_patches/tree/main/next
           wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/0001-kernel-implement-susfs-v1.5.5-v1.5.7-KSUN-v1.0.8.patch
           patch -p1 < 0001-kernel-implement-susfs-v1.5.5-v1.5.7-KSUN-v1.0.8.patch
+          cd ..
+          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/extra-ksu-patch.patch
+          patch -p1 < extra-ksu-patch.patch
         else
           echo "Unsupported KernelSU variant for SusFS patching: ${{ matrix.kernel_variant.tag }}"
           exit 1
@@ -176,7 +181,7 @@ jobs:
       run: |
         export PATH=$(pwd)/toolchains/aosp-clang/clang-${{ github.event.inputs.clang_commit }}/bin/:$PATH
         export ARCH=arm64 && export SUBARCH=arm64 && export LD=ld.lld
-        cd kernel
+        cd kernel-source
         make $KERNEL_CMDLINE ${{ github.event.inputs.kernel_defconfig }} CC="ccache clang-${{ github.event.inputs.clang_version }}"
         make $KERNEL_CMDLINE -j$(nproc --all) CC="ccache clang-${{ github.event.inputs.clang_version }}"
         cp out/arch/arm64/boot/Image ../AnyKernel3

@@ -1252,8 +1252,8 @@ index be5bbced..93fa2678 100644
  }
 diff --git a/drivers/kernelsu/selinux/rules.c b/drivers/kernelsu/selinux/rules.c
 index dc1ca5d4..727911ff 100644
---- a/drivers/kernelsu/selinux/rules.c
-+++ b/drivers/kernelsu/selinux/rules.c
+--- a/selinux/rules.c
++++ b/selinux/rules.c
 @@ -36,9 +36,9 @@ static struct policydb *get_policydb(void)
  	return db;
  }
