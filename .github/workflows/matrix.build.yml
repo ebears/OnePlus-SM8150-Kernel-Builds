@@ -144,23 +144,11 @@ jobs:
         elif [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-Next" ]; then
           # For KernelSU-Next, we need to apply SusFS patches
           cd KernelSU-Next
-          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/10_enable_susfs_for_ksu-next.patch
-          patch -p1 < 10_enable_susfs_for_ksu-next.patch
           # Fixes from: https://github.com/WildKernels/kernel_patches/tree/main/next
-          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/ksu-next/fix_apk_sign.c.patch
-          patch -p1 < fix_apk_sign.c.patch
-          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/ksu-next/fix_core_hook.c.patch
-          patch -p1 < fix_core_hook.c.patch
-          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/ksu-next/fix_ksud.c.patch
-          patch -p1 < fix_ksud.c.patch
-          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/ksu-next/fix_selinux.c.patch
-          patch -p1 < fix_selinux.c.patch
-          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/ksu-next/fix_sucompat.c.patch
-          patch -p1 < fix_sucompat.c.patch
-          cd ..
-          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/ksu-next/next_hooks_4.14.patch
-          patch -p1 < next_hooks_4.14.patch
+          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/0001-kernel-implement-susfs-v1.5.8-KernelSU-Next-v1.0.8.patch
+          patch -p1 < 0001-kernel-implement-susfs-v1.5.8-KernelSU-Next-v1.0.8.patch
           # TODO: try susfs updates from WildKernels patches repo
+          cd ..
         else
           echo "Unsupported KernelSU variant for SusFS patching: ${{ matrix.kernel_variant.tag }}"
           exit 1
