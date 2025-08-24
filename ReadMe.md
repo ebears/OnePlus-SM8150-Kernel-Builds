@@ -37,13 +37,13 @@ Flash at your own risk.
 5) Flash the kernel: `adb sideload <path-to-file>\<kernel.zip>`.
 6) Reboot.
 
-***📱If you already have a rooted kernel:***
+**📱If you already have a rooted kernel:**
 1) Use [capntrips/KernelFlasher](https://github.com/capntrips/KernelFlasher) (or the slightly more functional fork: [fatalcoder524/KernelFlasher](https://github.com/fatalcoder524/KernelFlasher)) to install as an AK3 ZIP.
     - [libxzr/HorizonKernelFlasher](https://github.com/libxzr/HorizonKernelFlasher) may be more reliable.
         - Keep an eye on [CRZX1337/HorizonRevamped](https://github.com/CRZX1337/HorizonRevamped).
 2) Reboot.
 
-***📱OTA System Updates WITH a rooted already kernel installed:***
+**📱OTA System Updates WITH a rooted already kernel installed:**
 1) Download and install the OTA update, but do **not** reboot.
 2) Switch apps to your installed kernel flasher of choice.
 3) Install the kernel ZIP file on the partition that is **not** currently being used.
