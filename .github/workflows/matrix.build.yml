@@ -144,10 +144,9 @@ jobs:
           # We can skip patching SusFS for KernelSU since the Rissu fork already has a compatible branch
           curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s susfs-legacy
         elif [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-Next" ]; then
-          curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s
-          cd KernelSU-Next
           # For KernelSU-Next, we need to apply SusFS patches
-          # Patch from: https://github.com/WildKernels/kernel_patches/tree/main/next
+          # Lightly modified patch from: https://github.com/WildKernels/kernel_patches/tree/main/next/0001-kernel-implement-susfs-v1.5.5-v1.5.7-KSUN-v1.0.8.patch (also works for KernelSU-Next-v1.0.9)
+          cd KernelSU-Next
           wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/0001-kernel-implement-susfs-v1.5.5-v1.5.7-KSUN-v1.0.8.patch
           patch -p1 < 0001-kernel-implement-susfs-v1.5.5-v1.5.7-KSUN-v1.0.8.patch
           cd ..
@@ -162,15 +161,6 @@ jobs:
 
     # START error handling
     # Error handling for patching
-    - name: ⚠️Check rules.c
-      run: |
-        mkdir uploadme
-        cp kernel-source/drivers/kernelsu/selinux/rules.c uploadme/
-    - name: 📤Upload rules.c
-      uses: actions/upload-artifact@v4
-      with:
-        name: rules-file
-        path: uploadme/
     - name: ⚠️Search for patch errors
       if: failure()
       run: |
