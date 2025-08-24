@@ -1286,21 +1286,25 @@ diff --git a/kernel/selinux/rules.c b/kernel/selinux/rules.c
 index dc1ca5d4..727911ff 100644
 --- a/kernel/selinux/rules.c
 +++ b/kernel/selinux/rules.c
-@@ -36,9 +36,9 @@ static struct policydb *get_policydb(void)
+@@ -36,13 +36,13 @@ static struct policydb *get_policydb(void)
  	return db;
  }
+ 
+ static DEFINE_MUTEX(ksu_rules);
  
 -void apply_kernelsu_rules()
 +void ksu_apply_kernelsu_rules()
  {
+ 	struct policydb *db;
+ 
 -	if (!getenforce()) {
 +	if (!ksu_getenforce()) {
  		pr_info("SELinux permissive or disabled, apply rules!\n");
  	}
  
 @@ -134,6 +134,14 @@ void apply_kernelsu_rules()
-     ksu_allow(db, "system_server", KERNEL_SU_DOMAIN, "process", "getpgid");
-     ksu_allow(db, "system_server", KERNEL_SU_DOMAIN, "process", "sigkill");
+ 	ksu_allow(db, "system_server", KERNEL_SU_DOMAIN, "process", "getpgid");
+ 	ksu_allow(db, "system_server", KERNEL_SU_DOMAIN, "process", "sigkill");
  
 +#ifdef CONFIG_KSU_SUSFS
 +	// Allow umount in zygote process without installing zygisk
@@ -1310,7 +1314,7 @@ index dc1ca5d4..727911ff 100644
 +	susfs_set_zygote_sid();
 +#endif
 +
- 	rcu_read_unlock();
+ 	mutex_unlock(&ksu_rules);
  }
  
 @@ -223,13 +231,13 @@ static void reset_avc_cache()
