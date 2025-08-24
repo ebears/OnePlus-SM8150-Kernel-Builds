@@ -1252,7 +1252,7 @@ index be5bbced..93fa2678 100644
  }
 --- a/kernel/selinux/rules.c
 +++ b/kernel/selinux/rules.c
-@@ -36,9 +36,9 @@ static struct policydb *get_policydb(void)
+@@ -36,13 +36,13 @@ static struct policydb *get_policydb(void)
  	return db;
  }
  
