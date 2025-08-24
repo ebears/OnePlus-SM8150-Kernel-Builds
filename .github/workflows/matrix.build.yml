@@ -103,8 +103,9 @@ jobs:
       run: |
         cd kernel
 
-        # kernelsu.patch is provided by the YAAP kernel source
-        patch -p1 < kernelsu.patch
+        # TEMPORARILY NOT RUNNING since we are testing `next_hooks_4.14.patch` below
+        # # kernelsu.patch is provided by the YAAP kernel source
+        # patch -p1 < kernelsu.patch
 
         # Download and apply path_umount.patch to backport umount functionality necessary for KernelSU
         wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/path_umount.patch
