@@ -1283,7 +1283,7 @@ index be5bbced..93fa2678 100644
  	mutex_unlock(&ksu_rules);
  }
  
-@@ -223,13 +231,13 @@ static void reset_avc_cache()
+@@ -223,12 +231,12 @@ static void reset_avc_cache()
  	selinux_xfrm_notify_policyload();
  }
  
