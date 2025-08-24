@@ -113,7 +113,13 @@ jobs:
         patch -p1 < path_umount.patch
 
         # curl the script to set up KernelSU variant
-        curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s "${{ matrix.kernel_variant.setup_arg }}"
+        if [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-Next" ] && [ "${{matrix.susfs}}" == true ]; then
+          # Have to do awkward shit to set up susfs and kernelsu-next in a workflow, so KSU-Next's setup script has been split in two
+          curl -LSs "https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/scripts/ksu-next/setup_kernelsu.sh" | bash -s
+        else
+          # Other variants can be normal
+          curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s "${{ matrix.kernel_variant.setup_arg }}"
+        fi
     - name: "🕵️‍♀️Apply SusFS (if enabled)"
       if: matrix.susfs
       run: |
@@ -122,6 +128,7 @@ jobs:
 
         # Add necessary SusFS configurations to the kernel defconfig
         echo "CONFIG_KSU=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
+        echo "CONFIG_KSU_KPROBES_HOOK=n" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_SUSFS=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
@@ -144,15 +151,12 @@ jobs:
           # We can skip patching SusFS for KernelSU since the Rissu fork already has a compatible branch
           curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s susfs-legacy
         elif [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-Next" ]; then
-          curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s
           cd KernelSU-Next
           # For KernelSU-Next, we need to apply SusFS patches
           # Patch from: https://github.com/WildKernels/kernel_patches/tree/main/next
           wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/0001-kernel-implement-susfs-v1.5.5-v1.5.7-KSUN-v1.0.8.patch
           patch -p1 < 0001-kernel-implement-susfs-v1.5.5-v1.5.7-KSUN-v1.0.8.patch
           cd ..
-          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/extra-ksu-patch.patch
-          patch -p1 < extra-ksu-patch.patch
         else
           echo "Unsupported KernelSU variant for SusFS patching: ${{ matrix.kernel_variant.tag }}"
           exit 1
@@ -161,6 +165,11 @@ jobs:
         # Download and apply SusFS patches to the kernel source
         wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/50_add_susfs_in_kernel-for-kernel-4.14.patch
         patch -p1 < 50_add_susfs_in_kernel-for-kernel-4.14.patch
+
+        if [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-Next" ] && [ "${{matrix.susfs}}" == true ]; then
+          # Do the second part of the awkward susfs + ksu-next setup
+          curl -LSs "https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/scripts/ksu-next/modify_kbuild.sh" | bash -s
+        fi
 
     # START error handling
     # Error handling for patching
