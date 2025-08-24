@@ -52,11 +52,14 @@ jobs:
             setup_arg: "nongki"
             dir_name: "KernelSU"
         susfs: [true, false]
-        
+
+        # START exclusions
+        # Exclude incompatible/WIP combinations
         exclude:
           - kernel_variant:
               tag: "SukiSU-Ultra"
             susfs: true
+        # END exclusions
 
     env:
       CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
@@ -139,8 +142,6 @@ jobs:
           # We can skip patching SusFS for KernelSU since the Rissu fork already has a compatible branch
           curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s susfs-legacy
         elif [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-Next" ]; then
-          # redownload KernelSU-Next for my own sanity (and try using v1.0.8)
-          curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -s v1.0.8
           # For KernelSU-Next, we need to apply SusFS patches
           cd KernelSU-Next
           # Patch from: https://github.com/WildKernels/kernel_patches/tree/main/next
