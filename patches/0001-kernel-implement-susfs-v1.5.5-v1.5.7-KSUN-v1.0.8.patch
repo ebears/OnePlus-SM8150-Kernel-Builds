@@ -225,7 +225,7 @@ index c19de2d4..08d46a60 100644
 +	struct cred *nonconst_cred = (struct cred *) cred;\n\t\
 +	if (!cred)\n\t\t\
 +		return NULL;\n\t\
-+	if (!atomic_inc_not_zero(&nonconst_cred->usage))\n\t\t\
++	if (!atomic_long_inc_not_zero(&nonconst_cred->usage))\n\t\t\
 +		return NULL;\n\t\
 +	validate_creds(cred);\n\t\
 +	return cred;\n\
