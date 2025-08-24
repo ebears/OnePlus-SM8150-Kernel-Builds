@@ -136,8 +136,8 @@ jobs:
 
         # Copy necessary SusFS patches to the kernel source
         # https://gitlab.com/simonpunk/susfs4ksu/-/blob/kernel-4.14/README.md
-        cp susfs4ksu/kernel_patches/fs/* fs/
-        cp susfs4ksu/kernel_patches/include/linux/* include/linux/
+        cp susfs4ksu/kernel_patches/fs/* ../fs/
+        cp susfs4ksu/kernel_patches/include/linux/* ../include/linux/
         if [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-Rissu" ]; then
           # We can skip patching SusFS for KernelSU since the Rissu fork already has a compatible branch
           curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s susfs-legacy
