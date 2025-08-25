@@ -13,7 +13,7 @@ Releases are [AnyKernel3](https://github.com/osm0sis/AnyKernel3) ZIPs. Check out
 | --- | --- |
 | #️⃣[KernelSU-Rissu](https://github.com/rsuntk/KernelSU)            | ✅                          |
 | ☯️[KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next) | ✅                          |
-| 😼[SukiSU-Ultra](https://github.com/SukiSU-Ultra/SukiSU-Ultra)    | 🚫                          |
+| 😼[SukiSU-Ultra](https://github.com/SukiSU-Ultra/SukiSU-Ultra)    | ✅                          |
 
 Kernel downloads are found under [releases](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/releases).
 
@@ -43,7 +43,7 @@ Flash at your own risk.
         - Keep an eye on [CRZX1337/HorizonRevamped](https://github.com/CRZX1337/HorizonRevamped).
 2) Reboot.
 
-**📱OTA System Updates WITH a rooted already kernel installed:**
+**📱OTA System Updates with a rooted kernel:**
 1) Download and install the OTA update, but do **not** reboot.
 2) Switch apps to your installed kernel flasher of choice.
 3) Install the kernel ZIP file on the partition that is **not** currently being used.
@@ -52,8 +52,6 @@ Flash at your own risk.
 ---
 ##### TO-DO
 
-- ~~Try SukiSU Ultra with SusFS.~~
-    - WIP.
 - Manually backport new SuSFS versions.
 - Pure [APatch](https://github.com/bmax121/APatch)/KPM supported kernel ([KernelPatch](https://github.com/bmax121/KernelPatch)).
 - [Mountify](https://github.com/backslashxx/mountify) support.
