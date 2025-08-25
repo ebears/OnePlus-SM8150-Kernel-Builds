@@ -121,8 +121,8 @@ jobs:
           echo "CONFIG_KALLSYMS_ALL=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
 
           # Apply backport patch for set_memory() changes in Linux 4.19
-          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/backport_set_memory.patch
-          patch -p1 < backport_set_memory.patch
+          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/set_memory.h_backport.patch
+          patch -p1 < set_memory.h_backport.patch
         else
           echo "Kernel (${{ matrix.kernel_variant.tag }}) doesn't include KPM support; skipping KPM config"
           exit 1
