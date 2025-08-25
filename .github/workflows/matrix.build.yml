@@ -114,11 +114,15 @@ jobs:
         echo "CONFIG_KSU_KPROBES_HOOK=n" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
         if [ "${{ matrix.kernel_variant.tag }}" == "SukiSU-Ultra" ]; then
-          # SukiSU-Ultra requires this for KPM functionality
+          # SukiSU-Ultra requires this for KPM functionality (WIP -- NEED TO PATCH KERNEL)
           # Reference: https://github.com/SukiSU-Ultra/SukiSU-Ultra#kpm-support
           echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
           # CONFIG_KALLSYMS is already enabled in Gulch defconfig
           echo "CONFIG_KALLSYMS_ALL=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
+
+          # Apply backport patch for set_memory() changes in Linux 4.19
+          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/backport_set_memory.patch
+          patch -p1 < backport_set_memory.patch
         else
           echo "Kernel (${{ matrix.kernel_variant.tag }}) doesn't include KPM support; skipping KPM config"
           exit 1
