@@ -1074,7 +1074,7 @@ diff --git a/kernel/kernel_compat.h b/kernel/kernel_compat.h
 index 6d79f7ed..b0d664a9 100644
 --- a/kernel/kernel_compat.h
 +++ b/kernel/kernel_compat.h
-@@ -29,6 +29,7 @@ extern struct key *init_session_keyring;
+@@ -41,6 +41,7 @@
  #endif
  
  extern void ksu_android_ns_fs_check();
@@ -1082,6 +1082,17 @@ index 6d79f7ed..b0d664a9 100644
  extern struct file *ksu_filp_open_compat(const char *filename, int flags,
  					 umode_t mode);
  extern ssize_t ksu_kernel_read_compat(struct file *p, void *buf, size_t count,
+@@ -48,10 +49,4 @@
+ extern ssize_t ksu_kernel_write_compat(struct file *p, const void *buf,
+ 				       size_t count, loff_t *pos);
+ 
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0)
+-#define ksu_access_ok(addr, size) access_ok(addr, size)
+-#else
+-#define ksu_access_ok(addr, size) access_ok(VERIFY_READ, addr, size)
+-#endif
+-
+ #endif
 diff --git a/kernel/ksu.c b/kernel/ksu.c
 index 11864141..a8a02c2f 100644
 --- a/kernel/ksu.c
