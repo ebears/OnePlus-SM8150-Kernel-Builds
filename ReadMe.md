@@ -52,10 +52,11 @@ Flash at your own risk.
 ---
 ##### TO-DO
 
-- Try SukiSU Ultra with SusFS.
+- ~~Try SukiSU Ultra with SusFS.~~
+    - WIP.
 - Manually backport new SuSFS versions.
-- Pure [APatch](https://github.com/bmax121/APatch)/KPM support ([KernelPatch](https://github.com/bmax121/KernelPatch)).
-- [Mountify](https://github.com/backslashxx/mountify)
+- Pure [APatch](https://github.com/bmax121/APatch)/KPM supported kernel ([KernelPatch](https://github.com/bmax121/KernelPatch)).
+- [Mountify](https://github.com/backslashxx/mountify) support.
 
 ---
 

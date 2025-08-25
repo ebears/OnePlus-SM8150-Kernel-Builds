@@ -53,14 +53,6 @@ jobs:
             dir_name: "KernelSU"
         susfs: [true, false]
 
-        # START exclusions
-        # Exclude incompatible/WIP combinations
-        exclude:
-          - kernel_variant:
-              tag: "SukiSU-Ultra"
-            susfs: true
-        # END exclusions
-
     env:
       CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
       CCACHE_NOHASHDIR: "true"
@@ -120,9 +112,14 @@ jobs:
         cd kernel-source
         git clone --depth=1 --branch kernel-4.14 https://gitlab.com/simonpunk/susfs4ksu.git susfs4ksu
 
-        # Add necessary SusFS configurations to the kernel defconfig
+        # Add necessary configurations to the kernel defconfig
+        #    Enable KSU
         echo "CONFIG_KSU=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
+        #    Disable kprobes and enable manual hooking (since we used kernelsu.patch from YAAP source)
+        echo "CONFIG_KSU_KPROBES_HOOK=n" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
+        #    Enable SusFS patches; including Magic Mount support.
+        #    Disabled SUS Path and Open Redirect since they are experimental and may cause instability.
         echo "CONFIG_KSU_SUSFS=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_SUSFS_SUS_PATH=n" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
@@ -145,10 +142,17 @@ jobs:
           curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s susfs-legacy
         elif [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-Next" ]; then
           # For KernelSU-Next, we need to apply SusFS patches
-          # Lightly modified patch from: https://github.com/WildKernels/kernel_patches/tree/main/next/0001-kernel-implement-susfs-v1.5.5-v1.5.7-KSUN-v1.0.8.patch (also works for KernelSU-Next-v1.0.9)
+          # Lightly modified patch from: https://github.com/WildKernels/kernel_patches/tree/main/next/0001-kernel-implement-susfs-v1.5.5-v1.5.7-KSUN-v1.0.8.patch
           cd KernelSU-Next
-          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/0001-kernel-implement-susfs-v1.5.5-v1.5.7-KSUN-v1.0.8.patch
-          patch -p1 < 0001-kernel-implement-susfs-v1.5.5-v1.5.7-KSUN-v1.0.8.patch
+          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/0001-kernel-implement-susfs-v1.5.5-v1.5.7-KSUN-v1.0.9.patch
+          patch -p1 < 0001-kernel-implement-susfs-v1.5.5-v1.5.7-KSUN-v1.0.9.patch
+          cd ..
+        elif [ "${{ matrix.kernel_variant.tag }}" == "SukiSU-Ultra" ]; then
+          # Experimental: WIP support for SukiSU-Ultra // hoping the KernelSU-Next patch mostly works
+          # Lightly modified patch from: https://github.com/WildKernels/kernel_patches/tree/main/next/0001-kernel-implement-susfs-v1.5.5-v1.5.7-KSUN-v1.0.8.patch
+          cd KernelSU
+          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/0001-kernel-implement-susfs-v1.5.5-v1.5.7-SukiSU.patch
+          patch -p1 < 0001-kernel-implement-susfs-v1.5.5-v1.5.7-SukiSU.patch
           cd ..
         else
           echo "Unsupported KernelSU variant for SusFS patching: ${{ matrix.kernel_variant.tag }}"
@@ -222,25 +226,20 @@ jobs:
           ICON=""
           APK_LINK=""
           case "$KERNEL_TAG" in
-            KernelSU-v*)
-              ICON="🕰️"
-              COMMON_NAME="KernelSU"
-              APK_LINK="[APK](https://github.com/tiann/KernelSU/releases/tag/v0.9.5)"
-              ;;
-            SukiSU-Ultra*)
-              ICON="😼"
-              COMMON_NAME="SukiSU-Ultra"
-              APK_LINK="[APK](https://github.com/SukiSU-Ultra/SukiSU-Ultra/releases/latest)"
+            KernelSU-Rissu*)
+              ICON="#️⃣"
+              COMMON_NAME="KernelSU-Rissu"
+              APK_LINK="[APK](https://github.com/rsuntk/KernelSU/releases/latest)"
               ;;
             KernelSU-Next*)
               ICON="☯️"
               COMMON_NAME="KernelSU-Next"
               APK_LINK="[APK](https://github.com/KernelSU-Next/KernelSU-Next/releases/latest)"
               ;;
-            KernelSU-Rissu*)
-              ICON="#️⃣"
-              COMMON_NAME="KernelSU-Rissu"
-              APK_LINK="[APK](https://github.com/rsuntk/KernelSU/releases/latest)"
+            SukiSU-Ultra*)
+              ICON="😼"
+              COMMON_NAME="SukiSU-Ultra"
+              APK_LINK="[APK](https://github.com/SukiSU-Ultra/SukiSU-Ultra/releases/latest)"
               ;;
             *)
               ICON="📦"
