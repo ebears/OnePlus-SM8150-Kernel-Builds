@@ -106,11 +106,6 @@ jobs:
 
         # curl the script to set up KernelSU variant
         curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s "${{ matrix.kernel_variant.setup_arg }}"
-    - name: "🕵️‍♀️Apply SusFS (if enabled)"
-      if: matrix.susfs
-      run: |
-        cd kernel-source
-        git clone --depth=1 --branch kernel-4.14 https://gitlab.com/simonpunk/susfs4ksu.git susfs4ksu
 
         # Add necessary configurations to the kernel defconfig
         #    Enable KSU
@@ -118,8 +113,24 @@ jobs:
         #    Disable kprobes and enable manual hooking (since we used kernelsu.patch from YAAP source)
         echo "CONFIG_KSU_KPROBES_HOOK=n" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
-        #    Enable SusFS patches; including Magic Mount support.
-        #    Disabled SUS Path and Open Redirect since they are experimental and may cause instability.
+        if [ "${{ matrix.kernel_variant.tag }}" == "SukiSU-Ultra" ]; then
+          # SukiSU-Ultra requires this for KPM functionality
+          # Reference: https://github.com/SukiSU-Ultra/SukiSU-Ultra#kpm-support
+          echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
+          # CONFIG_KALLSYMS is already enabled in Gulch defconfig
+          echo "CONFIG_KALLSYMS_ALL=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
+        else
+          echo "Kernel (${{ matrix.kernel_variant.tag }}) doesn't include KPM support; skipping KPM config"
+          exit 1
+        fi
+    - name: "🕵️‍♀️Apply SusFS (if enabled)"
+      if: matrix.susfs
+      run: |
+        cd kernel-source
+        git clone --depth=1 --branch kernel-4.14 https://gitlab.com/simonpunk/susfs4ksu.git susfs4ksu
+
+        # Enable SusFS patches; including Magic Mount support.
+        # Disabled SUS Path and Open Redirect since they are experimental and may cause instability.
         echo "CONFIG_KSU_SUSFS=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_SUSFS_SUS_PATH=n" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
@@ -154,12 +165,6 @@ jobs:
           wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/0001-kernel-implement-susfs-v1.5.5-v1.5.7-SukiSU.patch
           patch -p1 < 0001-kernel-implement-susfs-v1.5.5-v1.5.7-SukiSU.patch
           cd ..
-          # Add KPM support for SukiSU-Ultra
-          # Reference: https://github.com/SukiSU-Ultra/SukiSU-Ultra#kpm-support
-          echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
-          # KALLSYMS is already enabled by Gulch defconfig
-          # echo "CONFIG_KALLSYMS=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }} 
-          echo "CONFIG_KALLSYMS_ALL=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
         else
           echo "Unsupported KernelSU variant for SusFS patching: ${{ matrix.kernel_variant.tag }}"
           exit 1
