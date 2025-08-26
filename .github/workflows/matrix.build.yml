@@ -77,7 +77,7 @@ jobs:
     - name: "👣Git clone and prepare AnyKernel folder"
       run: |
         echo "Cloning AnyKernel3 (walkonbothsides repo)..."
-        git clone https://github.com/walkonbothsides/AnyKernel3 -b oneplus7 --depth=1
+        git clone https://github.com/walkonbothsides/AnyKernel3 -b oneplus7 --depth=1 AnyKernel3
         rm -rf AnyKernel3/.git
     - name: "⚙️Set up Clang"
       run: |
@@ -270,12 +270,13 @@ jobs:
         cp kernel-source/out/arch/arm64/boot/dtb AnyKernel3/kernels/
         cd AnyKernel3
         echo "Creating ZIP file: OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip"
-        zip -r9 OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip * -x .git .gitignore out/ ./*.zip
+        zip -r ../OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip *
+        cd ..
     - name: "🌬️Upload artifact"
       uses: actions/upload-artifact@v4
       with:
         name: OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}
-        path: "AnyKernel3/OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip"
+        path: "OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip"
         retention-days: 2
   release:
     name: "🍊Aggregate and publish"
