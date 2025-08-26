@@ -200,12 +200,27 @@ jobs:
         cd kernel-source
         make $KERNEL_CMDLINE ${{ github.event.inputs.kernel_defconfig }} CC="ccache clang-${{ github.event.inputs.clang_version }}"
         make $KERNEL_CMDLINE -j$(nproc --all) CC="ccache clang-${{ github.event.inputs.clang_version }}"
-        cp out/arch/arm64/boot/Image ../AnyKernel3
     - name: "📦Create AnyKernel3 ZIP"
       run: |
+        # SukiSU-Ultra KPM support and additional AnyKernel build steps from here:
+        # https://github.com/YangQi0408/kernel_xiaomi_sm8250_mod/blob/41d6929480426e0bbdc6697fe692c14d3cfc8014/build.sh#L68
+        find kernel-source/out/arch/arm64/boot/dts -name '*.dtb' -exec cat {} + >kernel-source/out/arch/arm64/boot/dtb
+        rm -rf AnyKernel3/kernels/
+        mkdir -p AnyKernel3/kernels/
+        if [ "${{ matrix.kernel_variant.tag }}" == "SukiSU-Ultra" ]; then
+          # Patch for SukiSU KPM support
+          cd kernel-source/out/arch/arm64/boot/
+          wget https://github.com/SukiSU-Ultra/SukiSU_KernelPatch_patch/releases/download/0.12.0/patch_linux
+          chmod +x patch_linux
+          ./patch_linux
+          rm Image
+          mv oImage Image
+          cd ../../../../..
+        fi
+        cp kernel-source/out/arch/arm64/boot/Image AnyKernel3/kernels/
+        cp kernel-source/out/arch/arm64/boot/dtb AnyKernel3/kernels/
         cd AnyKernel3
-        zip -r ../OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip *
-        cd ..
+        zip -r9 ../OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip ./* -x .git .gitignore out/ ./*.zip
     - name: "🌬️Upload artifact"
       uses: actions/upload-artifact@v4
       with:
