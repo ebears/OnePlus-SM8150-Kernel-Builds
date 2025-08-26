@@ -125,7 +125,7 @@ jobs:
           patch -p1 < set_memory.h_backport.patch
         else
           echo "Kernel (${{ matrix.kernel_variant.tag }}) doesn't include KPM support; skipping KPM config"
-          exit 1
+          exit 0
         fi
     - name: "🕵️‍♀️Apply SusFS (if enabled)"
       if: matrix.susfs
@@ -169,6 +169,9 @@ jobs:
           wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/0001-kernel-implement-susfs-v1.5.5-v1.5.7-SukiSU.patch
           patch -p1 < 0001-kernel-implement-susfs-v1.5.5-v1.5.7-SukiSU.patch
           cd ..
+        else
+          echo "Unsupported KernelSU variant for SusFS patching: ${{ matrix.kernel_variant.tag }}. Skipping..."
+          exit 0
         fi
 
         # Download and apply SusFS patches to the kernel source
@@ -213,6 +216,9 @@ jobs:
           rm Image
           mv oImage Image
           cd ../../../../..
+        else
+          echo "KPM patching only required for SukiSU-Ultra; skipping..."
+          exit 0
         fi
         cp kernel-source/out/arch/arm64/boot/Image AnyKernel3/kernels/
         cp kernel-source/out/arch/arm64/boot/dtb AnyKernel3/kernels/
