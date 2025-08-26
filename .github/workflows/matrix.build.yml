@@ -139,7 +139,6 @@ jobs:
           patch -p1 < set_memory.h_backport.patch
         else
           echo "Kernel (${{ matrix.kernel_variant.tag }}) doesn't include KPM support; skipping KPM config..."
-          exit 0
         fi
     - name: "🕵️‍♀️Apply SusFS (if enabled)"
       if: matrix.susfs
@@ -201,7 +200,6 @@ jobs:
           cd ..
         else
           echo "Unsupported KernelSU variant for SusFS patching: ${{ matrix.kernel_variant.tag }}. Skipping..."
-          exit 0
         fi
 
         # Download and apply SusFS patches to the kernel source
@@ -263,20 +261,18 @@ jobs:
           cd ../../../../..
         else
           echo "KPM not supported for ${{ matrix.kernel_variant.tag }}; skipping KPM patch..."
-          exit 0
         fi
         echo "Copying kernel Image and DTB to AnyKernel3 folder..."
         cp kernel-source/out/arch/arm64/boot/Image AnyKernel3/kernels/
         cp kernel-source/out/arch/arm64/boot/dtb AnyKernel3/kernels/
         cd AnyKernel3
         echo "Creating ZIP file: OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip"
-        zip -r ../OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip *
-        cd ..
+        zip -r9 OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip * -x .git .gitignore out/ ./*.zip
     - name: "🌬️Upload artifact"
       uses: actions/upload-artifact@v4
       with:
         name: OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}
-        path: "OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip"
+        path: "AnyKernel3/OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip"
         retention-days: 2
   release:
     name: "🍊Aggregate and publish"
