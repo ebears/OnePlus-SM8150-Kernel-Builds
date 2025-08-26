@@ -262,7 +262,7 @@ jobs:
           mv oImage Image
           cd ../../../../..
         else
-          echo "KPM support not supported for ${{ matrix.kernel_variant.tag }}; skipping KPM patch..."
+          echo "KPM not supported for ${{ matrix.kernel_variant.tag }}; skipping KPM patch..."
           exit 0
         fi
         echo "Copying kernel Image and DTB to AnyKernel3 folder..."
