@@ -130,7 +130,7 @@ jobs:
           # Reference: https://github.com/SukiSU-Ultra/SukiSU-Ultra#kpm-support
           echo "Enabling KPM support in defconfig for SukiSU-Ultra..."
           echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
-          # CONFIG_KALLSYMS is already enabled in Gulch defconfig
+          echo "CONFIG_KALLSYMS" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
           echo "CONFIG_KALLSYMS_ALL=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
 
           # Apply backport patch for set_memory() changes in Linux 4.19
