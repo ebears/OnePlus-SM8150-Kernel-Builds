@@ -244,6 +244,7 @@ jobs:
         # SukiSU-Ultra KPM support steps from here:
         # https://github.com/YangQi0408/kernel_xiaomi_sm8250_mod/blob/41d6929480426e0bbdc6697fe692c14d3cfc8014/build.sh#L68
         echo "Packaging kernel into AnyKernel3 ZIP..."
+        mkdir -p AnyKernel3/kernels
         if [ "${{ matrix.kernel_variant.tag }}" == "SukiSU-Ultra" ]; then
           # Patch for SukiSU KPM support
           echo "Applying SukiSU-Ultra KPM patch to the kernel image..."
