@@ -136,15 +136,15 @@ jobs:
 
           # Apply backport patch for set_memory() changes in Linux 4.19 ... and other stuff (WIP)
           # Patches from here: https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd/tree/mainline/Patches/Patch
-          echo "Applying set_memory.h backport patch for SukiSU-Ultra..."
-          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/set_memory_to_49_and_low.patch
-          patch -p1 < set_memory_to_49_and_low.patch
-          echo "Applying kernel_read and kernel_write backport..."
-          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/backport_kernel_read_and_kernel_write_to_ksu.patch
-          patch -p1 < backport_kernel_read_and_kernel_write_to_ksu.patch
-          echo "Applying KPM fix..."
-          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/fix_kpm.patch
-          patch -p1 < fix_kpm.patch
+          # echo "Applying set_memory.h backport patch for SukiSU-Ultra..."
+          # wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/set_memory_to_49_and_low.patch
+          # patch -p1 < set_memory_to_49_and_low.patch
+          # echo "Applying kernel_read and kernel_write backport..."
+          # wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/backport_kernel_read_and_kernel_write_to_ksu.patch
+          # patch -p1 < backport_kernel_read_and_kernel_write_to_ksu.patch
+          # echo "Applying KPM fix..."
+          # wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/fix_kpm.patch
+          # patch -p1 < fix_kpm.patch
         else
           echo "Kernel (${{ matrix.kernel_variant.tag }}) doesn't include KPM support; skipping KPM config..."
         fi

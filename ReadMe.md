@@ -58,6 +58,26 @@ Flash at your own risk.
 - [Mountify](https://github.com/backslashxx/mountify) support.
 
 ---
+#### Credits
 
+Thanks all ❤️
+
+##### KernelSU and Forks
+- [tiann/KernelSU](https://github.com/tiann/KernelSU)
+- [rsuntk/KernelSU](https://github.com/rsuntk/KernelSU)
+- [KernelSU-Next/KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next)
+- [SukiSU-Ultra/SukiSU-Ultra](https://github.com/SukiSU-Ultra/SukiSU-Ultra)
+
+##### SusFS
+- [simonpunk/susfs4ksu](https://gitlab.com/simonpunk/susfs4ksu)
+- [sidex15/susfs4ksu-module](https://github.com/sidex15/susfs4ksu-module)
+
+##### Github workflow references and patches
+- [hi4th/kernel_oneplus_sm8150](https://github.com/hi4th/kernel_oneplus_sm8150)
+- [midozalouk/android_kernel_oneplus_sm8150](https://github.com/midozalouk/android_kernel_oneplus_sm8150)
+- [WildKernels/kernel_patches](https://github.com/WildKernels/kernel_patches)
+- [JackA1ltman/NonGKI_Kernel_Build_2nd](https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd)
+
+---
 *Builds are probably **untested**.*\
 *Mainly for my personal use, so flash at your own risk.*
