@@ -184,10 +184,10 @@ jobs:
           # We can skip patching SusFS for KernelSU since the Rissu fork already has a compatible branch
           echo "Setting up SusFS for KernelSU-Rissu..."
           echo "Cloning susfs-legacy branch..."
-          curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s susfs-main
+          curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s susfs-legacy
         elif [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-Next" ]; then
           # We need to apply SusFS patches
-          # Lightly modified patch from: https://github.com/WildKernels/kernel_patches/tree/main/next/0001-kernel-implement-susfs-v1.5.5-v1.5.7-KSUN-v1.0.8.patch
+          # Lightly modified patch from: https://github.com/WildKernels/kernel_patches/blob/main/next/0001-kernel-implement-susfs-v1.5.8-KernelSU-Next-v1.0.8.patch
           export SUSFS_PATCH_NAME="0001-kernel-implement-susfs-v1.5.8-KernelSU-Next.patch"
           echo "Setting up SusFS for KernelSU-Next..."
           echo "Applying SusFS patch for KernelSU-Next..."
@@ -240,7 +240,7 @@ jobs:
         echo "Applying susfs_upgrade_to_159.patch..."
         patch -p1 < susfs_upgrade_to_159.patch
 
-        # Needs further patching with KernelSU-Next to work ?
+        # Needs further patching with KernelSU (Next) to work
         # echo "Downloading susfs_upgrade_to_1510_4.14.patch..."
         # wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/susfs_upgrade_to_1510_4.14.patch
         # echo "Applying susfs_upgrade_to_1510_4.14.patch..."
@@ -288,10 +288,10 @@ jobs:
           cd kernel-source/out/arch/arm64/boot/
           echo "Downloading patch_linux tool..."
           # Patch from here: https://github.com/hotianbexuanto/NonGKI_Kernel_Build/blob/main/.github/workflows/build_kernel_op8_oos13.1_a13_realking.yml
-          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/op_kernel/patch_linux
-          chmod +x patch_linux
+          wget https://github.com/SukiSU-Ultra/SukiSU_patch/raw/refs/heads/main/kpm/patch_linux
+          chmod a+x ./patch_linux
           echo "Patching kernel Image for KPM support..."
-          ./patch_linux
+          sudo ./patch_linux
           rm Image
           mv oImage Image
           cd ../../../../..
