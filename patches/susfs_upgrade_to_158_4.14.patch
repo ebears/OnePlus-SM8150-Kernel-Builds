@@ -17,7 +17,7 @@ index f69160b..7d0a415 100644
  		if (dentry_cmp(dentry, str, hashlen_len(hashlen)) != 0)
  			continue;
 -#ifdef CONFIG_KSU_SUSFS_SUS_PATH
--		if (dentry->d_inode && unlikely(dentry->d_inode->i_state & INODE_STATE_SUS_PATH) && likely(current->susfs_task_state & TASK_STRUCT_NON_ROOT_USER_APP_PROC)) {
+-		if (dentry->d_inode && unlikely(dentry->d_inode->i_state & 16777216) && likely(current_cred()->user->android_kabi_reserved1 & 16777216)) {
 -			continue;
 -		}
 -#endif
@@ -29,7 +29,7 @@ index f69160b..7d0a415 100644
  			continue;
  
 -#ifdef CONFIG_KSU_SUSFS_SUS_PATH
--		if (dentry->d_inode && unlikely(dentry->d_inode->i_state & INODE_STATE_SUS_PATH) && likely(current->susfs_task_state & TASK_STRUCT_NON_ROOT_USER_APP_PROC)) {
+-		if (dentry->d_inode && unlikely(dentry->d_inode->i_state & 16777216) && likely(current_cred()->user->android_kabi_reserved1 & 16777216)) {
 -			continue;
 -		}
 -#endif
