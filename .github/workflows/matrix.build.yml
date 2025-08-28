@@ -148,23 +148,27 @@ jobs:
         echo "Applying SusFS patches..."
         cd kernel-source
         echo "Cloning simonpunk/susfs4ksu repo..."
-        git clone --depth=1 --branch kernel-4.14 https://gitlab.com/simonpunk/susfs4ksu.git susfs4ksu
+        # Clone a newer branch instead of the original kernel-4.14 branch since we are applying our own patches and upgrading versions anyway
+        git clone --depth=1 --branch gki-android15-6.6 https://gitlab.com/simonpunk/susfs4ksu.git susfs4ksu
 
         # Enable SusFS patches; including Magic Mount support.
         # Disabled SUS Path and Open Redirect since they are experimental and may cause instability.
         echo "Enabling SusFS in defconfig..."
         echo "CONFIG_KSU_SUSFS=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
-        echo "CONFIG_KSU_SUSFS_SUS_PATH=n" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
+        echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
+        echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
+        echo "CONFIG_KSU_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_SUSFS_SUS_KSTAT=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
-        echo "CONFIG_KSU_SUSFS_SUS_OVERLAYFS=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_SUSFS_TRY_UMOUNT=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
+        echo "CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
-        echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=n" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
+        echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
+        echo "CONFIG_KSU_SUSFS_SUS_SU=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
 
         # Copy necessary SusFS patches to the kernel source
         # https://gitlab.com/simonpunk/susfs4ksu/-/blob/kernel-4.14/README.md
@@ -179,7 +183,7 @@ jobs:
         elif [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-Next" ]; then
           # We need to apply SusFS patches
           # Lightly modified patch from: https://github.com/WildKernels/kernel_patches/tree/main/next/0001-kernel-implement-susfs-v1.5.5-v1.5.7-KSUN-v1.0.8.patch
-          export SUSFS_PATCH_NAME="0001-kernel-implement-susfs-v1.5.5-v1.5.7-KSUN-v1.0.9.patch"
+          export SUSFS_PATCH_NAME="0001-kernel-implement-susfs-v1.5.8-KernelSU-Next.patch"
           echo "Setting up SusFS for KernelSU-Next..."
           echo "Applying SusFS patch for KernelSU-Next..."
           cd KernelSU-Next
