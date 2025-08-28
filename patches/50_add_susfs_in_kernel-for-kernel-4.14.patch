@@ -1009,8 +1009,8 @@ index b8708a383b85..8c1508242988 100644
  
  #include <asm/elf.h>
  #include <asm/tlb.h>
-@@ -348,6 +351,10 @@ static void show_vma_header_prefix(struct seq_file *m,
- 		   MAJOR(dev), MINOR(dev), ino);
+@@ -499,6 +502,10 @@ static int show_vma_header_prefix(struct seq_file *m, unsigned long start,
+ 	return 0;
  }
  
 +#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
