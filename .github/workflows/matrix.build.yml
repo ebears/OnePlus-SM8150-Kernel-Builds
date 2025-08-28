@@ -187,9 +187,28 @@ jobs:
           echo "Applying SusFS patch for KernelSU-Next..."
           cd KernelSU-Next
           echo "Downloading KernelSU-Next SusFS patch..."
-          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$SUSFS_PATCH_NAME
-          echo "Applying patch: $SUSFS_PATCH_NAME ..."
-          patch -p1 < $SUSFS_PATCH_NAME
+          # wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$SUSFS_PATCH_NAME
+          # echo "Applying patch: $SUSFS_PATCH_NAME ..."
+          # patch -p1 < $SUSFS_PATCH_NAME
+          wget https://github.com/WildKernels/kernel_patches/tree/main/next/susfs_fix_patches/v1.5.8/fix_apk_sign.c.patch
+          patch -p1 < fix_apk_sign.c.patch
+          wget https://github.com/WildKernels/kernel_patches/tree/main/next/susfs_fix_patches/v1.5.8/fix_core_hook.c.patch
+          patch -p1 < fix_core_hook.c.patch
+          wget https://github.com/WildKernels/kernel_patches/tree/main/next/susfs_fix_patches/v1.5.8/fix_ksud.c.patch
+          patch -p1 < fix_ksud.c.patch
+          wget https://github.com/WildKernels/kernel_patches/tree/main/next/susfs_fix_patches/v1.5.8/fix_selinux.c.patch
+          patch -p1 < fix_selinux.c.patch
+          rm fix_apk_sign.c.patch fix_core_hook.c.patch fix_ksud.c.patch fix_selinux.c.patch
+          wget https://github.com/WildKernels/kernel_patches/tree/main/next/susfs_fix_patches/v1.5.9/fix_apk_sign.c.patch
+          patch -p1 < fix_apk_sign.c.patch
+          wget https://github.com/WildKernels/kernel_patches/tree/main/next/susfs_fix_patches/v1.5.9/fix_core_hook.c.patch
+          patch -p1 < fix_core_hook.c.patch
+          wget https://github.com/WildKernels/kernel_patches/tree/main/next/susfs_fix_patches/v1.5.9/fix_kernel_compat.c.patch
+          patch -p1 < fix_kernel_compat.c.patch
+          wget https://github.com/WildKernels/kernel_patches/tree/main/next/susfs_fix_patches/v1.5.9/fix_rules.c.patch
+          patch -p1 < fix_rules.c.patch
+          wget https://github.com/WildKernels/kernel_patches/tree/main/next/susfs_fix_patches/v1.5.9/fix_sucompat.c.patch
+          patch -p1 < fix_sucompat.c.patch
           cd ..
         elif [ "${{ matrix.kernel_variant.tag }}" == "SukiSU-Ultra" ]; then
           # Again, applying SusFS patches
