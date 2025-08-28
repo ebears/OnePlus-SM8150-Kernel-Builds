@@ -233,8 +233,8 @@ index caca48b..103dbc3 100644
  			attach_mnt(q, parent, p->mnt_mp);
 @@ -3252,15 +3251,6 @@ long do_mount(const char *dev_name, const char __user *dir_name,
  	else
- 		retval = do_new_mount(&path, type_page, sb_flags, mnt_flags,
- 				      dev_name, data_page);
+ 		retval = do_new_mount(dir_name, &path, type_page, sb_flags,
+ 				      mnt_flags, dev_name, data_page);
 -#ifdef CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT
 -	// For both Legacy and Magic Mount KernelSU
 -	if (!retval && susfs_is_auto_add_sus_ksu_default_mount_enabled &&
@@ -327,7 +327,8 @@ diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
 index 20b211e..312cfa0 100644
 --- a/fs/proc/task_mmu.c
 +++ b/fs/proc/task_mmu.c
-@@ -514,7 +514,7 @@ show_map_vma(struct seq_file *m, struct vm_area_struct *vma, int is_pid)
+@@ -514,8 +514,8 @@ show_map_vma(struct seq_file *m, struct vm_area_struct *vma, int is_pid)
+ 
  	if (file) {
  		struct inode *inode = file_inode(vma->vm_file);
  #ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
