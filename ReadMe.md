@@ -75,6 +75,7 @@ Thanks all ❤️
 ##### Github workflow references and patches
 - [hi4th/kernel_oneplus_sm8150](https://github.com/hi4th/kernel_oneplus_sm8150)
 - [midozalouk/android_kernel_oneplus_sm8150](https://github.com/midozalouk/android_kernel_oneplus_sm8150)
+- [ayuschatterjee/android_kernel_oneplus_sm8150](https://github.com/ayuschatterjee/android_kernel_oneplus_sm8150)
 - [WildKernels/kernel_patches](https://github.com/WildKernels/kernel_patches)
 - [JackA1ltman/NonGKI_Kernel_Build_2nd](https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd)
 
