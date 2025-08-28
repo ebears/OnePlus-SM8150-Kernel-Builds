@@ -1330,6 +1330,7 @@ index dc1ca5d4..727911ff 100644
 +	if (!ksu_getenforce()) {
  		pr_info("SELinux permissive or disabled when handle policy!\n");
  	}
+ 	
 diff --git a/kernel/selinux/selinux.c b/kernel/selinux/selinux.c
 index 4ba20b04..e171e010 100644
 --- a/kernel/selinux/selinux.c
