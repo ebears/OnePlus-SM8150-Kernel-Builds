@@ -12,7 +12,7 @@ index f69160b..7d0a415 100644
  
  #include "internal.h"
  #include "mount.h"
-@@ -2256,11 +2253,6 @@ struct dentry *__d_lookup_rcu(const struct dentry *parent,
+@@ -2228,11 +2225,6 @@ struct dentry *__d_lookup_rcu(const struct dentry *parent,
  			continue;
  		if (dentry_cmp(dentry, str, hashlen_len(hashlen)) != 0)
  			continue;
@@ -24,7 +24,7 @@ index f69160b..7d0a415 100644
  		*seqp = seq;
  		return dentry;
  	}
-@@ -2343,12 +2335,6 @@ struct dentry *__d_lookup(const struct dentry *parent, const struct qstr *name)
+@@ -2316,12 +2308,6 @@ struct dentry *__d_lookup(const struct dentry *parent, const struct qstr *name)
  		if (dentry->d_name.hash != hash)
  			continue;
  
