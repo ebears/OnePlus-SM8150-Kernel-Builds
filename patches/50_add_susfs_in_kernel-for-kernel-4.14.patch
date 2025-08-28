@@ -998,8 +998,7 @@ diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
 index b8708a383b85..8c1508242988 100644
 --- a/fs/proc/task_mmu.c
 +++ b/fs/proc/task_mmu.c
-@@ -19,6 +19,9 @@
- #include <linux/shmem_fs.h>
+@@ -20,6 +20,9 @@
  #include <linux/uaccess.h>
  #include <linux/mm_inline.h>
  #include <linux/ctype.h>
@@ -1009,7 +1008,7 @@ index b8708a383b85..8c1508242988 100644
  
  #include <asm/elf.h>
  #include <asm/tlb.h>
-@@ -499,6 +502,10 @@ static int show_vma_header_prefix(struct seq_file *m, unsigned long start,
+@@ -496,6 +499,10 @@
  	return 0;
  }
  
@@ -1020,7 +1019,7 @@ index b8708a383b85..8c1508242988 100644
  static void
  show_map_vma(struct seq_file *m, struct vm_area_struct *vma, int is_pid)
  {
-@@ -362,8 +369,17 @@ show_map_vma(struct seq_file *m, struct vm_area_struct *vma, int is_pid)
+@@ -510,8 +517,17 @@
  
  	if (file) {
  		struct inode *inode = file_inode(vma->vm_file);
