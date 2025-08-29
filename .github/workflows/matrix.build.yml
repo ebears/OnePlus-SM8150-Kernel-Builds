@@ -69,7 +69,7 @@ jobs:
         # REMOVE ME LATER LOL
         if [ "${{ matrix.kernel_variant.tag }}" == "SukiSU-Ultra" ]; then
           echo "It's a WIP."
-          exit 0
+          exit 1
         fi
 
         # Remove pre-installed stuff we don't need
