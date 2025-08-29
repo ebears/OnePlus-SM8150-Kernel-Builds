@@ -66,17 +66,9 @@ jobs:
       uses: hendrikmuhs/ccache-action@v1
     - name: "💥Install APT package dependencies"
       run: |
-        # REMOVE ME LATER LOL
-        if [ "${{ matrix.kernel_variant.tag }}" == "SukiSU-Ultra" ]; then
-          echo "It's a WIP."
-          exit 1
-        fi
-
-        # Remove pre-installed stuff we don't need
         echo "Removing unneeded pre-installed packages..."
         sudo rm -rf /opt/ghc "/usr/local/share/boost" /usr/share/dotnet "$AGENT_TOOLSDIRECTORY"
 
-        # Update package repos and install requirements 
         echo "Installing required packages..."
         sudo apt-get update -y
         sudo apt-get install -y gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi libelf-dev libarchive-tools lld llvm make python3 libssl-dev build-essential bc bison flex unzip xz-utils mkbootimg cpio device-tree-compiler git
