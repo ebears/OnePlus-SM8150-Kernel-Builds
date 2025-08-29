@@ -114,6 +114,12 @@ jobs:
         echo "Applying kernelsu.patch from YAAP kernel source..."
         patch -p1 < kernelsu.patch
 
+        # Download and apply FIX_APATCH_OPENELA.patch to Revert "cred: switch to using atomic_long_t"
+        # Reference: https://github.com/midozalouk/android_kernel_oneplus_sm8150/blob/main/patches%20/FIX_APATCH_OPENELA.patch
+        echo "Applying FIX_APATCH_OPENELA.patch to revert using atomic_long_t..."
+        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/FIX_APATCH_OPENELA.patch
+        patch -p1 < FIX_APATCH_OPENELA.patch
+
         # Download and apply path_umount.patch to backport umount functionality necessary for KernelSU
         # Reference: https://kernelsu.org/guide/how-to-integrate-for-non-gki.html#how-to-backport-path-umount
         echo "Applying path_umount.patch to backport umount functionality..."
