@@ -1,0 +1,13 @@
+diff --git a/arch/arm64/boot/Makefile b/arch/arm64/boot/Makefile
+index 6986f77cc..f578a121c 100644
+--- a/arch/arm64/boot/Makefile
++++ b/arch/arm64/boot/Makefile
+@@ -41,6 +41,10 @@ rtic_mp.dtb: vmlinux FORCE
+ 
+ $(obj)/Image: vmlinux FORCE
+ 	$(call if_changed,objcopy)
++ifeq ($(CONFIG_KPM),y)
++	$(Q)cd $(obj) &&
++ $(Q)$(srctree)/scripts/patch_kpm
++	$(Q)mv -f $(obj)/oImage $@
++endif

@@ -98,37 +98,42 @@ jobs:
     - name: "🛠️Apply KernelSU patches"
       # https://kernelsu.org/guide/how-to-integrate-for-non-gki.html
       run: |
+        export KERNEL_SU_PATCH=kernelsu.patch
+        export FIX_CRED_PATCH=FIX_APATCH_OPENELA.patch
+        export PATH_UMOUNT_PATCH=001_path_umount.patch
+
         echo "Applying KernelSU patches for ${{ matrix.kernel_variant.tag }}..."
         cd kernel-source
 
         # kernelsu.patch is provided by the YAAP kernel source
         # Reference: https://kernelsu.org/guide/how-to-integrate-for-non-gki.html#manually-modify-the-kernel-source
-        echo "Applying kernelsu.patch from YAAP kernel source..."
-        patch -p1 < kernelsu.patch
+        echo "Applying $KERNEL_SU_PATCH from YAAP kernel source..."
+        patch -p1 < $KERNEL_SU_PATCH
 
         # Download and apply FIX_APATCH_OPENELA.patch to Revert "cred: switch to using atomic_long_t"
         # Reference: https://github.com/midozalouk/android_kernel_oneplus_sm8150/blob/main/patches%20/FIX_APATCH_OPENELA.patch
-        echo "Applying FIX_APATCH_OPENELA.patch to revert using atomic_long_t..."
-        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/FIX_APATCH_OPENELA.patch
-        patch -p1 < FIX_APATCH_OPENELA.patch
+        echo "Applying $FIX_CRED_PATCH to revert using atomic_long_t..."
+        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$FIX_CRED_PATCH
+        patch -p1 < $FIX_CRED_PATCH
 
-        # Download and apply path_umount.patch to backport umount functionality necessary for KernelSU
         # Reference: https://kernelsu.org/guide/how-to-integrate-for-non-gki.html#how-to-backport-path-umount
-        echo "Applying path_umount.patch to backport umount functionality..."
-        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/path_umount.patch
-        patch -p1 < path_umount.patch
+        echo "Applying $PATH_UMOUNT_PATCH to backport umount functionality..."
+        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$PATH_UMOUNT_PATCH
+        patch -p1 < $PATH_UMOUNT_PATCH
 
-        # curl the script to set up KernelSU variant
         echo "Running setup script for ${{ matrix.kernel_variant.tag }}..."
         curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s "${{ matrix.kernel_variant.setup_arg }}"
 
         # Add necessary configurations to the kernel defconfig
-        #    Enable KSU
+        ##    Enable KSU
         echo "Enabling KSU in defconfig..."
         echo "CONFIG_KSU=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
-        #    Disable kprobes and enable manual hooking (since we used kernelsu.patch from YAAP source)
+
+        ##    Disable kprobes and enable manual hooking (since we used kernelsu.patch from YAAP source)
         echo "CONFIG_KSU_KPROBES_HOOK=n" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
+
+        ##    KPM Patching check; if SukiSU, support KPM
         if [ "${{ matrix.kernel_variant.tag }}" == "SukiSU-Ultra" ]; then
           # SukiSU-Ultra requires this for KPM functionality (WIP -- NEED TO PATCH KERNEL)
           # Reference: https://github.com/SukiSU-Ultra/SukiSU-Ultra#kpm-support
@@ -138,6 +143,10 @@ jobs:
           # echo "CONFIG_KALLSYMS" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
           echo "CONFIG_KALLSYMS_ALL=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
 
+          export KPM_PATCH=002_add-auto-kpm-patch.patch
+          echo "Applying $KPM_PATCH..."
+          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KPM_PATCH
+          patch -p1 < $KPM_PATCH
           # Apply backport patch for set_memory() changes in Linux 4.19 ... and other stuff (WIP)
           # Patches from here: https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd/tree/mainline/Patches/Patch
         else
@@ -183,7 +192,7 @@ jobs:
         elif [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-Next" ]; then
           # We need to apply SusFS patches
           # Lightly modified patch from: https://github.com/WildKernels/kernel_patches/blob/main/next/0001-kernel-implement-susfs-v1.5.8-KernelSU-Next-v1.0.8.patch
-          export SUSFS_PATCH_NAME="0001-kernel-implement-susfs-v1.5.8-KernelSU-Next.patch"
+          export SUSFS_PATCH_NAME="010_kernel-implement-susfs-v1.5.8-KernelSU-Next.patch"
           echo "Setting up SusFS for KernelSU-Next..."
           echo "Applying SusFS patch for KernelSU-Next..."
           cd KernelSU-Next
@@ -195,7 +204,7 @@ jobs:
         elif [ "${{ matrix.kernel_variant.tag }}" == "SukiSU-Ultra" ]; then
           # Again, applying SusFS patches
           # Lightly modified patch from: https://github.com/WildKernels/kernel_patches/tree/main/next/0001-kernel-implement-susfs-v1.5.5-v1.5.7-KSUN-v1.0.8.patch
-          export SUSFS_PATCH_NAME="0001-kernel-implement-susfs-v1.5.5-v1.5.7-SukiSU.patch"
+          export SUSFS_PATCH_NAME="010_kernel-implement-susfs-v1.5.8-SukiSU-Ultra.patch"
           echo "Setting up SusFS for SukiSU-Ultra..."
           echo "Applying SusFS patch for SukiSU-Ultra..."
           cd KernelSU
@@ -210,36 +219,39 @@ jobs:
 
         # Download and apply SusFS patches to the kernel source
         echo "Downloading SusFS patches for the kernel source..."
-        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/50_add_susfs_in_kernel-for-kernel-4.14.patch
-        echo "Applying SusFS patch to the kernel source..."
-        patch -p1 < 50_add_susfs_in_kernel-for-kernel-4.14.patch
+        
+        export KERNEL_414_SUSFS_PATCH_155=100_add_susfs_in_kernel-for-kernel-4.14.patch
+        export KERNEL_414_SUSFS_PATCH_157=101_susfs_upgrade_to_157.patch
+        export KERNEL_414_SUSFS_PATCH_158=102_susfs_upgrade_to_158_4.14.patch
+        export KERNEL_414_SUSFS_PATCH_159=103_susfs_upgrade_to_159.patch
+        export KERNEL_414_SUSFS_PATCH_1510=104_susfs_upgrade_to_1510_4.14.patch
+
+        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_414_SUSFS_PATCH_155
+        echo "Applying $KERNEL_414_SUSFS_PATCH_155 to the kernel source..."
+        patch -p1 < $KERNEL_414_SUSFS_PATCH_155
 
         # Apply updates to SusFS
         # Reference: https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd/tree/mainline/Patches/Patch
-        echo "Downloading susfs_upgrade_to_157.patch..."
-        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/susfs_upgrade_to_157.patch
-        echo "Applying susfs_upgrade_to_157.patch..."
-        patch -p1 < susfs_upgrade_to_157.patch
+        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_414_SUSFS_PATCH_157
+        echo "Applying $KERNEL_414_SUSFS_PATCH_157..."
+        patch -p1 < $KERNEL_414_SUSFS_PATCH_157
 
-        echo "Downloading susfs_upgrade_to_158_4.14.patch..."
-        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/susfs_upgrade_to_158_4.14.patch
-        echo "Applying susfs_upgrade_to_158_4.14.patch..."
-        patch -p1 < susfs_upgrade_to_158_4.14.patch
+        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_414_SUSFS_PATCH_158
+        echo "Applying $KERNEL_414_SUSFS_PATCH_158..."
+        patch -p1 < $KERNEL_414_SUSFS_PATCH_158
 
         # May be necessary?
         # Ref: https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd/tree/mainline/.github/workflows/patch-susfs#L62
         sed -i '/#define CMD_SUSFS_HIDE_SUS_MNTS_FOR_ALL_PROCS 0x55561/a \#define CMD_SUSFS_UMOUNT_FOR_ZYGOTE_ISO_SERVICE 0x55562' include/linux/susfs_def.h
 
-        echo "Downloading susfs_upgrade_to_159.patch..."
-        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/susfs_upgrade_to_159.patch
-        echo "Applying susfs_upgrade_to_159.patch..."
-        patch -p1 < susfs_upgrade_to_159.patch
+        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_414_SUSFS_PATCH_159
+        echo "Applying $KERNEL_414_SUSFS_PATCH_159..."
+        patch -p1 < $KERNEL_414_SUSFS_PATCH_159
 
         # Needs further patching with KernelSU (Next) to work
-        # echo "Downloading susfs_upgrade_to_1510_4.14.patch..."
-        # wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/susfs_upgrade_to_1510_4.14.patch
-        # echo "Applying susfs_upgrade_to_1510_4.14.patch..."
-        # patch -p1 < susfs_upgrade_to_1510_4.14.patch
+        # wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_414_SUSFS_PATCH_1510
+        # echo "Applying $KERNEL_414_SUSFS_PATCH_1510..."
+        # patch -p1 < $KERNEL_414_SUSFS_PATCH_1510
     # START error handling
     # Error handling for patching
     - name: ⚠️Search for patch errors
@@ -282,8 +294,8 @@ jobs:
           cd kernel-source/out/arch/arm64/boot/
           echo "Downloading patch_linux tool..."
           # Patch from here: https://github.com/hotianbexuanto/NonGKI_Kernel_Build/blob/main/.github/workflows/build_kernel_op8_oos13.1_a13_realking.yml
-          wget https://github.com/SukiSU-Ultra/SukiSU_patch/raw/refs/heads/main/kpm/patch_linux
-          chmod a+x ./patch_linux
+          wget https://github.com/SukiSU-Ultra/SukiSU_KernelPatch_patch/releases/download/0.12.0/patch_linux
+          chmod +x patch_linux
           echo "Patching kernel Image for KPM support..."
           ./patch_linux
           rm Image
@@ -294,6 +306,21 @@ jobs:
         fi
         echo "Copying kernel image to AnyKernel3 folder..."
         cp kernel-source/out/arch/arm64/boot/Image.gz-dtb AnyKernel3/
+
+        if [[ -f "kernel-source/out/arch/arm64/boot/dtbo.img" ]]; then
+          cp -fp kernel-source/out/arch/arm64/boot/dtbo.img AnyKernel3/
+          echo "Found dtbo.img !"
+        else
+          echo "dtbo.img not found. Skipping..."
+        fi
+
+        if [ -f "kernel-source/out/arch/arm64/boot/dtb" ]; then
+          echo "Found DTB!"
+          cp -fp kernel-source/out/arch/arm64/boot/dtb AnyKernel3/
+        else
+          echo "dtb folder not found. Skipping..."
+        fi
+
         echo "Creating ZIP file: OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip"
         cd AnyKernel3
         zip -r ../OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip *
