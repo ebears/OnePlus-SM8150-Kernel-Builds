@@ -13,7 +13,7 @@ Releases are [AnyKernel3](https://github.com/osm0sis/AnyKernel3) ZIPs. Check out
 | --- | --- |
 | #️⃣[KernelSU-Rissu](https://github.com/rsuntk/KernelSU)            | ✅                          |
 | ☯️[KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next) | ✅                          |
-| 😼[SukiSU-Ultra](https://github.com/SukiSU-Ultra/SukiSU-Ultra)    | ✅                          |
+| ~~😼[SukiSU-Ultra](https://github.com/SukiSU-Ultra/SukiSU-Ultra)~~ WIP while I figure out KPM    | ✅                          |
 
 Kernel downloads are found under [releases](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/releases).
 
@@ -54,7 +54,7 @@ Flash at your own risk.
 
 - Update to SusFS v1.5.10
 - Pure [APatch](https://github.com/bmax121/APatch)/KPM supported kernel ([KernelPatch](https://github.com/bmax121/KernelPatch)).
-    - ~~KPM support for SukiSU-Ultra.~~
+    - KPM support for SukiSU-Ultra.
 - [Mountify](https://github.com/backslashxx/mountify) support.
 
 ---
