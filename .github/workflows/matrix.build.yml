@@ -99,7 +99,7 @@ jobs:
       # https://kernelsu.org/guide/how-to-integrate-for-non-gki.html
       run: |
         export KERNEL_SU_PATCH=kernelsu.patch
-        export FIX_CRED_PATCH=FIX_APATCH_OPENELA.patch
+        export FIX_CRED_PATCH=000_FIX_APATCH_OPENELA.patch
         export PATH_UMOUNT_PATCH=001_path_umount.patch
 
         echo "Applying KernelSU patches for ${{ matrix.kernel_variant.tag }}..."
