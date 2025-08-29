@@ -302,7 +302,7 @@ jobs:
         cp kernel-source/out/arch/arm64/boot/Image.gz-dtb AnyKernel3/kernels/
         cd AnyKernel3
         echo "Creating ZIP file: OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip"
-        zip -r9 OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip * -x .git .gitignore
+        zip -r OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip *
     - name: "🌬️Upload artifact"
       uses: actions/upload-artifact@v4
       with:
