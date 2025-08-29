@@ -72,12 +72,14 @@ Thanks all ❤️
 - [simonpunk/susfs4ksu](https://gitlab.com/simonpunk/susfs4ksu)
 - [sidex15/susfs4ksu-module](https://github.com/sidex15/susfs4ksu-module)
 
-##### Github workflow references and patches
+##### Patches
+- [WildKernels/kernel_patches](https://github.com/WildKernels/kernel_patches)
+- [JackA1ltman/NonGKI_Kernel_Build_2nd](https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd)
+
+##### Github workflow references
 - [hi4th/kernel_oneplus_sm8150](https://github.com/hi4th/kernel_oneplus_sm8150)
 - [midozalouk/android_kernel_oneplus_sm8150](https://github.com/midozalouk/android_kernel_oneplus_sm8150)
 - [ayuschatterjee/android_kernel_oneplus_sm8150](https://github.com/ayuschatterjee/android_kernel_oneplus_sm8150)
-- [WildKernels/kernel_patches](https://github.com/WildKernels/kernel_patches)
-- [JackA1ltman/NonGKI_Kernel_Build_2nd](https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd)
 - [SukiSU-Ultra/SukiSU_patch](https://github.com/SukiSU-Ultra/SukiSU_patch)
 - [MoranOrz/kernel_build_workflows](https://github.com/MoranOrz/kernel_build_workflows/blob/5536c724642750446183e7a89af7d0283f7feb16/.github/workflows/build_ak3.yml)
 

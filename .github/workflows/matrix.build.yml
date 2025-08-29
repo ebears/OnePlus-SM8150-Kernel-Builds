@@ -66,6 +66,12 @@ jobs:
       uses: hendrikmuhs/ccache-action@v1
     - name: "💥Install APT package dependencies"
       run: |
+        # REMOVE ME LATER LOL
+        if [ "${{ matrix.kernel_variant.tag }}" == "SukiSU-Ultra" ]; then
+          echo "It's a WIP."
+          exit 0
+        fi
+
         # Remove pre-installed stuff we don't need
         echo "Removing unneeded pre-installed packages..."
         sudo rm -rf /opt/ghc "/usr/local/share/boost" /usr/share/dotnet "$AGENT_TOOLSDIRECTORY"
@@ -272,7 +278,6 @@ jobs:
         # SukiSU-Ultra KPM support steps from here:
         # https://github.com/YangQi0408/kernel_xiaomi_sm8250_mod/blob/41d6929480426e0bbdc6697fe692c14d3cfc8014/build.sh#L68
         echo "Packaging kernel into AnyKernel3 ZIP..."
-        mkdir -p AnyKernel3/kernels
         if [ "${{ matrix.kernel_variant.tag }}" == "SukiSU-Ultra" ]; then
           # Patch for SukiSU KPM support
           echo "Applying SukiSU-Ultra KPM patch to the kernel image..."
@@ -290,15 +295,15 @@ jobs:
           echo "KPM not supported for ${{ matrix.kernel_variant.tag }}; skipping KPM patch..."
         fi
         echo "Copying kernel image to AnyKernel3 folder..."
-        cp kernel-source/out/arch/arm64/boot/Image.gz-dtb AnyKernel3/kernels/
-        cd AnyKernel3
+        cp kernel-source/out/arch/arm64/boot/Image.gz-dtb AnyKernel3/
         echo "Creating ZIP file: OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip"
-        zip -r OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip *
+        cd AnyKernel3
+        zip -r ../OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip *
     - name: "🌬️Upload artifact"
       uses: actions/upload-artifact@v4
       with:
         name: OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}
-        path: "AnyKernel3/OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip"
+        path: "OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip"
         retention-days: 2
   release:
     name: "🍊Aggregate and publish"
