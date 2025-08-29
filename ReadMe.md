@@ -78,6 +78,8 @@ Thanks all ❤️
 - [ayuschatterjee/android_kernel_oneplus_sm8150](https://github.com/ayuschatterjee/android_kernel_oneplus_sm8150)
 - [WildKernels/kernel_patches](https://github.com/WildKernels/kernel_patches)
 - [JackA1ltman/NonGKI_Kernel_Build_2nd](https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd)
+- [SukiSU-Ultra/SukiSU_patch](https://github.com/SukiSU-Ultra/SukiSU_patch)
+- [MoranOrz/kernel_build_workflows](https://github.com/MoranOrz/kernel_build_workflows/blob/5536c724642750446183e7a89af7d0283f7feb16/.github/workflows/build_ak3.yml)
 
 ---
 *Builds are probably **untested**.*\
