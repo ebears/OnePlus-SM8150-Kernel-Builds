@@ -121,9 +121,6 @@ jobs:
         wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$PATH_UMOUNT_PATCH
         patch -p1 < $PATH_UMOUNT_PATCH
 
-        echo "Running setup script for ${{ matrix.kernel_variant.tag }}..."
-        curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s "${{ matrix.kernel_variant.setup_arg }}"
-
         # Add necessary configurations to the kernel defconfig
         ##    Enable KSU
         echo "Enabling KSU in defconfig..."
@@ -152,6 +149,9 @@ jobs:
         else
           echo "Kernel (${{ matrix.kernel_variant.tag }}) doesn't include KPM support; skipping KPM config..."
         fi
+        
+        echo "Running setup script for ${{ matrix.kernel_variant.tag }}..."
+        curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s "${{ matrix.kernel_variant.setup_arg }}"
     - name: "🕵️‍♀️Apply SusFS (if enabled)"
       if: matrix.susfs
       run: |
