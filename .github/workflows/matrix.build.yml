@@ -135,13 +135,16 @@ jobs:
         curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s "${{ matrix.kernel_variant.setup_arg }}"
 
         # Apply KPM pre-patches for SukiSU-Ultra
-        if [ "${{ matrix.kernel_variant.tag }}" == "SukiSU-Ultra" ];
+        if [ "${{ matrix.kernel_variant.tag }}" == "SukiSU-Ultra" ]; then
           # SukiSU-Ultra requires this for KPM functionality
+          # YAAP Kernel source *might* contain set_memory backports from 4.19 anyways...
           # Reference: https://github.com/SukiSU-Ultra/SukiSU-Ultra#kpm-support
           echo "Enabling KPM support in defconfig for SukiSU-Ultra..."
+           # CONFIG_KALLSYMS is already enabled in Gulch defconfig
           echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
-          echo "CONFIG_KALLSYMS" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }} # Already enabled in YAAP source
+          echo "CONFIG_KALLSYMS=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
           echo "CONFIG_KALLSYMS_ALL=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
+        fi
     - name: "🕵️‍♀️Apply SusFS (if enabled)"
       if: matrix.susfs
       run: |
