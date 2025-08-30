@@ -81,17 +81,18 @@ jobs:
           exit 1
         fi
         FILENAME="${LATEST/-release/}.tar.gz"
+
+        # Set Clang version for file name later
+        CLANG_VER="${FILENAME_BASE#Clang-}"
+        CLANG_VER="${CLANG_VER%%.*}"
+
         echo "Using ZyC version: $LATEST"
-        echo "Downloading from: https://github.com/ZyCromerZ/Clang/releases/download/$LATEST/$FILENAME"
+        echo "Downloading from: https://github.com/ZyCromerZ/Clang/releases/download/$LATEST/clang-$FILENAME"
         mkdir -p toolchains/zyc-clang
         cd toolchains/zyc-clang
         curl -LO "https://github.com/ZyCromerZ/Clang/releases/download/$LATEST/$FILENAME"
         tar -xzf "$FILENAME"
         rm "$FILENAME"
-        
-        # Set Clang version for file name later
-        CLANG_VER="${FILENAME_BASE#Clang-}"
-        CLANG_VER="${CLANG_VER%%.*}"
     - name: "👯‍♀️Clone kernel source"
       run: |
         echo "Cloning kernel source..."
