@@ -70,17 +70,22 @@ jobs:
         git clone https://github.com/walkonbothsides/AnyKernel3 -b oneplus7 --depth=1 AnyKernel3
         rm -rf AnyKernel3/.git
     - name: "⚙️Set up Clang"
+      shell: bash
       run: |
+        set -euo pipefail
+
         echo "Setting up ZyC Clang..."
 
-        LATEST=$(jq -r 'map(select(.prerelease)) | first | .tag_name' <<< "$(curl --silent https://api.github.com/repos/ZyCromerZ/Clang/releases)")
+        # Fetch latest prerelease tag from GitHub API
+        RELEASES=$(curl --silent https://api.github.com/repos/ZyCromerZ/Clang/releases)
+        LATEST=$(jq -r 'map(select(.prerelease)) | first | .tag_name' <<< "$RELEASES")
 
         if [[ -z "$LATEST" ]]; then
-            echo "Error: Could not determine latest prerelease tag."
-            exit 1
+          echo "Error: Could not determine latest prerelease tag."
+          exit 1
         fi
 
-        # Remove "-release" from tag to form the filename prefix
+        # Strip "-release" and build the filename
         FILENAME_BASE="${LATEST/-release/}"
         FILENAME="${FILENAME_BASE}.tar.gz"
         CLANG_VER=$(echo "$FILENAME_BASE" | grep -oP 'Clang-\K[0-9]+')
@@ -91,17 +96,19 @@ jobs:
         mkdir -p toolchains/zyc-clang
         cd toolchains/zyc-clang
 
+        # Download the archive
         if ! wget "https://github.com/ZyCromerZ/Clang/releases/download/$LATEST/$FILENAME"; then
-            echo "Error: Failed to download Clang archive."
-            exit 1
+          echo "Error: Failed to download Clang archive."
+          exit 1
         fi
 
+        # Extract the archive
         if ! tar -xzf "$FILENAME"; then
-            echo "Error: Failed to extract archive."
-            exit 1
+          echo "Error: Failed to extract archive."
+          exit 1
         fi
 
-        # Clean up
+        # Cleanup
         rm "$FILENAME"
     - name: "👯‍♀️Clone kernel source"
       run: |
