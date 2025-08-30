@@ -73,8 +73,12 @@ jobs:
       run: |
         echo "Setting up ZyC Clang..."
 
-        # Get latest prerelease tag name
         LATEST=$(jq -r 'map(select(.prerelease)) | first | .tag_name' <<< "$(curl --silent https://api.github.com/repos/ZyCromerZ/Clang/releases)")
+
+        if [[ -z "$LATEST" ]]; then
+            echo "Error: Could not determine latest prerelease tag."
+            exit 1
+        fi
 
         # Remove "-release" from tag to form the filename prefix
         FILENAME_BASE="${LATEST/-release/}"
@@ -82,10 +86,22 @@ jobs:
         CLANG_VER=$(echo "$FILENAME_BASE" | grep -oP 'Clang-\K[0-9]+')
 
         echo "Using ZyC version: $LATEST"
+        echo "Downloading from: https://github.com/ZyCromerZ/Clang/releases/download/$LATEST/$FILENAME"
+
         mkdir -p toolchains/zyc-clang
         cd toolchains/zyc-clang
-        wget "https://github.com/ZyCromerZ/Clang/releases/download/$LATEST/$FILENAME"
-        tar -xzf "$FILENAME"
+
+        if ! wget "https://github.com/ZyCromerZ/Clang/releases/download/$LATEST/$FILENAME"; then
+            echo "Error: Failed to download Clang archive."
+            exit 1
+        fi
+
+        if ! tar -xzf "$FILENAME"; then
+            echo "Error: Failed to extract archive."
+            exit 1
+        fi
+
+        # Clean up
         rm "$FILENAME"
     - name: "👯‍♀️Clone kernel source"
       run: |
