@@ -310,24 +310,21 @@ jobs:
       run: |
         # SukiSU-Ultra KPM support steps from here:
         # https://github.com/YangQi0408/kernel_xiaomi_sm8250_mod/blob/41d6929480426e0bbdc6697fe692c14d3cfc8014/build.sh#L68
-        cd $DIR_KERNEL
-
+        cd $DIR_KERNEL/$DIR_BUILD
         echo "🕑Downloading patch_linux tool..."
         aria2c https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU_patch/refs/heads/main/kpm/patch_linux
         chmod a+x patch_linux
-
         echo "🕑Patching kernel for KPM support (first attempt)..."
         if ./patch_linux; then
           echo "✅Patch applied successfully."
         else
           echo "⚠️First patch attempt failed. Trying with alternative patch..."
 
-          # Download and apply alternative .patch file
+          # Download and apply alternative .patch file, and try patch_linux again
           KPM_FIX_PATCH=200_fix_kpm.patch
           aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KPM_FIX_PATCH
           echo "🕑Applying $KPM_FIX_PATCH..."
           patch -p1 < $KPM_FIX_PATCH
-
           echo "🕑Retrying patch_linux..."
           if ./patch_linux; then
             echo "✅Patch succeeded on retry."
@@ -341,7 +338,20 @@ jobs:
         mv oImage Image
 
         # Delete image and replace with KPM patched one
-        rm $DIR_ANYKERNEL3/Image.gz-dtb
+        if rm $DIR_ANYKERNEL3/Image.gz-dtb; then
+          echo "✅Removed old Image.gz-dtb from AnyKernel3 directory."
+        elif rm $DIR_ANYKERNEL3/Image.gz; then
+          echo "✅Removed old Image.gz from AnyKernel3 directory."
+        elif rm $DIR_ANYKERNEL3/Image; then
+          echo "✅Removed old Image from AnyKernel3 directory."
+        else
+          echo "❌Couldn't find any build image file."
+          echo "🕑Listing build directory contents..."
+          ls -a $DIR_KERNEL/$DIR_BUILD
+          exit 1
+        fi
+        
+        echo "🕑Copying patched Image to AnyKernel3 directory."
         cp $DIR_KERNEL/$DIR_BUILD/Image $DIR_ANYKERNEL3/
     - name: "📦Create AnyKernel3 ZIP"
       run: |
