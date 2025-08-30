@@ -313,23 +313,21 @@ jobs:
           echo "KPM not supported for ${{ matrix.kernel_variant.tag }}; skipping KPM patch..."
         fi
         echo "Copying kernel image to AnyKernel3 folder..."
-        cp kernel-source/out/arch/arm64/boot/Image AnyKernel3/
-        # SKIPPING THIS FOR NOW; TESTING WHETHER THIS CHANGES WHETHER SUSFS KERNEL PATCHES ARE PROPERLY READ FROM THE MODULE
-        # cp kernel-source/out/arch/arm64/boot/Image.gz-dtb AnyKernel3/
+        cp kernel-source/out/arch/arm64/boot/Image.gz-dtb AnyKernel3/
 
-        # if [[ -f "kernel-source/out/arch/arm64/boot/dtbo.img" ]]; then
-        #   cp -fp kernel-source/out/arch/arm64/boot/dtbo.img AnyKernel3/
-        #   echo "Found dtbo.img !"
-        # else
-        #   echo "dtbo.img not found. Skipping..."
-        # fi
+        if [[ -f "kernel-source/out/arch/arm64/boot/dtbo.img" ]]; then
+          cp -fp kernel-source/out/arch/arm64/boot/dtbo.img AnyKernel3/
+          echo "Found dtbo.img !"
+        else
+          echo "dtbo.img not found. Skipping..."
+        fi
 
-        # if [ -f "kernel-source/out/arch/arm64/boot/dtb" ]; then
-        #   echo "Found DTB!"
-        #   cp -fp kernel-source/out/arch/arm64/boot/dtb AnyKernel3/
-        # else
-        #   echo "dtb folder not found. Skipping..."
-        # fi
+        if [ -f "kernel-source/out/arch/arm64/boot/dtb" ]; then
+          echo "Found DTB!"
+          cp -fp kernel-source/out/arch/arm64/boot/dtb AnyKernel3/
+        else
+          echo "dtb folder not found. Skipping..."
+        fi
 
         echo "Creating ZIP file: OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip"
         cd AnyKernel3
