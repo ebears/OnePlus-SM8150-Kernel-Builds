@@ -14,6 +14,14 @@ on:
         description: 'defconfig file'
         required: true
         default: 'gulch_defconfig'
+      clang_commit:
+        description: 'Shortened clang commit hash'
+        required: true
+        default: 'r547379'
+      clang_version:
+        description: 'Clang binary version'
+        required: true
+        default: '20'
 # NOT COMPATIBLE with workflow_dispatch inputs above.
 #   schedule:
 #     # http://crontab.guru
@@ -69,33 +77,19 @@ jobs:
         echo "Cloning AnyKernel3 (walkonbothsides repo)..."
         git clone https://github.com/walkonbothsides/AnyKernel3 -b oneplus7 --depth=1 AnyKernel3
         rm -rf AnyKernel3/.git
-    - name: "⚙️ Set up ZyC Clang"
-      id: clang_setup
+    - name: "⚙️Set up Clang"
       run: |
-        echo "Setting up ZyC Clang..."
+        echo "Setting up AOSP Clang..."
+        mkdir -p toolchains/aosp-clang
+        cd toolchains/aosp-clang
 
-        # Fetch release data from GitHub API
-        RELEASES=$(curl --silent https://api.github.com/repos/ZyCromerZ/Clang/releases)
-        LATEST=$(echo "$RELEASES" | jq -r '.[0].tag_name')
-        if [[ -z "$LATEST" || "$LATEST" == "null" ]]; then
-          echo "❌ Error: Could not determine latest prerelease tag."
-          exit 1
-        fi
-        FILENAME="${LATEST/-release/}.tar.gz"
+        # First, clone an empty AOSP Clang repo...
+        echo "Cloning AOSP Clang repo..."
+        git clone --filter=blob:none --sparse -b main https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 .
 
-        # Set Clang version for file name later
-        CLANG_VER="${FILENAME%%.*}"
-        echo "CLANG_VER=$CLANG_VER"
-        echo "CLANG_VER=$CLANG_VER" >> $GITHUB_OUTPUT
-
-        echo "Using ZyC version: $CLANG_VER..."
-        echo "Downloading: https://github.com/ZyCromerZ/Clang/releases/download/$LATEST/clang-$FILENAME..."
-        mkdir -p toolchains/zyc-clang
-        cd toolchains/zyc-clang
-        curl -LO "https://github.com/ZyCromerZ/Clang/releases/download/$LATEST/clang-$FILENAME"
-        echo "Extracting: https://github.com/ZyCromerZ/Clang/releases/download/$LATEST/clang-$FILENAME..."
-        tar -xzf "clang-$FILENAME"
-        rm "clang-$FILENAME"
+        # ... And sparse checkout only the required version of Clang (saves A LOT of time and space)
+        echo "Sparse checkout of Clang..."
+        git sparse-checkout set clang-${{ github.event.inputs.clang_commit }}
     - name: "👯‍♀️Clone kernel source"
       run: |
         echo "Cloning kernel source..."
@@ -285,17 +279,18 @@ jobs:
     - name: "👷‍♀️Build kernel"
       run: |
         echo "Building kernel..."
-        export PATH=$(pwd)/toolchains/zyc-clang/bin/:$PATH
+        export PATH=$(pwd)/toolchains/aosp-clang/clang-${{ github.event.inputs.clang_commit }}/bin/:$PATH
         export ARCH=arm64 && export SUBARCH=arm64 && export LD=ld.lld
         cd kernel-source
         echo "Using defconfig: ${{ github.event.inputs.kernel_defconfig }}"
         echo "Kernel variant: ${{ matrix.kernel_variant.name }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}"
+        echo "Clang commit: ${{ github.event.inputs.clang_commit }} (version ${{ github.event.inputs.clang_version }})"
         echo "SusFS enabled: ${{ matrix.susfs }}"
         echo "Ccache stats before build:"
         ccache -s
         echo "Starting kernel build..."
-        make $KERNEL_CMDLINE ${{ github.event.inputs.kernel_defconfig }} CC="ccache clang-${{ steps.clang_setup.outputs.CLANG_VER }}"
-        make $KERNEL_CMDLINE -j$(nproc --all) CC="ccache clang-${{ steps.clang_setup.outputs.CLANG_VER }}"
+        make $KERNEL_CMDLINE ${{ github.event.inputs.kernel_defconfig }} CC="ccache clang-${{ github.event.inputs.clang_version }}"
+        make $KERNEL_CMDLINE -j$(nproc --all) CC="ccache clang-${{ github.event.inputs.clang_version }}"
     - name: "📦Create AnyKernel3 ZIP"
       run: |
         # SukiSU-Ultra KPM support steps from here:
