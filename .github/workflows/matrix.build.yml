@@ -71,7 +71,7 @@ jobs:
 
         echo "Installing required packages..."
         sudo apt-get update -y
-        sudo apt-get install -y gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi libelf-dev libarchive-tools lld llvm make python3 libssl-dev build-essential bc bison flex unzip xz-utils mkbootimg cpio device-tree-compiler git openjdk-17-jdk-headless
+        sudo apt-get install -y gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi libelf-dev libarchive-tools lld llvm make python3 libssl-dev build-essential bc bison flex unzip xz-utils mkbootimg cpio device-tree-compiler git openjdk-17-jdk-headless aria2
     - name: "👣Git clone and prepare AnyKernel folder"
       run: |
         echo "Cloning AnyKernel3 (walkonbothsides repo)..."
@@ -113,12 +113,12 @@ jobs:
         # Download and apply FIX_APATCH_OPENELA.patch to Revert "cred: switch to using atomic_long_t"
         # Reference: https://github.com/midozalouk/android_kernel_oneplus_sm8150/blob/main/patches%20/FIX_APATCH_OPENELA.patch
         echo "Applying $FIX_CRED_PATCH to revert using atomic_long_t..."
-        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$FIX_CRED_PATCH
+        aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$FIX_CRED_PATCH
         patch -p1 < $FIX_CRED_PATCH
 
         # Reference: https://kernelsu.org/guide/how-to-integrate-for-non-gki.html#how-to-backport-path-umount
         echo "Applying $PATH_UMOUNT_PATCH to backport umount functionality..."
-        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$PATH_UMOUNT_PATCH
+        aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$PATH_UMOUNT_PATCH
         patch -p1 < $PATH_UMOUNT_PATCH
 
         # Add necessary configurations to the kernel defconfig
@@ -129,34 +129,6 @@ jobs:
         ##    Disable kprobes and enable manual hooking (since we used kernelsu.patch from YAAP source)
         echo "CONFIG_KSU_KPROBES_HOOK=n" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
-
-        ##    KPM Patching check; if SukiSU, support KPM
-        if [ "${{ matrix.kernel_variant.tag }}" == "SukiSU-Ultra" ]; then
-          # SukiSU-Ultra requires this for KPM functionality (WIP -- NEED TO PATCH KERNEL)
-          # Reference: https://github.com/SukiSU-Ultra/SukiSU-Ultra#kpm-support
-          echo "Enabling KPM support in defconfig for SukiSU-Ultra..."
-          echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
-          echo "CONFIG_KALLSYMS" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }} # Already enabled in YAAP source
-          echo "CONFIG_KALLSYMS_ALL=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
-
-          # Apply backport patch for set_memory() changes in Linux 4.19 ... and other stuff (WIP)
-          # Patches from here: https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd/tree/mainline/Patches/Patch
-          FIX_KPM_PATCH="002_fix_kpm.patch"
-          BACKPORT_KERNEL_REAL_WRITE_PATCH="003_backport_kernel_read_and_kernel_write_to_ksu.patch"
-          SET_MEMORY_BACKPORT_PATCH="004_set_memory_to_49_and_low.patch"
-
-          echo "Applying patch: $FIX_KPM_PATCH..."
-          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$FIX_KPM_PATCH
-          patch -p1 < $FIX_KPM_PATCH
-          echo "Applying patch: $BACKPORT_KERNEL_REAL_WRITE_PATCH..."
-          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$BACKPORT_KERNEL_REAL_WRITE_PATCH
-          patch -p1 < $BACKPORT_KERNEL_REAL_WRITE_PATCH
-          echo "Applying patch: $SET_MEMORY_BACKPORT_PATCH..."
-          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$SET_MEMORY_BACKPORT_PATCH
-          patch -p1 < $SET_MEMORY_BACKPORT_PATCH
-        else
-          echo "Kernel (${{ matrix.kernel_variant.tag }}) doesn't include KPM support; skipping KPM config..."
-        fi
 
         # Download and apply KernelSU variant
         echo "Running setup script for ${{ matrix.kernel_variant.tag }}..."
@@ -206,7 +178,7 @@ jobs:
           echo "Applying SusFS patch for KernelSU-Next..."
           cd KernelSU-Next
           echo "Downloading KernelSU-Next SusFS patch..."
-          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$SUSFS_PATCH_NAME
+          aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$SUSFS_PATCH_NAME
           echo "Applying patch: $SUSFS_PATCH_NAME ..."
           patch -p1 < $SUSFS_PATCH_NAME
           cd ..
@@ -229,17 +201,17 @@ jobs:
         KERNEL_414_SUSFS_PATCH_159=103_susfs_upgrade_to_159.patch
         KERNEL_414_SUSFS_PATCH_1510=104_susfs_upgrade_to_1510_4.14.patch
 
-        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_414_SUSFS_PATCH_155
+        aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_414_SUSFS_PATCH_155
         echo "Applying $KERNEL_414_SUSFS_PATCH_155 to the kernel source..."
         patch -p1 < $KERNEL_414_SUSFS_PATCH_155
 
         # Apply updates to SusFS
         # Reference: https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd/tree/mainline/Patches/Patch
-        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_414_SUSFS_PATCH_157
+        aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_414_SUSFS_PATCH_157
         echo "Applying $KERNEL_414_SUSFS_PATCH_157..."
         patch -p1 < $KERNEL_414_SUSFS_PATCH_157
 
-        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_414_SUSFS_PATCH_158
+        aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_414_SUSFS_PATCH_158
         echo "Applying $KERNEL_414_SUSFS_PATCH_158..."
         patch -p1 < $KERNEL_414_SUSFS_PATCH_158
 
@@ -247,12 +219,12 @@ jobs:
         # Ref: https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd/tree/mainline/.github/workflows/patch-susfs#L62
         sed -i '/#define CMD_SUSFS_HIDE_SUS_MNTS_FOR_ALL_PROCS 0x55561/a \#define CMD_SUSFS_UMOUNT_FOR_ZYGOTE_ISO_SERVICE 0x55562' include/linux/susfs_def.h
 
-        wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_414_SUSFS_PATCH_159
+        aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_414_SUSFS_PATCH_159
         echo "Applying $KERNEL_414_SUSFS_PATCH_159..."
         patch -p1 < $KERNEL_414_SUSFS_PATCH_159
 
         # Needs further patching with KernelSU (Next) to work
-        # wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_414_SUSFS_PATCH_1510
+        # aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_414_SUSFS_PATCH_1510
         # echo "Applying $KERNEL_414_SUSFS_PATCH_1510..."
         # patch -p1 < $KERNEL_414_SUSFS_PATCH_1510
     # START error handling
@@ -276,8 +248,59 @@ jobs:
         export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
         echo "Patching Re-Kernel support"
         cd kernel-source
-        wget https://github.com/Sakion-Team/Re-Kernel/releases/download/modifier/Kernel-Modifier-v4.0.jar
+        aria2c https://github.com/Sakion-Team/Re-Kernel/releases/download/modifier/Kernel-Modifier-v4.0.jar
         $JAVA_HOME/bin/java -jar ./Kernel-Modifier-v4.0.jar
+
+    - name: KPM Function Support
+      # Big credit to the repo below
+      # https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd/blob/5a9022320aff591bd3fb0ada2c7f123b669e955d/.github/workflows/build-ready/action.yml#L150
+      if: matrix.kernel_variant.tag == 'SukiSU-Ultra'
+      shell: bash
+      run: |
+        cd kernel-source
+
+        if [ -f "include/linux/set_memory.h" ]; then
+            # SukiSU-Ultra requires this for KPM functionality
+            # Reference: https://github.com/SukiSU-Ultra/SukiSU-Ultra#kpm-support
+            echo "Enabling KPM support in defconfig for SukiSU-Ultra..."
+            echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
+            echo "CONFIG_KALLSYMS" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }} # Already enabled in YAAP source
+            echo "CONFIG_KALLSYMS_ALL=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
+
+            # Patch for SukiSU KPM support
+            echo "Downloading patch_linux tool..."
+            aria2c https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU_patch/refs/heads/main/kpm/patch_linux
+            chmod a+x patch_linux
+            echo "Patching kernel for KPM support..."
+            ./patch_linux
+        else
+            # SukiSU-Ultra requires this for KPM functionality
+            # Reference: https://github.com/SukiSU-Ultra/SukiSU-Ultra#kpm-support
+            echo "Enabling KPM support in defconfig for SukiSU-Ultra..."
+            echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
+            echo "CONFIG_KALLSYMS" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }} # Already enabled in YAAP source
+            echo "CONFIG_KALLSYMS_ALL=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
+
+            # Apply backport patch for set_memory() changes in Linux 4.19 ... and other stuff
+            # Patches from here: https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd/tree/mainline/Patches/Patch
+            SET_MEMORY_BACKPORT_PATCH="002_set_memory_to_49_and_low.patch"
+            echo "Applying patch: $SET_MEMORY_BACKPORT_PATCH..."
+            aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$SET_MEMORY_BACKPORT_PATCH
+            patch -p1 < $SET_MEMORY_BACKPORT_PATCH || true
+
+            # Patch for SukiSU KPM support
+            echo "Downloading patch_linux tool..."
+            aria2c https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU_patch/refs/heads/main/kpm/patch_linux
+            chmod a+x patch_linux
+            echo "Patching kernel for KPM support..."
+            ./patch_linux
+        fi
+
+        # Fixed stack frame overflow vulnerability
+        FIX_KPM_PATCH="003_fix_kpm.patch"
+        echo "Applying patch: $FIX_KPM_PATCH..."
+        aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$FIX_KPM_PATCH
+        patch -p1 < fix_kpm.patch || true
 
     - name: "👷‍♀️Build kernel"
       run: |
@@ -299,22 +322,6 @@ jobs:
         # SukiSU-Ultra KPM support steps from here:
         # https://github.com/YangQi0408/kernel_xiaomi_sm8250_mod/blob/41d6929480426e0bbdc6697fe692c14d3cfc8014/build.sh#L68
         echo "Packaging kernel into AnyKernel3 ZIP..."
-        if [ "${{ matrix.kernel_variant.tag }}" == "SukiSU-Ultra" ]; then
-          # Patch for SukiSU KPM support
-          echo "Applying SukiSU-Ultra KPM patch to the kernel image..."
-          cd kernel-source/out/arch/arm64/boot/
-          echo "Downloading patch_linux tool..."
-          # Patch from here: https://github.com/hotianbexuanto/NonGKI_Kernel_Build/blob/main/.github/workflows/build_kernel_op8_oos13.1_a13_realking.yml
-          wget https://github.com/SukiSU-Ultra/SukiSU_KernelPatch_patch/releases/download/0.12.0/patch_linux
-          chmod +x patch_linux
-          echo "Patching kernel Image for KPM support..."
-          ./patch_linux
-          rm Image
-          mv oImage Image
-          cd ../../../../..
-        else
-          echo "KPM not supported for ${{ matrix.kernel_variant.tag }}; skipping KPM patch..."
-        fi
         echo "Copying kernel image to AnyKernel3 folder..."
         cp kernel-source/out/arch/arm64/boot/Image.gz-dtb AnyKernel3/
 
