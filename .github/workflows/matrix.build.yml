@@ -157,6 +157,7 @@ jobs:
           echo "CONFIG_KALLSYMS_ALL=y" >> ./$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
         fi
     - name: "🕵️‍♀️Apply SusFS (if enabled)"
+      # https://gitlab.com/simonpunk/susfs4ksu/-/blob/kernel-4.14/README.md
       if: matrix.susfs
       run: |
         echo "Applying SusFS patches..."
@@ -164,9 +165,7 @@ jobs:
         echo "🕑Cloning simonpunk/susfs4ksu repo..."
         git clone --depth=1 --branch kernel-4.14 https://gitlab.com/simonpunk/susfs4ksu.git susfs4ksu
 
-        # Enable SusFS patches; including Magic Mount support.
-        # Disabled SUS Path and Open Redirect since they are experimental and may cause instability.
-        echo "Enabling SusFS in defconfig..."
+        echo "🕑Enabling SusFS in defconfig..."
         echo "CONFIG_KSU_SUSFS=y" >> ./$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> ./$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> ./$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
@@ -183,18 +182,15 @@ jobs:
         echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> ./$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_SUSFS_SUS_SU=y" >> ./$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
 
-        # Copy necessary SusFS patches to the kernel source
-        # https://gitlab.com/simonpunk/susfs4ksu/-/blob/kernel-4.14/README.md
         echo "🕑Copying SusFS files to kernel source..."
         cp susfs4ksu/kernel_patches/fs/* fs/
         cp susfs4ksu/kernel_patches/include/linux/* include/linux/
         if [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-Rissu" ]; then
-          # We can skip patching SusFS for KernelSU since the Rissu fork already has a compatible branch
+          # Skip manual patching; Rissu fork supports SusFS through pulling the compatible git branch
           echo "🕑Setting up SusFS for KernelSU-Rissu..."
           echo "🕑Cloning susfs-legacy branch..."
           curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s susfs-legacy
         elif [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-Next" ]; then
-          # We need to apply SusFS patches
           # Lightly modified patch from: https://github.com/WildKernels/kernel_patches/blob/main/next/0001-kernel-implement-susfs-v1.5.8-KernelSU-Next-v1.0.8.patch
           SUSFS_PATCH_NAME="010_kernel-implement-susfs-v1.5.8-KernelSU-Next.patch"
           echo "🕑Setting up SusFS for KernelSU-Next..."
@@ -206,13 +202,14 @@ jobs:
           patch -p1 < $SUSFS_PATCH_NAME
           cd ..
         elif [ "${{ matrix.kernel_variant.tag }}" == "SukiSU-Ultra" ]; then
-          # SukiSU supports SusFS patching through pulling from the compatible branch
+          # Skip manual patching; SukiSU supports SusFS through pulling the compatible git branch
           # https://github.com/SukiSU-Ultra/SukiSU-Ultra/blob/main/docs/guide/how-to-integrate.md#gki--non-gki-kernel-with-susfs-experiment
           echo "🕑Setting up SusFS for SukiSU-Ultra..."
           echo "🕑Cloning susfs-main branch..."
           curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s susfs-main
         else
-          echo "⚠️Unsupported KernelSU variant for SusFS patching: ${{ matrix.kernel_variant.tag }}. Skipping..."
+          echo "❌Unsupported KernelSU variant for SusFS patching: ${{ matrix.kernel_variant.tag }}."
+          exit 1
         fi
 
         # Download and apply SusFS patches to the kernel source        
@@ -316,28 +313,36 @@ jobs:
         chmod a+x patch_linux
         echo "🕑Patching kernel for KPM support (first attempt)..."
         if ./patch_linux; then
-          echo "✅Patch applied successfully."
-        else
-          echo "⚠️First patch attempt failed. Trying with alternative patch..."
-
-          # Download and apply alternative .patch file, and try patch_linux again
-          KPM_FIX_PATCH=200_fix_kpm.patch
-          aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KPM_FIX_PATCH
-          echo "🕑Applying $KPM_FIX_PATCH..."
-          patch -p1 < $KPM_FIX_PATCH
-          echo "🕑Retrying patch_linux..."
-          if ./patch_linux; then
-            echo "✅Patch succeeded on retry."
+          echo "🕑Patching kernel for KPM support (first attempt)..."
+          ./patch_linux
+                  
+          if [[ ! -f oImage ]]; then
+            echo "⚠️First patch attempt failed (oImage not created). Trying with alternative patch..."
+            # Download and apply alternative .patch file, and try patch_linux again
+            KPM_FIX_PATCH=200_fix_kpm.patch
+            aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KPM_FIX_PATCH
+            echo "🕑Applying $KPM_FIX_PATCH..."
+            patch -p1 < $KPM_FIX_PATCH
+            echo "🕑Retrying patch_linux..."
+            if ./patch_linux; then
+              echo "✅Patch succeeded on retry."
+            else
+              echo "❌Patch failed again after retry. Exiting."
+              exit 1
+            fi
           else
-            echo "❌Patch failed again after retry. Exiting."
-            exit 1
+            echo "✅Patch applied successfully."
           fi
+        else
+          echo "❌Patch failed. Exiting."
+          exit 1
         fi
 
         rm Image
         mv oImage Image
 
         # Delete image and replace with KPM patched one
+        cd
         if rm $DIR_ANYKERNEL3/Image.gz-dtb; then
           echo "✅Removed old Image.gz-dtb from AnyKernel3 directory."
         elif rm $DIR_ANYKERNEL3/Image.gz; then
