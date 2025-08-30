@@ -69,22 +69,36 @@ jobs:
         echo "Cloning AnyKernel3 (walkonbothsides repo)..."
         git clone https://github.com/walkonbothsides/AnyKernel3 -b oneplus7 --depth=1 AnyKernel3
         rm -rf AnyKernel3/.git
-    - name: "⚙️Set up Clang"
+    - name: "⚙️ Set up ZyC Clang"
+      shell: bash
       run: |
+        set -euo pipefail
         echo "Setting up ZyC Clang..."
 
-        # Fetch latest prerelease tag from GitHub API
-        export LATEST=$(jq -r 'map(select(.prerelease)) | first | .tag_name' <<< "$(curl --silent https://api.github.com/repos/ZyCromerZ/Clang/releases)")
+        # Fetch release data from GitHub API
+        export RELEASES=$(curl --silent https://api.github.com/repos/ZyCromerZ/Clang/releases)
 
-        # Strip "-release" and build the filename
+        # Extract the latest prerelease tag
+        export LATEST=$(echo "$RELEASES" | jq -r 'map(select(.prerelease)) | first | .tag_name')
+
+        if [[ -z "$LATEST" || "$LATEST" == "null" ]]; then
+          echo "❌ Error: Could not determine latest prerelease tag."
+          exit 1
+        fi
+
+        # Build the filename
         export FILENAME_BASE="${LATEST/-release/}"
         export FILENAME="${FILENAME_BASE}.tar.gz"
-        export CLANG_VER=$(echo "$FILENAME_BASE" | grep -oP 'Clang-\K[0-9]+')
+        export CLANG_VER="${FILENAME_BASE#Clang-}"
+        export CLANG_VER="${CLANG_VER%%.*}"
+
         echo "Using ZyC version: $LATEST"
+        echo "Downloading from: https://github.com/ZyCromerZ/Clang/releases/download/$LATEST/$FILENAME"
+
         mkdir -p toolchains/zyc-clang
         cd toolchains/zyc-clang
-        echo "Downloading from: https://github.com/ZyCromerZ/Clang/releases/download/$LATEST/$FILENAME"
-        curl -LO "https://github.com/ZyCromerZ/Clang/releases/download/$LATEST/$FILENAME
+
+        curl -LO "https://github.com/ZyCromerZ/Clang/releases/download/$LATEST/$FILENAME"
         tar -xzf "$FILENAME"
         rm "$FILENAME"
     - name: "👯‍♀️Clone kernel source"
