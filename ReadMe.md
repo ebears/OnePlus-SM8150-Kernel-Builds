@@ -15,6 +15,8 @@ Releases are [AnyKernel3](https://github.com/osm0sis/AnyKernel3) ZIPs. Check out
 | ☯️[KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next) | ✅                          |
 | ~~😼[SukiSU-Ultra](https://github.com/SukiSU-Ultra/SukiSU-Ultra)~~ WIP while I figure out KPM    | ✅                          |
 
+- Also includes [Re-Kernel](https://github.com/Sakion-Team/Re-Kernel) support.
+
 Kernel downloads are found under [releases](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/releases).
 
 ---
