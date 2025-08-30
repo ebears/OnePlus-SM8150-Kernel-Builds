@@ -78,7 +78,6 @@ Thanks all ❤️
 - [WildKernels/kernel_patches](https://github.com/WildKernels/kernel_patches)
 - [JackA1ltman/NonGKI_Kernel_Build_2nd](https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd)
 - [SukiSU-Ultra/SukiSU_patch](https://github.com/SukiSU-Ultra/SukiSU_patch)
-- [Lama3L9R/sukisu-quick-setup](https://github.com/Lama3L9R/sukisu-quick-setup)
 
 ##### Github workflow references
 - [hi4th/kernel_oneplus_sm8150](https://github.com/hi4th/kernel_oneplus_sm8150)

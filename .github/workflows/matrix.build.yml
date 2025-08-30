@@ -139,16 +139,11 @@ jobs:
           echo "CONFIG_KALLSYMS" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }} # Already enabled in YAAP source
           echo "CONFIG_KALLSYMS_ALL=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
 
-          KPM_PATCH=002_add-auto-kpm-patch.patch
-          echo "Applying patch: $KPM_PATCH..."
-          wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KPM_PATCH
-          patch -p1 < $KPM_PATCH
-
           # Apply backport patch for set_memory() changes in Linux 4.19 ... and other stuff (WIP)
           # Patches from here: https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd/tree/mainline/Patches/Patch
-          FIX_KPM_PATCH="003_fix_kpm.patch"
-          BACKPORT_KERNEL_REAL_WRITE_PATCH="004_backport_kernel_read_and_kernel_write_to_ksu.patch"
-          SET_MEMORY_BACKPORT_PATCH="005_set_memory_to_49_and_low.patch"
+          FIX_KPM_PATCH="002_fix_kpm.patch"
+          BACKPORT_KERNEL_REAL_WRITE_PATCH="003_backport_kernel_read_and_kernel_write_to_ksu.patch"
+          SET_MEMORY_BACKPORT_PATCH="004_set_memory_to_49_and_low.patch"
 
           echo "Applying patch: $FIX_KPM_PATCH..."
           wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$FIX_KPM_PATCH
