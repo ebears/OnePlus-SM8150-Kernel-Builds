@@ -133,6 +133,15 @@ jobs:
         # Download and apply KernelSU variant
         echo "Running setup script for ${{ matrix.kernel_variant.tag }}..."
         curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s "${{ matrix.kernel_variant.setup_arg }}"
+
+        # Apply KPM pre-patches for SukiSU-Ultra
+        if [ "${{ matrix.kernel_variant.tag }}" == "SukiSU-Ultra" ];
+          # SukiSU-Ultra requires this for KPM functionality
+          # Reference: https://github.com/SukiSU-Ultra/SukiSU-Ultra#kpm-support
+          echo "Enabling KPM support in defconfig for SukiSU-Ultra..."
+          echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
+          echo "CONFIG_KALLSYMS" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }} # Already enabled in YAAP source
+          echo "CONFIG_KALLSYMS_ALL=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
     - name: "🕵️‍♀️Apply SusFS (if enabled)"
       if: matrix.susfs
       run: |
@@ -192,15 +201,14 @@ jobs:
           echo "Unsupported KernelSU variant for SusFS patching: ${{ matrix.kernel_variant.tag }}. Skipping..."
         fi
 
-        # Download and apply SusFS patches to the kernel source
-        echo "Downloading SusFS patches for the kernel source..."
-        
+        # Download and apply SusFS patches to the kernel source        
         KERNEL_414_SUSFS_PATCH_155=100_add_susfs_in_kernel-for-kernel-4.14.patch
         KERNEL_414_SUSFS_PATCH_157=101_susfs_upgrade_to_157.patch
         KERNEL_414_SUSFS_PATCH_158=102_susfs_upgrade_to_158_4.14.patch
         KERNEL_414_SUSFS_PATCH_159=103_susfs_upgrade_to_159.patch
         KERNEL_414_SUSFS_PATCH_1510=104_susfs_upgrade_to_1510_4.14.patch
 
+        echo "Downloading SusFS patches for the kernel source..."
         aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_414_SUSFS_PATCH_155
         echo "Applying $KERNEL_414_SUSFS_PATCH_155 to the kernel source..."
         patch -p1 < $KERNEL_414_SUSFS_PATCH_155
@@ -251,57 +259,6 @@ jobs:
         aria2c https://github.com/Sakion-Team/Re-Kernel/releases/download/modifier/Kernel-Modifier-v4.0.jar
         $JAVA_HOME/bin/java -jar ./Kernel-Modifier-v4.0.jar
 
-    - name: KPM Function Support
-      # Big credit to the repo below
-      # https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd/blob/5a9022320aff591bd3fb0ada2c7f123b669e955d/.github/workflows/build-ready/action.yml#L150
-      if: matrix.kernel_variant.tag == 'SukiSU-Ultra'
-      shell: bash
-      run: |
-        cd kernel-source
-
-        if [ -f "include/linux/set_memory.h" ]; then
-            # SukiSU-Ultra requires this for KPM functionality
-            # Reference: https://github.com/SukiSU-Ultra/SukiSU-Ultra#kpm-support
-            echo "Enabling KPM support in defconfig for SukiSU-Ultra..."
-            echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
-            echo "CONFIG_KALLSYMS" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }} # Already enabled in YAAP source
-            echo "CONFIG_KALLSYMS_ALL=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
-
-            # Patch for SukiSU KPM support
-            echo "Downloading patch_linux tool..."
-            aria2c https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU_patch/refs/heads/main/kpm/patch_linux
-            chmod a+x patch_linux
-            echo "Patching kernel for KPM support..."
-            ./patch_linux
-        else
-            # SukiSU-Ultra requires this for KPM functionality
-            # Reference: https://github.com/SukiSU-Ultra/SukiSU-Ultra#kpm-support
-            echo "Enabling KPM support in defconfig for SukiSU-Ultra..."
-            echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
-            echo "CONFIG_KALLSYMS" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }} # Already enabled in YAAP source
-            echo "CONFIG_KALLSYMS_ALL=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
-
-            # Apply backport patch for set_memory() changes in Linux 4.19 ... and other stuff
-            # Patches from here: https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd/tree/mainline/Patches/Patch
-            SET_MEMORY_BACKPORT_PATCH="002_set_memory_to_49_and_low.patch"
-            echo "Applying patch: $SET_MEMORY_BACKPORT_PATCH..."
-            aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$SET_MEMORY_BACKPORT_PATCH
-            patch -p1 < $SET_MEMORY_BACKPORT_PATCH || true
-
-            # Patch for SukiSU KPM support
-            echo "Downloading patch_linux tool..."
-            aria2c https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU_patch/refs/heads/main/kpm/patch_linux
-            chmod a+x patch_linux
-            echo "Patching kernel for KPM support..."
-            ./patch_linux
-        fi
-
-        # Fixed stack frame overflow vulnerability
-        FIX_KPM_PATCH="003_fix_kpm.patch"
-        echo "Applying patch: $FIX_KPM_PATCH..."
-        aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$FIX_KPM_PATCH
-        patch -p1 < fix_kpm.patch || true
-
     - name: "👷‍♀️Build kernel"
       run: |
         echo "Building kernel..."
@@ -317,23 +274,35 @@ jobs:
         echo "Starting kernel build..."
         make $KERNEL_CMDLINE ${{ github.event.inputs.kernel_defconfig }} CC="ccache clang-${{ github.event.inputs.clang_version }}"
         make $KERNEL_CMDLINE -j$(nproc --all) CC="ccache clang-${{ github.event.inputs.clang_version }}"
-    - name: "📦Create AnyKernel3 ZIP"
+        echo "Copying kernel image to AnyKernel3 folder..."
+        # cp kernel-source/out/arch/arm64/boot/Image AnyKernel3/
+        # cp kernel-source/out/arch/arm64/boot/Image.gz AnyKernel3/
+        cp kernel-source/out/arch/arm64/boot/Image.gz-dtb AnyKernel3/
+    - name: "⚙️Patch KPM"
+      if: matrix.kernel_variant.tag == 'SukiSU-Ultra'
+      shell: bash
       run: |
         # SukiSU-Ultra KPM support steps from here:
         # https://github.com/YangQi0408/kernel_xiaomi_sm8250_mod/blob/41d6929480426e0bbdc6697fe692c14d3cfc8014/build.sh#L68
+        cd kernel-source
+        # Patch for SukiSU KPM support
+        echo "Downloading patch_linux tool..."
+        aria2c https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU_patch/refs/heads/main/kpm/patch_linux
+        chmod a+x patch_linux
+        echo "Patching kernel for KPM support..."
+        ./patch_linux
+    - name: "📦Create AnyKernel3 ZIP"
+      run: |
         echo "Packaging kernel into AnyKernel3 ZIP..."
-        echo "Copying kernel image to AnyKernel3 folder..."
-        cp kernel-source/out/arch/arm64/boot/Image.gz-dtb AnyKernel3/
-
         if [[ -f "kernel-source/out/arch/arm64/boot/dtbo.img" ]]; then
+          echo "Found dtbo.img, copying to AnyKernel3 folder..."
           cp -fp kernel-source/out/arch/arm64/boot/dtbo.img AnyKernel3/
-          echo "Found dtbo.img !"
         else
           echo "dtbo.img not found. Skipping..."
         fi
 
         if [ -f "kernel-source/out/arch/arm64/boot/dtb" ]; then
-          echo "Found DTB!"
+          echo "Found dtb folder, copying to AnyKernel3 folder..."
           cp -fp kernel-source/out/arch/arm64/boot/dtb AnyKernel3/
         else
           echo "dtb folder not found. Skipping..."
