@@ -74,7 +74,8 @@ jobs:
       uses: hendrikmuhs/ccache-action@v1
     - name: "💥Install APT package dependencies"
       run: |
-        APT_INSTALL="gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi libelf-dev libarchive-tools lld llvm make python3 libssl-dev build-essential bc bison flex unzip xz-utils mkbootimg cpio device-tree-compiler git openjdk-17-jdk-headless aria2"
+        # 'make, python3, libssl-dev, bc, bison, flex, unzip, xz-utils, cpio, git, aria2' are all installed already
+        APT_INSTALL="gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi libelf-dev libarchive-tools lld llvm build-essential mkbootimg device-tree-compiler openjdk-17-jdk-headless"
         
         echo "🕑Removing unneeded pre-installed packages..."
         sudo rm -rf /opt/ghc "/usr/local/share/boost" /usr/share/dotnet "$AGENT_TOOLSDIRECTORY"
