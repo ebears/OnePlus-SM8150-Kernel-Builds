@@ -78,8 +78,8 @@ jobs:
         # Fetch release data from GitHub API
         export RELEASES=$(curl --silent https://api.github.com/repos/ZyCromerZ/Clang/releases)
 
-        # Extract the latest prerelease tag
-        export LATEST=$(echo "$RELEASES" | jq -r 'map(select(.prerelease)) | first | .tag_name')
+        # Extract the latest release
+        LATEST=$(echo "$RELEASES" | jq -r '.[0].tag_name')
 
         if [[ -z "$LATEST" || "$LATEST" == "null" ]]; then
           echo "❌ Error: Could not determine latest prerelease tag."
