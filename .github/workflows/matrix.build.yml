@@ -90,9 +90,9 @@ jobs:
         echo "Downloading from: https://github.com/ZyCromerZ/Clang/releases/download/$LATEST/clang-$FILENAME"
         mkdir -p toolchains/zyc-clang
         cd toolchains/zyc-clang
-        curl -LO "https://github.com/ZyCromerZ/Clang/releases/download/$LATEST/$FILENAME"
-        tar -xzf "$FILENAME"
-        rm "$FILENAME"
+        curl -LO "https://github.com/ZyCromerZ/Clang/releases/download/$LATEST/clang-$FILENAME"
+        tar -xzf "clang-$FILENAME"
+        rm "clang-$FILENAME"
     - name: "👯‍♀️Clone kernel source"
       run: |
         echo "Cloning kernel source..."
