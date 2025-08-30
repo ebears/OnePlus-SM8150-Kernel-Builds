@@ -78,7 +78,7 @@ jobs:
 
         # Fetch latest prerelease tag from GitHub API
         RELEASES=$(curl --silent https://api.github.com/repos/ZyCromerZ/Clang/releases)
-        LATEST=$(jq -r 'map(select(.prerelease)) | first | .tag_name' <<< "$RELEASES")
+        LATEST=$(echo "$RELEASES" | jq -r 'map(select(.prerelease)) | first | .tag_name')
 
         if [[ -z "$LATEST" ]]; then
           echo "Error: Could not determine latest prerelease tag."
@@ -97,7 +97,7 @@ jobs:
         cd toolchains/zyc-clang
 
         # Download the archive
-        if ! wget "https://github.com/ZyCromerZ/Clang/releases/download/$LATEST/$FILENAME"; then
+        if ! curl -LO "https://github.com/ZyCromerZ/Clang/releases/download/$LATEST/$FILENAME"; then
           echo "Error: Failed to download Clang archive."
           exit 1
         fi
