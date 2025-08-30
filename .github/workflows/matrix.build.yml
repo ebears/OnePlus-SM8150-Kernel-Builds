@@ -72,43 +72,22 @@ jobs:
     - name: "⚙️Set up Clang"
       shell: bash
       run: |
-        set -euo pipefail
-
         echo "Setting up ZyC Clang..."
 
         # Fetch latest prerelease tag from GitHub API
-        RELEASES=$(curl --silent https://api.github.com/repos/ZyCromerZ/Clang/releases)
-        LATEST=$(echo "$RELEASES" | jq -r 'map(select(.prerelease)) | first | .tag_name')
-
-        if [[ -z "$LATEST" ]]; then
-          echo "Error: Could not determine latest prerelease tag."
-          exit 1
-        fi
+        export RELEASES=$(curl --silent https://api.github.com/repos/ZyCromerZ/Clang/releases)
+        export LATEST=$(echo "$RELEASES" | jq -r 'map(select(.prerelease)) | first | .tag_name')
 
         # Strip "-release" and build the filename
-        FILENAME_BASE="${LATEST/-release/}"
-        FILENAME="${FILENAME_BASE}.tar.gz"
-        CLANG_VER=$(echo "$FILENAME_BASE" | grep -oP 'Clang-\K[0-9]+')
-
+        export FILENAME_BASE="${LATEST/-release/}"
+        export FILENAME="${FILENAME_BASE}.tar.gz"
+        export CLANG_VER=$(echo "$FILENAME_BASE" | grep -oP 'Clang-\K[0-9]+')
         echo "Using ZyC version: $LATEST"
-        echo "Downloading from: https://github.com/ZyCromerZ/Clang/releases/download/$LATEST/$FILENAME"
-
         mkdir -p toolchains/zyc-clang
         cd toolchains/zyc-clang
-
-        # Download the archive
-        if ! curl -LO "https://github.com/ZyCromerZ/Clang/releases/download/$LATEST/$FILENAME"; then
-          echo "Error: Failed to download Clang archive."
-          exit 1
-        fi
-
-        # Extract the archive
-        if ! tar -xzf "$FILENAME"; then
-          echo "Error: Failed to extract archive."
-          exit 1
-        fi
-
-        # Cleanup
+        echo "Downloading from: https://github.com/ZyCromerZ/Clang/releases/download/$LATEST/$FILENAME"
+        curl -LO "https://github.com/ZyCromerZ/Clang/releases/download/$LATEST/$FILENAME
+        tar -xzf "$FILENAME"
         rm "$FILENAME"
     - name: "👯‍♀️Clone kernel source"
       run: |
