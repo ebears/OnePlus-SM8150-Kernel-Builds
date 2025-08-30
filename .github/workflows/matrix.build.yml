@@ -70,13 +70,11 @@ jobs:
         git clone https://github.com/walkonbothsides/AnyKernel3 -b oneplus7 --depth=1 AnyKernel3
         rm -rf AnyKernel3/.git
     - name: "⚙️Set up Clang"
-      shell: bash
       run: |
         echo "Setting up ZyC Clang..."
 
         # Fetch latest prerelease tag from GitHub API
-        export RELEASES=$(curl --silent https://api.github.com/repos/ZyCromerZ/Clang/releases)
-        export LATEST=$(echo "$RELEASES" | jq -r 'map(select(.prerelease)) | first | .tag_name')
+        export LATEST=$(jq -r 'map(select(.prerelease)) | first | .tag_name' <<< "$(curl --silent https://api.github.com/repos/ZyCromerZ/Clang/releases)")
 
         # Strip "-release" and build the filename
         export FILENAME_BASE="${LATEST/-release/}"
@@ -97,9 +95,9 @@ jobs:
     - name: "🛠️Apply KernelSU patches"
       # https://kernelsu.org/guide/how-to-integrate-for-non-gki.html
       run: |
-        KERNEL_SU_PATCH=kernelsu.patch
-        FIX_CRED_PATCH=000_FIX_APATCH_OPENELA.patch
-        PATH_UMOUNT_PATCH=001_path_umount.patch
+        export KERNEL_SU_PATCH=kernelsu.patch
+        export FIX_CRED_PATCH=000_FIX_APATCH_OPENELA.patch
+        export PATH_UMOUNT_PATCH=001_path_umount.patch
 
         echo "Applying KernelSU patches for ${{ matrix.kernel_variant.tag }}..."
         cd kernel-source
@@ -139,7 +137,7 @@ jobs:
           # echo "CONFIG_KALLSYMS" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
           echo "CONFIG_KALLSYMS_ALL=y" >> ./arch/arm64/configs/${{ github.event.inputs.kernel_defconfig }}
 
-          KPM_PATCH=002_add-auto-kpm-patch.patch
+          export KPM_PATCH=002_add-auto-kpm-patch.patch
           echo "Applying $KPM_PATCH..."
           wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KPM_PATCH
           patch -p1 < $KPM_PATCH
@@ -191,7 +189,7 @@ jobs:
         elif [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-Next" ]; then
           # We need to apply SusFS patches
           # Lightly modified patch from: https://github.com/WildKernels/kernel_patches/blob/main/next/0001-kernel-implement-susfs-v1.5.8-KernelSU-Next-v1.0.8.patch
-          SUSFS_PATCH_NAME="010_kernel-implement-susfs-v1.5.8-KernelSU-Next.patch"
+          export SUSFS_PATCH_NAME="010_kernel-implement-susfs-v1.5.8-KernelSU-Next.patch"
           echo "Setting up SusFS for KernelSU-Next..."
           echo "Applying SusFS patch for KernelSU-Next..."
           cd KernelSU-Next
@@ -203,7 +201,7 @@ jobs:
         elif [ "${{ matrix.kernel_variant.tag }}" == "SukiSU-Ultra" ]; then
           # Again, applying SusFS patches
           # Lightly modified patch from: https://github.com/WildKernels/kernel_patches/tree/main/next/0001-kernel-implement-susfs-v1.5.5-v1.5.7-KSUN-v1.0.8.patch
-          SUSFS_PATCH_NAME="010_kernel-implement-susfs-v1.5.8-SukiSU-Ultra.patch"
+          export SUSFS_PATCH_NAME="010_kernel-implement-susfs-v1.5.8-SukiSU-Ultra.patch"
           echo "Setting up SusFS for SukiSU-Ultra..."
           echo "Applying SusFS patch for SukiSU-Ultra..."
           cd KernelSU
@@ -219,11 +217,11 @@ jobs:
         # Download and apply SusFS patches to the kernel source
         echo "Downloading SusFS patches for the kernel source..."
         
-        KERNEL_414_SUSFS_PATCH_155=100_add_susfs_in_kernel-for-kernel-4.14.patch
-        KERNEL_414_SUSFS_PATCH_157=101_susfs_upgrade_to_157.patch
-        KERNEL_414_SUSFS_PATCH_158=102_susfs_upgrade_to_158_4.14.patch
-        KERNEL_414_SUSFS_PATCH_159=103_susfs_upgrade_to_159.patch
-        KERNEL_414_SUSFS_PATCH_1510=104_susfs_upgrade_to_1510_4.14.patch
+        export KERNEL_414_SUSFS_PATCH_155=100_add_susfs_in_kernel-for-kernel-4.14.patch
+        export KERNEL_414_SUSFS_PATCH_157=101_susfs_upgrade_to_157.patch
+        export KERNEL_414_SUSFS_PATCH_158=102_susfs_upgrade_to_158_4.14.patch
+        export KERNEL_414_SUSFS_PATCH_159=103_susfs_upgrade_to_159.patch
+        export KERNEL_414_SUSFS_PATCH_1510=104_susfs_upgrade_to_1510_4.14.patch
 
         wget https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_414_SUSFS_PATCH_155
         echo "Applying $KERNEL_414_SUSFS_PATCH_155 to the kernel source..."
