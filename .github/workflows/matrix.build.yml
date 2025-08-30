@@ -75,29 +75,23 @@ jobs:
 
         # Fetch release data from GitHub API
         RELEASES=$(curl --silent https://api.github.com/repos/ZyCromerZ/Clang/releases)
-
-        # Extract the latest release
         LATEST=$(echo "$RELEASES" | jq -r '.[0].tag_name')
-
         if [[ -z "$LATEST" || "$LATEST" == "null" ]]; then
           echo "❌ Error: Could not determine latest prerelease tag."
           exit 1
         fi
-
-        # Build the filename
         FILENAME="${LATEST/-release/}.tar.gz"
-        CLANG_VER="${FILENAME_BASE#Clang-}"
-        CLANG_VER="${CLANG_VER%%.*}"
-
         echo "Using ZyC version: $LATEST"
         echo "Downloading from: https://github.com/ZyCromerZ/Clang/releases/download/$LATEST/$FILENAME"
-
         mkdir -p toolchains/zyc-clang
         cd toolchains/zyc-clang
-
         curl -LO "https://github.com/ZyCromerZ/Clang/releases/download/$LATEST/$FILENAME"
         tar -xzf "$FILENAME"
         rm "$FILENAME"
+        
+        # Set Clang version for file name later
+        CLANG_VER="${FILENAME_BASE#Clang-}"
+        CLANG_VER="${CLANG_VER%%.*}"
     - name: "👯‍♀️Clone kernel source"
       run: |
         echo "Cloning kernel source..."
