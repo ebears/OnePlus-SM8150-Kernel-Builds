@@ -234,10 +234,12 @@ jobs:
         echo "Applying $KERNEL_414_SUSFS_PATCH_159..."
         patch -p1 < $KERNEL_414_SUSFS_PATCH_159
 
-        # Needs further patching with KernelSU (Next) to work
-        # aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_414_SUSFS_PATCH_1510
-        # echo "Applying $KERNEL_414_SUSFS_PATCH_1510..."
-        # patch -p1 < $KERNEL_414_SUSFS_PATCH_1510
+        # Needs further patching with KernelSU (Rissu and Next) to work
+        if [ "${{ matrix.kernel_variant.tag }}" == "SukiSU-Ultra" ]; then
+          aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_414_SUSFS_PATCH_1510
+          echo "Applying $KERNEL_414_SUSFS_PATCH_1510..."
+          patch -p1 < $KERNEL_414_SUSFS_PATCH_1510
+        fi
     # START error handling
     # Error handling for patching
     - name: ⚠️Search for patch errors
@@ -288,12 +290,38 @@ jobs:
         # SukiSU-Ultra KPM support steps from here:
         # https://github.com/YangQi0408/kernel_xiaomi_sm8250_mod/blob/41d6929480426e0bbdc6697fe692c14d3cfc8014/build.sh#L68
         cd kernel-source
-        # Patch for SukiSU KPM support
+
         echo "Downloading patch_linux tool..."
         aria2c https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU_patch/refs/heads/main/kpm/patch_linux
         chmod a+x patch_linux
-        echo "Patching kernel for KPM support..."
-        ./patch_linux
+
+        echo "Patching kernel for KPM support (first attempt)..."
+        if ./patch_linux; then
+          echo "✅ Patch applied successfully."
+        else
+          echo "❌ First patch attempt failed. Trying with alternative patch..."
+
+          # Download and apply alternative .patch file
+          KPM_FIX_PATCH=200_fix_kpm.patch
+          aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KPM_FIX_PATCH
+          echo "Applying $KPM_FIX_PATCH..."
+          patch -p1 < $KPM_FIX_PATCH
+
+          echo "Retrying patch_linux..."
+          if ./patch_linux; then
+            echo "✅ Patch succeeded on retry."
+          else
+            echo "❌ Patch failed again after retry. Exiting."
+            exit 1
+          fi
+        fi
+
+        rm Image
+        mv oImage Image
+
+        # Delete image and replace with KPM patched one
+        rm AnyKernel3/Image.gz-dtb
+        cp kernel-source/out/arch/arm64/boot/Image AnyKernel3/
     - name: "📦Create AnyKernel3 ZIP"
       run: |
         echo "Packaging kernel into AnyKernel3 ZIP..."
