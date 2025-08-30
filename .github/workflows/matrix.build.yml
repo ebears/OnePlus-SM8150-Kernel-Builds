@@ -84,8 +84,7 @@ jobs:
         FILENAME="${LATEST/-release/}.tar.gz"
 
         # Set Clang version for file name later
-        CLANG_VER="${FILENAME_BASE#Clang-}"
-        CLANG_VER="${CLANG_VER%%.*}"
+        CLANG_VER="${FILENAME%%.*}"
         echo "CLANG_VER=$CLANG_VER"
         echo "CLANG_VER=$CLANG_VER" >> $GITHUB_OUTPUT
 
