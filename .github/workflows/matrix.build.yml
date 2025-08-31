@@ -75,9 +75,9 @@ jobs:
       uses: hendrikmuhs/ccache-action@v1
     - name: "💥Install APT package dependencies"
       run: |
-        # The following list of packages is installed by default: "make, python3, libssl-dev, bc, bison, flex, unzip, xz-utils, cpio, git, aria2"
+        # The following list of packages is installed by default: "make, python3, libssl-dev, bc, bison, flex, unzip, xz-utils, cpio, git, aria2, binutils, kmod, ca-certificates, libc6-dev, ccache, pigz, parallel"
         # APT packages required:
-        APT_INSTALL="gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi libelf-dev libarchive-tools lld llvm build-essential mkbootimg device-tree-compiler openjdk-17-jdk-headless binutils kmod libtfm-dev ca-certificates libc6-dev ccache pigz coccinelle parallel"
+        APT_INSTALL="gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi libelf-dev libarchive-tools lld llvm build-essential mkbootimg device-tree-compiler openjdk-17-jdk-headless libtfm-dev coccinelle"
         
         echo "🕑Removing unneeded pre-installed packages..."
         sudo rm -rf /opt/ghc "/usr/local/share/boost" /usr/share/dotnet "$AGENT_TOOLSDIRECTORY"
@@ -215,7 +215,7 @@ jobs:
           exit 1
         fi
 
-        # Download and apply SusFS patches to the kernel source        
+        # Download and apply SusFS patches to the kernel source
         KERNEL_414_SUSFS_PATCH_155=100_add_susfs_in_kernel-for-kernel-4.14.patch
         KERNEL_414_SUSFS_PATCH_157=101_susfs_upgrade_to_157.patch
         KERNEL_414_SUSFS_PATCH_158=102_susfs_upgrade_to_158_4.14.patch
