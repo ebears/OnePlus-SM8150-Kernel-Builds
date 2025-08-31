@@ -84,7 +84,7 @@ jobs:
 
         echo "🕑Installing required packages..."
         sudo apt-get update -y
-        sudo apt-get install --no-install-recommend $APT_INSTALL -y
+        sudo apt-get install $APT_INSTALL -y
     - name: "👣Git clone and prepare AnyKernel folder"
       run: |
         echo "🕑Cloning AnyKernel3..."
