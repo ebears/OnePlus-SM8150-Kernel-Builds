@@ -220,7 +220,7 @@ jobs:
           echo "🕑Cloning susfs-main branch..."
           curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s susfs-main
         else
-          echo "❌Unsupported KernelSU variant for SusFS patching: ${{ matrix.kernel_variant.tag }}."
+          echo "⛔Unsupported KernelSU variant for SusFS patching: ${{ matrix.kernel_variant.tag }}."
           exit 1
         fi
 
@@ -265,22 +265,18 @@ jobs:
         aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$HIDE_STUFF_PATCH
         echo "🕑Applying $HIDE_STUFF_PATCH..."
         patch -p1 < $HIDE_STUFF_PATCH
-    # START error handling
-    # Error handling for patching
-    - name: ⚠️Search for patch errors
+    - name: "⚠️Search for patch errors (on failure)"
       if: failure()
       run: |
         echo "🕑One or more patching steps failed; searching for .rej files to upload..."
         mkdir $DIR_WORKSPACE/rej_files
         find . -name "*.rej" -exec cp {} $DIR_WORKSPACE/rej_files/ \;
-    - name: 📤Upload any found patch rejects
+    - name: "📤Upload any found patch rejects (on failure)"
       if: failure()
       uses: actions/upload-artifact@v4
       with:
         name: patch-rejects
         path: rej_files/
-    # END error handling
-
     - name: "🔧Apply Re-Kernel"
       run: |
         export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
@@ -334,7 +330,7 @@ jobs:
         elif cp $DIR_KERNEL/$DIR_BUILD/Image $DIR_ANYKERNEL3/; then
           echo "✅Copied Image to AnyKernel3 directory."
         else
-          echo "❌Couldn't find any build image file."
+          echo "⛔Couldn't find any build image file."
           echo "🕑Listing build directory contents..."
           ls -a $DIR_KERNEL/$DIR_BUILD
           exit 1
@@ -352,8 +348,8 @@ jobs:
         echo "🕑Patching kernel for KPM support..."
         ./patch_linux Image
         if [[ ! -f oImage ]]; then
-          echo "⚠️Patch failed. Skipping..."
-          exit 0
+          echo "⛔Patch failed."
+          exit 1
         else
           echo "✅Patch applied successfully."
         fi
@@ -371,8 +367,8 @@ jobs:
         else
           echo "🕑Listing build directory contents..."
           ls -a $DIR_WORKSPACE/$DIR_KERNEL/$DIR_BUILD
-          echo "⚠️Couldn't find any build image file. Skipping..."
-          exit 0
+          echo "⛔Couldn't find any build image file."
+          exit 1
         fi
         
         echo "🕑Copying patched Image to AnyKernel3 directory."
@@ -397,7 +393,7 @@ jobs:
         cd $DIR_ANYKERNEL3
         echo "🕑Creating ZIP file: OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip"
         zip -r9 ../OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip *
-    - name: "📤Upload config files on failure"
+    - name: "📤Upload defconfig files (on failure)"
       if: failure()
       uses: actions/upload-artifact@v4
       with:
