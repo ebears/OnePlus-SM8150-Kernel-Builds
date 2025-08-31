@@ -1,9 +1,9 @@
 --- ./fs/exec.c	2024-12-19 12:31:30.220864300 -0500
 +++ ./fs/exec.c	2024-12-19 12:41:54.519892326 -0500
-@@ -1895,11 +1895,24 @@
- 	return retval;
- }
- 
+@@ -1717,11 +1717,24 @@
+ /*
+  * sys_execve() executes a new program.
+  */
 +#ifdef CONFIG_KSU
 +extern bool ksu_execveat_hook __read_mostly;
 +extern int ksu_handle_execveat(int *fd, struct filename **filename_ptr, void *argv,
@@ -22,9 +22,9 @@
 +	else
 +		ksu_handle_execveat_sucompat(&fd, &filename, &argv, &envp, &flags);
 +#endif
- 	return __do_execve_file(fd, filename, argv, envp, flags, NULL);
- }
- 
+ 	char *pathbuf = NULL;
+ 	struct linux_binprm bprm;
+ 	struct file *file;
 --- ./fs/openc	2024-12-19 12:31:30.301864300 -0500
 +++ ./fs/open.c	2024-12-19 12:42:50.813756015 -0500
 @@ -339,6 +339,10 @@
@@ -82,7 +82,7 @@
  /**
   * vfs_statx - Get basic and extra attributes by filename
   * @dfd: A file descriptor representing the base dir for a relative filename
-@@ -190,6 +194,10 @@
+@@ -170,6 +170,10 @@
  	int error = -EINVAL;
  	unsigned int lookup_flags = LOOKUP_FOLLOW | LOOKUP_AUTOMOUNT;
  
@@ -90,9 +90,9 @@
 +	ksu_handle_stat(&dfd, &filename, &flags);
 +#endif
 +
- #ifdef CONFIG_KSU_SUSFS_SUS_SU
- 	if (susfs_is_sus_su_hooks_enabled) {
- 		ksu_handle_stat(&dfd, &filename, &flags);
+ 	if ((flags & ~(AT_SYMLINK_NOFOLLOW | AT_NO_AUTOMOUNT |
+ 		       AT_EMPTY_PATH | KSTAT_QUERY_FLAGS)) != 0)
+ 		return -EINVAL;
 --- ./drivers/input/input.c	2024-12-19 12:31:28.411864300 -0500
 +++ ./drivers/input/input.c	2024-12-19 12:49:07.714120265 -0500
 @@ -378,10 +378,19 @@
