@@ -111,15 +111,18 @@ jobs:
     - name: "🛠️Apply KernelSU patches"
       # https://kernelsu.org/guide/how-to-integrate-for-non-gki.html
       run: |
-        KERNEL_SU_PATCH=000_scope_min_manual_hooks_v1.4.patch
+        KERNEL_SU_PATCH=000_syscall_hooks.patch
         FIX_CRED_PATCH=001_FIX_APATCH_OPENELA.patch
         PATH_UMOUNT_PATCH=002_path_umount.patch
+        KPM_FIX_PATCH=003_fix_kpm.patch
+        LZ4_UPDATE_PATCH=004_lz4-Update-to-version-1.9.4.patch
+        SLMK_PATCH=005_SLMK.patch
 
         echo "🕑Applying KernelSU patches for ${{ matrix.kernel_variant.tag }}..."
         cd $DIR_WORKSPACE/$DIR_KERNEL
 
         # kernelsu.patch is provided by the YAAP kernel source
-        # BUT I'm using this instead: https://github.com/WildKernels/kernel_patches/blob/main/next/scope_min_manual_hooks_v1.4.patch
+        # BUT I'm using this instead: https://github.com/SukiSU-Ultra/SukiSU_patch/blob/main/hooks/syscall_hooks.patch
         # Reference: https://kernelsu.org/guide/how-to-integrate-for-non-gki.html#manually-modify-the-kernel-source
         echo "🕑Applying $KERNEL_SU_PATCH for kernel hooks..."
         aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_SU_PATCH
@@ -142,8 +145,6 @@ jobs:
         # Add the desired config line if it's not already present
         grep -qxF "CONFIG_KSU=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KSU=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
 
-        sed -i "/^$CONFIG_KSU_KPROBES_HOOK[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        grep -qxF "CONFIG_KSU_KPROBES_HOOK=n" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KSU_KPROBES_HOOK=n" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
         sed -i "/^$CONFIG_KSU_MANUAL_HOOK[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
         grep -qxF "CONFIG_KSU_MANUAL_HOOK=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KSU_MANUAL_HOOK=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
 
@@ -160,7 +161,7 @@ jobs:
         if [ "${{ matrix.kernel_variant.tag }}" == "SukiSU-Ultra" ]; then
           # SukiSU-Ultra requires this for KPM functionality
           # Reference: https://github.com/SukiSU-Ultra/SukiSU-Ultra#kpm-support
-          # YAAP Kernel source *might* contain set_memory backports from 4.19
+          # YAAP Kernel source seemingly already has set_memory backports from 4.19
           echo "🕑Enabling KPM support in defconfig for SukiSU-Ultra..."
           sed -i "/^$CONFIG_KPM[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
           grep -qxF "CONFIG_KPM=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KPM=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}      
@@ -170,12 +171,23 @@ jobs:
           grep -qxF "CONFIG_KALLSYMS_ALL=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KALLSYMS_ALL=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}      
 
           # Apply KPM fix for patch_linux step later on
-          KPM_FIX_PATCH=003_fix_kpm.patch
           cd $DIR_WORKSPACE/$DIR_KERNEL/KernelSU/kernel/kpm
           aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KPM_FIX_PATCH
           echo "🕑Applying $KPM_FIX_PATCH..."
           patch -p1 < $KPM_FIX_PATCH
         fi
+
+        # Update lz4 to version 1.9.4
+        # Reference: https://github.com/SukiSU-Ultra/SukiSU_patch/blob/main/other/0001-lz4-Update-to-version-1.9.4.patch
+        echo "🕑Applying $LZ4_UPDATE_PATCH..."
+        aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$LZ4_UPDATE_PATCH
+        patch -p1 < $LZ4_UPDATE_PATCH
+
+        # Integrate SLMK
+        # Reference: https://github.com/SukiSU-Ultra/SukiSU_patch/blob/main/other/0001-SLMK.patch
+        echo "🕑Applying $SLMK_PATCH..."
+        aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$SLMK_PATCH
+        patch -p1 < $SLMK_PATCH
     - name: "🕵️‍♀️Apply SusFS (if enabled)"
       # https://gitlab.com/simonpunk/susfs4ksu/-/blob/kernel-4.14/README.md
       if: matrix.susfs
@@ -253,6 +265,7 @@ jobs:
         KERNEL_414_SUSFS_PATCH_158=102_susfs_upgrade_to_158_4.14.patch
         KERNEL_414_SUSFS_PATCH_159=103_susfs_upgrade_to_159.patch
         KERNEL_414_SUSFS_PATCH_1510=104_susfs_upgrade_to_1510_4.14.patch
+        HIDE_STUFF_PATCH=169_hide_stuff.patch
 
         echo "🕑Downloading SusFS patches for the kernel source..."
         aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_414_SUSFS_PATCH_155
@@ -282,7 +295,15 @@ jobs:
           aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_414_SUSFS_PATCH_1510
           echo "🕑Applying $KERNEL_414_SUSFS_PATCH_1510..."
           patch -p1 < $KERNEL_414_SUSFS_PATCH_1510
+        elif [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-Next" ]; then
+          aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_414_SUSFS_PATCH_1510
+          echo "🕑Applying $KERNEL_414_SUSFS_PATCH_1510..."
+          patch -p1 < $KERNEL_414_SUSFS_PATCH_1510
         fi
+
+        aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$HIDE_STUFF_PATCH
+        echo "🕑Applying $HIDE_STUFF_PATCH..."
+        patch -p1 < $HIDE_STUFF_PATCH
     # START error handling
     # Error handling for patching
     - name: ⚠️Search for patch errors
@@ -344,7 +365,7 @@ jobs:
         # https://github.com/YangQi0408/kernel_xiaomi_sm8250_mod/blob/41d6929480426e0bbdc6697fe692c14d3cfc8014/build.sh#L68
         cd $DIR_WORKSPACE/$DIR_KERNEL/$DIR_BUILD
         echo "🕑Downloading patch_linux tool..."
-        aria2c https://github.com/SukiSU-Ultra/SukiSU_KernelPatch_patch/releases/download/0.12.0/patch_linux
+        aria2c https://github.com/SukiSU-Ultra/SukiSU_patch/raw/refs/heads/main/kpm/patch_linux
         chmod a+x patch_linux
         echo "🕑Patching kernel for KPM support..."
         ./patch_linux Image
