@@ -92,7 +92,7 @@ jobs:
       run: |
         echo "🕑Setting up AOSP Clang..."
         mkdir -p toolchains/aosp-clang
-        cd toolchains/aosp-clang
+        cd ~/toolchains/aosp-clang
 
         # First, clone an empty AOSP Clang repo...
         echo "🕑Cloning AOSP Clang repo..."
@@ -105,7 +105,7 @@ jobs:
       run: |
         echo "🕑Cloning kernel source..."
         git clone --depth=1 --branch "${{ github.event.inputs.kernel_branch }}" "${{ github.event.inputs.kernel_source_url }}" $DIR_KERNEL
-        cd $DIR_KERNEL && git submodule update --init --recursive
+        cd ~/$DIR_KERNEL && git submodule update --init --recursive
     - name: "🛠️Apply KernelSU patches"
       # https://kernelsu.org/guide/how-to-integrate-for-non-gki.html
       run: |
@@ -114,7 +114,7 @@ jobs:
         PATH_UMOUNT_PATCH=001_path_umount.patch
 
         echo "🕑Applying KernelSU patches for ${{ matrix.kernel_variant.tag }}..."
-        cd $DIR_KERNEL
+        cd ~/$DIR_KERNEL
 
         # kernelsu.patch is provided by the YAAP kernel source
         # Reference: https://kernelsu.org/guide/how-to-integrate-for-non-gki.html#manually-modify-the-kernel-source
@@ -132,59 +132,60 @@ jobs:
         aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$PATH_UMOUNT_PATCH
         patch -p1 < $PATH_UMOUNT_PATCH
 
-        # Add necessary configurations to the kernel defconfig
-        ##    Enable KSU
         echo "🕑Enabling KSU in defconfig..."
-        echo "CONFIG_KSU=y" >> ./$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+        echo "CONFIG_KSU=y" >> ~/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+        echo "CONFIG_KSU_KPROBES_HOOK=n" >> ~/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+        echo "CONFIG_KSU_MANUAL_HOOK=y" >> ~/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
 
-        ##    Disable kprobes and enable manual hooking (since we used kernelsu.patch from YAAP source)
-        echo "CONFIG_KSU_KPROBES_HOOK=n" >> ./$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-
-        # Download and apply KernelSU variant
         echo "🕑Running setup script for ${{ matrix.kernel_variant.tag }}..."
         curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s "${{ matrix.kernel_variant.setup_arg }}"
 
-        # Apply KPM pre-patches for SukiSU-Ultra
         if [ "${{ matrix.kernel_variant.tag }}" == "SukiSU-Ultra" ]; then
           # SukiSU-Ultra requires this for KPM functionality
-          # YAAP Kernel source *might* contain set_memory backports from 4.19 anyways...
           # Reference: https://github.com/SukiSU-Ultra/SukiSU-Ultra#kpm-support
+          # YAAP Kernel source *might* contain set_memory backports from 4.19
           echo "🕑Enabling KPM support in defconfig for SukiSU-Ultra..."
            # CONFIG_KALLSYMS is already enabled in Gulch defconfig
-          echo "CONFIG_KPM=y" >> ./$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-          echo "CONFIG_KALLSYMS=y" >> ./$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-          echo "CONFIG_KALLSYMS_ALL=y" >> ./$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+          echo "CONFIG_KPM=y" >> ~/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+          echo "CONFIG_KALLSYMS=y" >> ~/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+          echo "CONFIG_KALLSYMS_ALL=y" >> ~/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+
+          # Apply KPM fix for patch_linux step later on
+          KPM_FIX_PATCH=002_fix_kpm.patch
+          cd ~/$DIR_KERNEL/KernelSU/kernel/kpm
+          aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KPM_FIX_PATCH
+          echo "🕑Applying $KPM_FIX_PATCH..."
+          patch -p1 < $KPM_FIX_PATCH
         fi
     - name: "🕵️‍♀️Apply SusFS (if enabled)"
       # https://gitlab.com/simonpunk/susfs4ksu/-/blob/kernel-4.14/README.md
       if: matrix.susfs
       run: |
         echo "Applying SusFS patches..."
-        cd $DIR_KERNEL
+        cd ~/$DIR_KERNEL
         echo "🕑Cloning simonpunk/susfs4ksu repo..."
         git clone --depth=1 --branch kernel-4.14 https://gitlab.com/simonpunk/susfs4ksu.git susfs4ksu
 
         echo "🕑Enabling SusFS in defconfig..."
-        echo "CONFIG_KSU_SUSFS=y" >> ./$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> ./$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> ./$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        echo "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> ./$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=y" >> ./$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        echo "CONFIG_KSU_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT=y" >> ./$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        echo "CONFIG_KSU_SUSFS_SUS_KSTAT=y" >> ./$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        echo "CONFIG_KSU_SUSFS_TRY_UMOUNT=y" >> ./$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        echo "CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT=y" >> ./$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        echo "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" >> ./$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        echo "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> ./$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        echo "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" >> ./$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> ./$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> ./$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        echo "CONFIG_KSU_SUSFS_SUS_SU=y" >> ./$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+        echo "CONFIG_KSU_SUSFS=y" >> ~/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+        echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> ~/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+        echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> ~/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+        echo "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> ~/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+        echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=y" >> ~/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+        echo "CONFIG_KSU_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT=y" >> ~/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+        echo "CONFIG_KSU_SUSFS_SUS_KSTAT=y" >> ~/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+        echo "CONFIG_KSU_SUSFS_TRY_UMOUNT=y" >> ~/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+        echo "CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT=y" >> ~/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+        echo "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" >> ~/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+        echo "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> ~/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+        echo "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" >> ~/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+        echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> ~/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+        echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> ~/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+        echo "CONFIG_KSU_SUSFS_SUS_SU=y" >> ~/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
 
         echo "🕑Copying SusFS files to kernel source..."
-        cp susfs4ksu/kernel_patches/fs/* fs/
-        cp susfs4ksu/kernel_patches/include/linux/* include/linux/
+        cp ~/$DIR_KERNEL/susfs4ksu/kernel_patches/fs/* ~/$DIR_KERNEL/fs/
+        cp ~/$DIR_KERNEL/susfs4ksu/kernel_patches/include/linux/* ~/$DIR_KERNEL/include/linux/
         if [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-Rissu" ]; then
           # Skip manual patching; Rissu fork supports SusFS through pulling the compatible git branch
           echo "🕑Setting up SusFS for KernelSU-Rissu..."
@@ -195,12 +196,12 @@ jobs:
           SUSFS_PATCH_NAME="010_kernel-implement-susfs-v1.5.8-KernelSU-Next.patch"
           echo "🕑Setting up SusFS for KernelSU-Next..."
           echo "🕑Applying SusFS patch for KernelSU-Next..."
-          cd KernelSU-Next
+          cd ~/$DIR_KERNEL/KernelSU-Next
           echo "🕑Downloading KernelSU-Next SusFS patch..."
           aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$SUSFS_PATCH_NAME
           echo "🕑Applying patch: $SUSFS_PATCH_NAME ..."
           patch -p1 < $SUSFS_PATCH_NAME
-          cd ..
+          cd ~/$DIR_KERNEL
         elif [ "${{ matrix.kernel_variant.tag }}" == "SukiSU-Ultra" ]; then
           # Skip manual patching; SukiSU supports SusFS through pulling the compatible git branch
           # https://github.com/SukiSU-Ultra/SukiSU-Ultra/blob/main/docs/guide/how-to-integrate.md#gki--non-gki-kernel-with-susfs-experiment
@@ -254,8 +255,8 @@ jobs:
       if: failure()
       run: |
         echo "🕑One or more patching steps failed; searching for .rej files to upload..."
-        mkdir rej_files
-        find . -name "*.rej" -exec cp {} rej_files/ \;
+        mkdir ~/rej_files
+        find . -name "*.rej" -exec cp {} ~/rej_files/ \;
     - name: 📤Upload any found patch rejects
       if: failure()
       uses: actions/upload-artifact@v4
@@ -268,7 +269,7 @@ jobs:
       run: |
         export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
         echo "🕑Patching Re-Kernel support"
-        cd $DIR_KERNEL
+        cd ~/$DIR_KERNEL
         aria2c https://github.com/Sakion-Team/Re-Kernel/releases/download/modifier/Kernel-Modifier-v4.0.jar
         $JAVA_HOME/bin/java -jar ./Kernel-Modifier-v4.0.jar
     - name: "👷‍♀️Build kernel"
@@ -276,7 +277,7 @@ jobs:
         echo "🕑Building kernel..."
         export PATH=$(pwd)/toolchains/aosp-clang/clang-${{ github.event.inputs.clang_commit }}/bin/:$PATH
         export ARCH=arm64 && export SUBARCH=arm64 && export LD=ld.lld
-        cd $DIR_KERNEL
+        cd ~/$DIR_KERNEL
         echo "ℹ️Using defconfig: ${{ github.event.inputs.kernel_defconfig }}"
         echo "ℹ️Kernel variant: ${{ matrix.kernel_variant.name }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}"
         echo "ℹ️Clang commit: ${{ github.event.inputs.clang_commit }} (version ${{ github.event.inputs.clang_version }})"
@@ -307,29 +308,15 @@ jobs:
       run: |
         # SukiSU-Ultra KPM support steps from here:
         # https://github.com/YangQi0408/kernel_xiaomi_sm8250_mod/blob/41d6929480426e0bbdc6697fe692c14d3cfc8014/build.sh#L68
-        cd $DIR_KERNEL/$DIR_BUILD
+        cd ~/$DIR_KERNEL/$DIR_BUILD
         echo "🕑Downloading patch_linux tool..."
         aria2c https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU_patch/refs/heads/main/kpm/patch_linux
         chmod a+x patch_linux
         echo "🕑Patching kernel for KPM support (first attempt)..."
         ./patch_linux
-
-        # Check for oImage, if not found...
         if [[ ! -f oImage ]]; then
-          echo "⚠️First patch attempt failed (oImage not created). Trying with alternative patch..."
-
-          # Download and apply alternative .patch file, and try patch_linux again
-          KPM_FIX_PATCH=200_fix_kpm.patch
-          aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KPM_FIX_PATCH
-          echo "🕑Applying $KPM_FIX_PATCH..."
-          patch -p1 < $KPM_FIX_PATCH
-          echo "🕑Retrying patch_linux..."
-          if [[ ! -f oImage ]]; then
-            echo "❌Patch failed again after retry. Exiting."
-            exit 1
-          else
-            echo "✅Patch applied successfully."
-          fi
+          echo "❌Patch failed. Exiting."
+          exit 1
         else
           echo "✅Patch applied successfully."
         fi
@@ -338,28 +325,27 @@ jobs:
         mv oImage Image
 
         # Delete image and replace with KPM patched one
-        cd
-        if rm $DIR_ANYKERNEL3/Image.gz-dtb; then
+        if rm ~/$DIR_ANYKERNEL3/Image.gz-dtb; then
           echo "✅Removed old Image.gz-dtb from AnyKernel3 directory."
-        elif rm $DIR_ANYKERNEL3/Image.gz; then
+        elif rm ~/$DIR_ANYKERNEL3/Image.gz; then
           echo "✅Removed old Image.gz from AnyKernel3 directory."
-        elif rm $DIR_ANYKERNEL3/Image; then
+        elif rm ~/$DIR_ANYKERNEL3/Image; then
           echo "✅Removed old Image from AnyKernel3 directory."
         else
           echo "❌Couldn't find any build image file."
           echo "🕑Listing build directory contents..."
-          ls -a $DIR_KERNEL/$DIR_BUILD
+          ls -a ~/$DIR_KERNEL/$DIR_BUILD
           exit 1
         fi
         
         echo "🕑Copying patched Image to AnyKernel3 directory."
-        cp $DIR_KERNEL/$DIR_BUILD/Image $DIR_ANYKERNEL3/
+        cp ~/$DIR_KERNEL/$DIR_BUILD/Image $DIR_ANYKERNEL3/
     - name: "📦Create AnyKernel3 ZIP"
       run: |
         echo "🕑Packaging kernel into AnyKernel3 ZIP..."
         if [[ -f "$DIR_KERNEL/$DIR_BUILD/dtbo.img" ]]; then
           echo "✅Found dtbo.img, copying to AnyKernel3 folder..."
-          cp -fp $DIR_KERNEL/$DIR_BUILD/dtbo.img $DIR_ANYKERNEL3/
+          cp -fp ~/$DIR_KERNEL/$DIR_BUILD/dtbo.img $DIR_ANYKERNEL3/
         else
           echo "⚠️dtbo.img not found. Skipping..."
         fi
@@ -372,8 +358,7 @@ jobs:
         fi
 
         echo "🕑Creating ZIP file: OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip"
-        cd $DIR_ANYKERNEL3
-        zip -r9 ../OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip *
+        zip -r9 ~/OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip ~/$DIR_ANYKERNEL3/*
     - name: "🌬️Upload artifact"
       uses: actions/upload-artifact@v4
       with:
