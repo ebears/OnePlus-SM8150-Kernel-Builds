@@ -2,18 +2,18 @@
 
 **ROM:** [YAAP (Yet another AOSP project)](https://yaaprom.org)\
 **Version:** Android 16\
-**Kernel:** [yaap/kernel_oneplus_sm8150 (linux-4.14/non-gki)](https://github.com/yaap/kernel_oneplus_sm8150)\
+**Kernel:** [yaap/kernel_oneplus_sm8150 (linux-4.14.336/non-gki)](https://github.com/yaap/kernel_oneplus_sm8150)\
 **Defconfig:** [Gulch](https://github.com/yaap/kernel_oneplus_sm8150/blob/sixteen/arch/arm64/configs/gulch_defconfig)
 
 Releases are [AnyKernel3](https://github.com/osm0sis/AnyKernel3) ZIPs. Check out the [actions](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/actions) and [workflow file](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/tree/main/.github/workflows) for details.
 
 ### Versions
 
-| ℹ️KernelSU version                                                | 🕵️‍♀️Includes a SusFS version? |
+| ℹ️KernelSU version                                                | 🕵️‍♀️SusFS    | 🪄Magic Mount | 🛠️KPM    |
 | --- | --- |
-| #️⃣[KernelSU-Rissu](https://github.com/rsuntk/KernelSU)            | ✅                          |
-| ☯️[KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next) | ✅                          |
-| ~~😼[SukiSU-Ultra](https://github.com/SukiSU-Ultra/SukiSU-Ultra)~~ WIP while I figure out KPM    | ✅                          |
+| #️⃣[KernelSU-Rissu](https://github.com/rsuntk/KernelSU)            | ✅ v1.5.9  | ✅            | ❌       |
+| ☯️[KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next) | ✅ v1.5.9  | ✅            | ❌       |
+| 😼[SukiSU-Ultra](https://github.com/SukiSU-Ultra/SukiSU-Ultra)    | ✅ v1.5.10 | ✅            | ⚠️WIP    |
 
 - Also includes [Re-Kernel](https://github.com/Sakion-Team/Re-Kernel) support.
 
