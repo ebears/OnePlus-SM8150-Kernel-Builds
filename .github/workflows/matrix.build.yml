@@ -113,7 +113,6 @@ jobs:
         KERNEL_SU_PATCH=000_syscall_hooks.patch
         FIX_CRED_PATCH=001_FIX_APATCH_OPENELA.patch
         PATH_UMOUNT_PATCH=002_path_umount.patch
-        KPM_FIX_PATCH=003_fix_kpm.patch
 
         echo "🕑Applying KernelSU patches for ${{ matrix.kernel_variant.tag }}..."
         cd $DIR_WORKSPACE/$DIR_KERNEL
@@ -304,12 +303,13 @@ jobs:
           grep -qxF "CONFIG_KALLSYMS_ALL=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KALLSYMS_ALL=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}      
 
           # Apply KPM fix for patch_linux step later on
+          KPM_FIX_PATCH=003_fix_kpm.patch
           cd $DIR_WORKSPACE/$DIR_KERNEL/KernelSU/kernel/kpm
           aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KPM_FIX_PATCH
           echo "🕑Applying $KPM_FIX_PATCH..."
           patch -p1 < $KPM_FIX_PATCH
         fi
-        
+
         echo "🕑Building kernel..."
         export PATH=$(pwd)/toolchains/aosp-clang/clang-${{ github.event.inputs.clang_commit }}/bin/:$PATH
         export ARCH=arm64 && export SUBARCH=arm64 && export LD=ld.lld
