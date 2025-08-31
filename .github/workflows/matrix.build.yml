@@ -135,22 +135,6 @@ jobs:
         aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$PATH_UMOUNT_PATCH
         patch -p1 < $PATH_UMOUNT_PATCH
 
-        echo "🕑Enabling KSU in defconfig..."
-        # Remove any existing line that sets CONFIG_KSU
-        sed -i "/^$CONFIG_KSU[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        # Add the desired config line if it's not already present
-        grep -qxF "CONFIG_KSU=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KSU=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-
-        sed -i "/^$CONFIG_KSU_MANUAL_HOOK[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        grep -qxF "CONFIG_KSU_MANUAL_HOOK=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KSU_MANUAL_HOOK=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-
-        # Mountify stuff
-        # Reference: https://github.com/backslashxx/mountify
-        sed -i "/^$CONFIG_OVERLAY_FS[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        grep -qxF "CONFIG_OVERLAY_FS=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_OVERLAY_FS=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        sed -i "/^$CONFIG_TMPFS_XATTR[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        grep -qxF "CONFIG_TMPFS_XATTR=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_TMPFS_XATTR=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}      
-
         echo "🕑Running setup script for ${{ matrix.kernel_variant.tag }}..."
         curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s "${{ matrix.kernel_variant.setup_arg }}"
     - name: "🕵️‍♀️Apply SusFS (if enabled)"
@@ -161,38 +145,6 @@ jobs:
         cd $DIR_WORKSPACE/$DIR_KERNEL
         echo "🕑Cloning simonpunk/susfs4ksu repo..."
         git clone --depth=1 --branch kernel-4.14 https://gitlab.com/simonpunk/susfs4ksu.git susfs4ksu
-
-        echo "🕑Enabling SusFS in defconfig..."
-        sed -i "/^$CONFIG_KSU_SUSFS[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        grep -qxF "CONFIG_KSU_SUSFS=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KSU_SUSFS=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}      
-        sed -i "/^$CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        grep -qxF "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}      
-        sed -i "/^$CONFIG_KSU_SUSFS_SUS_PATH[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        grep -qxF "CONFIG_KSU_SUSFS_SUS_PATH=n" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KSU_SUSFS_SUS_PATH=n" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}      
-        sed -i "/^$CONFIG_KSU_SUSFS_SUS_MOUNT[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        grep -qxF "CONFIG_KSU_SUSFS_SUS_MOUNT=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}      
-        sed -i "/^$CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        grep -qxF "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=n" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=n" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}      
-        sed -i "/^$CONFIG_KSU_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        grep -qxF "CONFIG_KSU_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KSU_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}      
-        sed -i "/^$CONFIG_KSU_SUSFS_SUS_KSTAT[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        grep -qxF "CONFIG_KSU_SUSFS_SUS_KSTAT=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KSU_SUSFS_SUS_KSTAT=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}      
-        sed -i "/^$CONFIG_KSU_SUSFS_TRY_UMOUNT[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        grep -qxF "CONFIG_KSU_SUSFS_TRY_UMOUNT=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KSU_SUSFS_TRY_UMOUNT=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}      
-        sed -i "/^$CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        grep -qxF "CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}      
-        sed -i "/^$CONFIG_KSU_SUSFS_SPOOF_UNAME[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        grep -qxF "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}      
-        sed -i "/^$CONFIG_KSU_SUSFS_ENABLE_LOG[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        grep -qxF "CONFIG_KSU_SUSFS_ENABLE_LOG=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}      
-        sed -i "/^$CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        grep -qxF "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}      
-        sed -i "/^$CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        grep -qxF "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}      
-        sed -i "/^$CONFIG_KSU_SUSFS_OPEN_REDIRECT[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        grep -qxF "CONFIG_KSU_SUSFS_OPEN_REDIRECT=n" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=n" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}      
-        sed -i "/^$CONFIG_KSU_SUSFS_SUS_SU[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        grep -qxF "CONFIG_KSU_SUSFS_SUS_SU=n" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}      
 
         echo "🕑Copying SusFS files to kernel source..."
         cp $DIR_WORKSPACE/$DIR_KERNEL/susfs4ksu/kernel_patches/fs/* $DIR_WORKSPACE/$DIR_KERNEL/fs/
@@ -289,36 +241,74 @@ jobs:
       run: |
         KPM_FIX_PATCH=200_fix_kpm.patch
 
-        # SukiSU-Ultra requires this for KPM functionality
-        # Reference: https://github.com/SukiSU-Ultra/SukiSU-Ultra#kpm-support
-        # YAAP Kernel source seemingly already has set_memory backports from 4.19
-        echo "🕑Enabling KPM support in defconfig for SukiSU-Ultra..."
-        sed -i "/^$CONFIG_KPM[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        grep -qxF "CONFIG_KPM=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KPM=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}      
-        sed -i "/^$CONFIG_KALLSYMS[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        grep -qxF "CONFIG_KALLSYMS=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KALLSYMS=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}      
-        sed -i "/^$CONFIG_KALLSYMS_ALL[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        grep -qxF "CONFIG_KALLSYMS_ALL=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KALLSYMS_ALL=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}      
-        
         # Apply KPM fix for patch_linux step later on
         cd $DIR_WORKSPACE/$DIR_KERNEL/KernelSU/kernel/kpm
         aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KPM_FIX_PATCH
         echo "🕑Applying $KPM_FIX_PATCH..."
         patch -p1 < $KPM_FIX_PATCH
-    - name: "👷‍♀️Build kernel"
+    - name: "🔧 Generate kernel .config"
       run: |
-        echo "🕑Building kernel..."
         export PATH=$(pwd)/toolchains/aosp-clang/clang-${{ github.event.inputs.clang_commit }}/bin/:$PATH
         export ARCH=arm64 && export SUBARCH=arm64 && export LD=ld.lld
         cd $DIR_WORKSPACE/$DIR_KERNEL
+        echo "🕑 Generating kernel config from ${{ github.event.inputs.kernel_defconfig }}..."
+        make $KERNEL_CMDLINE ${{ github.event.inputs.kernel_defconfig }} CC="ccache clang-${{ github.event.inputs.clang_version }}"
+    - name: "✍️ Enable required configs"
+      run: |
+        cd $DIR_WORKSPACE/$DIR_KERNEL
+
+        echo "🕑 Enabling required kernel configurations for KSU..."
+        scripts/config --file out/.config --enable KSU
+        scripts/config --file out/.config --enable KSU_MANUAL_HOOK
+
+        if [ "${{ matrix.susfs }}" == true ]; then
+          echo "🕑 Enabling required kernel configurations for SusFS..."
+          scripts/config --file out/.config --enable KSU_SUSFS
+          scripts/config --file out/.config --enable KSU_SUSFS_HAS_MAGIC_MOUNT
+          scripts/config --file out/.config --enable KSU_SUSFS_SUS_PATH
+          scripts/config --file out/.config --enable KSU_SUSFS_SUS_MOUNT
+          scripts/config --file out/.config --enable KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT
+          scripts/config --file out/.config --enable KSU_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT
+          scripts/config --file out/.config --enable KSU_SUSFS_SUS_KSTAT
+          scripts/config --file out/.config --enable KSU_SUSFS_TRY_UMOUNT
+          scripts/config --file out/.config --enable KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT
+          scripts/config --file out/.config --enable KSU_SUSFS_SPOOF_UNAME
+          scripts/config --file out/.config --enable KSU_SUSFS_ENABLE_LOG
+          scripts/config --file out/.config --enable KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS
+          scripts/config --file out/.config --enable KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
+          scripts/config --file out/.config --enable KSU_SUSFS_OPEN_REDIRECT
+          scripts/config --file out/.config --enable KSU_SUSFS_SUS_SU
+        fi
+
+        echo "🕑 Enabling required kernel configurations for KPM..."
+        scripts/config --file out/.config --enable KPM
+        scripts/config --file out/.config --enable KALLSYMS
+        scripts/config --file out/.config --enable KALLSYMS_ALL
+
+        echo "🕑 Enabling required kernel configurations for Mountify..."
+        # Reference: https://github.com/backslashxx/mountify
+        scripts/config --file out/.config --enable OVERLAY_FS
+        scripts/config --file out/.config --enable TMPFS_XATTR
+
+        # DEBUG
+        echo "🕑 Disabling potentially problematic configs..."
+        scripts/config --file out/.config --disable LTO
+        scripts/config --file out/.config --disable LTO_CLANG
+        scripts/config --file out/.config --disable THINLTO
+    - name: "👷‍♀️ Build kernel"
+      run: |
+        export PATH=$(pwd)/toolchains/aosp-clang/clang-${{ github.event.inputs.clang_commit }}/bin/:$PATH
+        export ARCH=arm64 && export SUBARCH=arm64 && export LD=ld.lld
+        cd $DIR_WORKSPACE/$DIR_KERNEL
+
         echo "ℹ️Using defconfig: ${{ github.event.inputs.kernel_defconfig }}"
         echo "ℹ️Kernel variant: ${{ matrix.kernel_variant.name }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}"
         echo "ℹ️Clang commit: ${{ github.event.inputs.clang_commit }} (version ${{ github.event.inputs.clang_version }})"
         echo "ℹ️SusFS enabled: ${{ matrix.susfs }}"
         echo "ℹ️Ccache stats before build:"
         ccache -s
-        echo "🕑Starting kernel build..."
-        make $KERNEL_CMDLINE ${{ github.event.inputs.kernel_defconfig }} CC="ccache clang-${{ github.event.inputs.clang_version }}"
+
+        echo "🕑 Starting kernel build..."
         make $KERNEL_CMDLINE -j$(nproc --all) CC="ccache clang-${{ github.event.inputs.clang_version }}"
     - name: "🫸Copy Kernel image to AnyKernel"
       run: |
