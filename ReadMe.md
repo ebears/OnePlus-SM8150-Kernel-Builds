@@ -5,8 +5,6 @@
 **Kernel:** [yaap/kernel_oneplus_sm8150 (linux-4.14.336/non-gki)](https://github.com/yaap/kernel_oneplus_sm8150)\
 **Defconfig:** [Gulch](https://github.com/yaap/kernel_oneplus_sm8150/blob/sixteen/arch/arm64/configs/gulch_defconfig)
 
-Releases are [AnyKernel3](https://github.com/osm0sis/AnyKernel3) ZIPs. Check out the [actions](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/actions) and [workflow file](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/tree/main/.github/workflows) for details.
-
 ### Versions
 
 | ℹ️KernelSU version                                                | 🕵️‍♀️SusFS    | 🪄Magic Mount | 🛠️KPM  | ⚙️Re:Kernel |
@@ -15,7 +13,7 @@ Releases are [AnyKernel3](https://github.com/osm0sis/AnyKernel3) ZIPs. Check out
 | ☯️[KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next) | ✅ v1.5.9  | ✅            | ❌     | ✅          |
 | 😼[SukiSU-Ultra](https://github.com/SukiSU-Ultra/SukiSU-Ultra)    | ✅ v1.5.9  | ✅            | ⚠️ WIP | ✅          |
 
-Kernel downloads are found under [releases](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/releases).
+[AnyKernel3](https://github.com/osm0sis/AnyKernel3) compatible ZIP Kernel downloads are found under the [releases](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/releases). Check out the [actions](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/actions) and [workflow file](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/tree/main/.github/workflows) for details.
 
 ---
 ### Install
@@ -48,14 +46,6 @@ Flash at your own risk.
 2) Switch apps to your installed kernel flasher of choice.
 3) Install the kernel ZIP file on the partition that is **not** currently being used.
 4) Switch apps back to the OTA update and reboot.
-
----
-##### TO-DO
-
-- Update to SusFS v1.5.10
-- Pure [APatch](https://github.com/bmax121/APatch)/KPM supported kernel ([KernelPatch](https://github.com/bmax121/KernelPatch)).
-    - KPM support for SukiSU-Ultra.
-- [Mountify](https://github.com/backslashxx/mountify) support.
 
 ---
 #### Credits
