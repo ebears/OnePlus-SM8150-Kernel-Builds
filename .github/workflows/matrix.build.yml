@@ -122,6 +122,7 @@ jobs:
         # BUT I'm using this instead: https://github.com/WildKernels/kernel_patches/blob/main/next/scope_min_manual_hooks_v1.4.patch
         # Reference: https://kernelsu.org/guide/how-to-integrate-for-non-gki.html#manually-modify-the-kernel-source
         echo "🕑Applying $KERNEL_SU_PATCH for kernel hooks..."
+        aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_SU_PATCH
         patch -p1 < $KERNEL_SU_PATCH
 
         # Download and apply FIX_APATCH_OPENELA.patch to Revert "cred: switch to using atomic_long_t"
