@@ -77,14 +77,14 @@ jobs:
       run: |
         # The following list of packages is installed by default: "make, python3, libssl-dev, bc, bison, flex, unzip, xz-utils, cpio, git, aria2"
         # APT packages required:
-        APT_INSTALL="gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi libelf-dev libarchive-tools lld llvm build-essential mkbootimg device-tree-compiler openjdk-17-jdk-headless"
+        APT_INSTALL="gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi libelf-dev libarchive-tools lld llvm build-essential mkbootimg device-tree-compiler openjdk-17-jdk-headless binutils kmod libtfm-dev ca-certificates libc6-dev ccache pigz coccinelle parallel"
         
         echo "🕑Removing unneeded pre-installed packages..."
         sudo rm -rf /opt/ghc "/usr/local/share/boost" /usr/share/dotnet "$AGENT_TOOLSDIRECTORY"
 
         echo "🕑Installing required packages..."
         sudo apt-get update -y
-        sudo apt-get install $APT_INSTALL -y
+        sudo apt-get install --no-install-recommend $APT_INSTALL -y
     - name: "👣Git clone and prepare AnyKernel folder"
       run: |
         echo "🕑Cloning AnyKernel3..."
@@ -312,10 +312,13 @@ jobs:
         # https://github.com/YangQi0408/kernel_xiaomi_sm8250_mod/blob/41d6929480426e0bbdc6697fe692c14d3cfc8014/build.sh#L68
         cd $DIR_WORKSPACE/$DIR_KERNEL/$DIR_BUILD
         echo "🕑Downloading patch_linux tool..."
-        aria2c https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU_patch/refs/heads/main/kpm/patch_linux
+        TAG=$(jq -r 'map(select(.prerelease)) | first | .tag_name' <<< $(curl --silent https://api.github.com/repos/ShirkNeko/SukiSU_KernelPatch_patch/releases))
+        echo "ℹ️Latest SukiSu KernelPatch tag is: $TAG"
+        aria2c https://github.com/ShirkNeko/SukiSU_KernelPatch_patch/releases/download/$TAG/patch_linux
         chmod a+x patch_linux
-        echo "🕑Patching kernel for KPM support (first attempt)..."
-        ./patch_linux
+        chmod 777 patch_linux
+        echo "🕑Patching kernel for KPM support..."
+        ./patch_linux Image
         if [[ ! -f oImage ]]; then
           echo "❌Patch failed. Exiting."
           exit 1
