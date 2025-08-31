@@ -111,26 +111,18 @@ jobs:
     - name: "🛠️Apply KernelSU patches"
       # https://kernelsu.org/guide/how-to-integrate-for-non-gki.html
       run: |
-        KERNEL_SU_PATCH=kernelsu.patch
-        SUKI_SU_PATCH=000_sukisu_hooks_4.14.patch
+        KERNEL_SU_PATCH=000_scope_min_manual_hooks_v1.4.patch
         FIX_CRED_PATCH=001_FIX_APATCH_OPENELA.patch
         PATH_UMOUNT_PATCH=002_path_umount.patch
 
         echo "🕑Applying KernelSU patches for ${{ matrix.kernel_variant.tag }}..."
         cd $DIR_WORKSPACE/$DIR_KERNEL
 
-        if [ "${{ matrix.kernel_variant.tag }}" == "SukiSU-Ultra" ]; then
-          # Custom kernelSU hooks for SukiSU
-          # Reference: https://github.com/SukiSU-Ultra/SukiSU_patch/blob/main/4.14/ksu_hooks_4.14.patch
-          echo "🕑Applying $SUKI_SU_PATCH for kernel hooks..."
-          aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$SUKI_SU_PATCH
-          patch -p1 < $SUKI_SU_PATCH
-        else
-          # kernelsu.patch is provided by the YAAP kernel source
-          # Reference: https://kernelsu.org/guide/how-to-integrate-for-non-gki.html#manually-modify-the-kernel-source
-          echo "🕑Applying $KERNEL_SU_PATCH for kernel hooks..."
-          patch -p1 < $KERNEL_SU_PATCH
-        fi
+        # kernelsu.patch is provided by the YAAP kernel source
+        # BUT I'm using this instead: https://github.com/WildKernels/kernel_patches/blob/main/next/scope_min_manual_hooks_v1.4.patch
+        # Reference: https://kernelsu.org/guide/how-to-integrate-for-non-gki.html#manually-modify-the-kernel-source
+        echo "🕑Applying $KERNEL_SU_PATCH for kernel hooks..."
+        patch -p1 < $KERNEL_SU_PATCH
 
         # Download and apply FIX_APATCH_OPENELA.patch to Revert "cred: switch to using atomic_long_t"
         # Reference: https://github.com/midozalouk/android_kernel_oneplus_sm8150/blob/main/patches%20/FIX_APATCH_OPENELA.patch
