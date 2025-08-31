@@ -114,8 +114,6 @@ jobs:
         FIX_CRED_PATCH=001_FIX_APATCH_OPENELA.patch
         PATH_UMOUNT_PATCH=002_path_umount.patch
         KPM_FIX_PATCH=003_fix_kpm.patch
-        LZ4_UPDATE_PATCH=004_lz4-Update-to-version-1.9.4.patch
-        SLMK_PATCH=005_SLMK.patch
 
         echo "🕑Applying KernelSU patches for ${{ matrix.kernel_variant.tag }}..."
         cd $DIR_WORKSPACE/$DIR_KERNEL
@@ -175,18 +173,6 @@ jobs:
           echo "🕑Applying $KPM_FIX_PATCH..."
           patch -p1 < $KPM_FIX_PATCH
         fi
-
-        # Update lz4 to version 1.9.4
-        # Reference: https://github.com/SukiSU-Ultra/SukiSU_patch/blob/main/other/0001-lz4-Update-to-version-1.9.4.patch
-        echo "🕑Applying $LZ4_UPDATE_PATCH..."
-        aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$LZ4_UPDATE_PATCH
-        patch -p1 < $LZ4_UPDATE_PATCH
-
-        # Integrate SLMK
-        # Reference: https://github.com/SukiSU-Ultra/SukiSU_patch/blob/main/other/0001-SLMK.patch
-        echo "🕑Applying $SLMK_PATCH..."
-        aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$SLMK_PATCH
-        patch -p1 < $SLMK_PATCH
     - name: "🕵️‍♀️Apply SusFS (if enabled)"
       # https://gitlab.com/simonpunk/susfs4ksu/-/blob/kernel-4.14/README.md
       if: matrix.susfs
