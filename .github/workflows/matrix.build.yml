@@ -151,7 +151,7 @@ jobs:
           echo "CONFIG_KPM=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
           # echo "CONFIG_KALLSYMS=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
           echo "CONFIG_KALLSYMS_ALL=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-          echo "CONFIG_DEBUG_KERNEL=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+          echo "CONFIG_DEBUG_CREDENTIALS=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
 
           # Apply KPM fix for patch_linux step later on
           KPM_FIX_PATCH=002_fix_kpm.patch
@@ -172,9 +172,9 @@ jobs:
         echo "🕑Enabling SusFS in defconfig..."
         echo "CONFIG_KSU_SUSFS=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+        echo "CONFIG_KSU_SUSFS_SUS_PATH=n" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+        echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=n" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_SUSFS_SUS_KSTAT=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_SUSFS_TRY_UMOUNT=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
@@ -183,8 +183,8 @@ jobs:
         echo "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
         echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-        echo "CONFIG_KSU_SUSFS_SUS_SU=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+        echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=n" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+        echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
 
         echo "🕑Copying SusFS files to kernel source..."
         cp $DIR_WORKSPACE/$DIR_KERNEL/susfs4ksu/kernel_patches/fs/* $DIR_WORKSPACE/$DIR_KERNEL/fs/
