@@ -2,24 +2,16 @@ name: "🏗️Build Kernels"
 on:
   workflow_dispatch:
     inputs:
-      kernel_source_url:
-        description: 'Kernel source URL'
-        required: true
-        default: 'https://github.com/yaap/kernel_oneplus_sm8150'
-      kernel_branch:
-        description: 'Source branch'
-        required: true
-        default: 'sixteen'
       kernel_defconfig:
         description: 'defconfig file'
         required: true
         default: 'gulch_defconfig'
       clang_commit:
-        description: 'Shortened clang commit hash'
+        description: 'Shortened clang commit hash (from here: https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+/refs/heads/main)'
         required: true
         default: 'r547379'
       clang_version:
-        description: 'Clang binary version'
+        description: 'Clang binary version (clang-"BB" in clang-r"AAAAAA"/bin/)'
         required: true
         default: '20'
 # NOT COMPATIBLE with workflow_dispatch inputs above.
@@ -105,7 +97,7 @@ jobs:
     - name: "👯‍♀️Clone kernel source"
       run: |
         echo "🕑Cloning kernel source..."
-        git clone --depth=1 --branch "${{ github.event.inputs.kernel_branch }}" "${{ github.event.inputs.kernel_source_url }}" $DIR_KERNEL
+        git clone --depth=1 --branch sixteen https://github.com/yaap/kernel_oneplus_sm8150 $DIR_KERNEL
         cd $DIR_WORKSPACE/$DIR_KERNEL && git submodule update --init --recursive
     - name: "🛠️Apply KernelSU patches"
       # https://kernelsu.org/guide/how-to-integrate-for-non-gki.html
@@ -415,6 +407,8 @@ jobs:
         PRINTED_KERNELSU_RISSU=0
         PRINTED_KERNELSU_NEXT=0
         PRINTED_SUKISU_ULTRA=0
+
+        echo "🛠️Built with Clang v${{ github.event.inputs.clang_version }} (${{ github.event.inputs.clang_commit }})" >> release.md
 
         while read -r file; do
           FILE_NAME=$(basename "$file")
