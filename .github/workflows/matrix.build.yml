@@ -312,9 +312,7 @@ jobs:
         # https://github.com/YangQi0408/kernel_xiaomi_sm8250_mod/blob/41d6929480426e0bbdc6697fe692c14d3cfc8014/build.sh#L68
         cd $DIR_WORKSPACE/$DIR_KERNEL/$DIR_BUILD
         echo "🕑Downloading patch_linux tool..."
-        TAG=$(jq -r 'map(select(.prerelease)) | first | .tag_name' <<< $(curl --silent https://api.github.com/repos/ShirkNeko/SukiSU_KernelPatch_patch/releases))
-        echo "ℹ️Latest SukiSu KernelPatch tag is: $TAG"
-        aria2c https://github.com/ShirkNeko/SukiSU_KernelPatch_patch/releases/download/$TAG/patch_linux
+        aria2c https://github.com/SukiSU-Ultra/SukiSU_KernelPatch_patch/releases/download/0.11-beta/patch_linux
         chmod a+x patch_linux
         chmod 777 patch_linux
         echo "🕑Patching kernel for KPM support..."
