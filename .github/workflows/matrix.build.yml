@@ -278,7 +278,7 @@ jobs:
       run: |
         echo "🕑Building kernel..."
         export PATH=$(pwd)/toolchains/aosp-clang/clang-${{ github.event.inputs.clang_commit }}/bin/:$PATH
-        export ARCH=arm64 && export SUBARCH=arm64 && export LD=ld.lld
+        export ARCH=arm64 && export SUBARCH=arm64 && export LD=ld.bfd
         cd $DIR_WORKSPACE/$DIR_KERNEL
         echo "ℹ️Using defconfig: ${{ github.event.inputs.kernel_defconfig }}"
         echo "ℹ️Kernel variant: ${{ matrix.kernel_variant.name }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}"
