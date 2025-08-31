@@ -303,7 +303,7 @@ jobs:
           grep -qxF "CONFIG_KALLSYMS_ALL=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KALLSYMS_ALL=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}      
 
           # Apply KPM fix for patch_linux step later on
-          KPM_FIX_PATCH=003_fix_kpm.patch
+          KPM_FIX_PATCH=200_fix_kpm.patch
           cd $DIR_WORKSPACE/$DIR_KERNEL/KernelSU/kernel/kpm
           aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KPM_FIX_PATCH
           echo "🕑Applying $KPM_FIX_PATCH..."
