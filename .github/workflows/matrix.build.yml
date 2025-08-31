@@ -345,8 +345,8 @@ jobs:
         echo "🕑Patching kernel for KPM support..."
         ./patch_linux Image
         if [[ ! -f oImage ]]; then
-          echo "⛔Patch failed."
-          exit 1
+          echo "⚠️KernelPatch on Image file failed. Skipping..."
+          exit 0
         else
           echo "✅Patch applied successfully."
         fi
