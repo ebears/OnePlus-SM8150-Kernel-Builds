@@ -312,30 +312,26 @@ jobs:
         aria2c https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU_patch/refs/heads/main/kpm/patch_linux
         chmod a+x patch_linux
         echo "🕑Patching kernel for KPM support (first attempt)..."
-        if ./patch_linux; then
-          echo "🕑Patching kernel for KPM support (first attempt)..."
-          ./patch_linux
-                  
+        ./patch_linux
+
+        # Check for oImage, if not found...
+        if [[ ! -f oImage ]]; then
+          echo "⚠️First patch attempt failed (oImage not created). Trying with alternative patch..."
+
+          # Download and apply alternative .patch file, and try patch_linux again
+          KPM_FIX_PATCH=200_fix_kpm.patch
+          aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KPM_FIX_PATCH
+          echo "🕑Applying $KPM_FIX_PATCH..."
+          patch -p1 < $KPM_FIX_PATCH
+          echo "🕑Retrying patch_linux..."
           if [[ ! -f oImage ]]; then
-            echo "⚠️First patch attempt failed (oImage not created). Trying with alternative patch..."
-            # Download and apply alternative .patch file, and try patch_linux again
-            KPM_FIX_PATCH=200_fix_kpm.patch
-            aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KPM_FIX_PATCH
-            echo "🕑Applying $KPM_FIX_PATCH..."
-            patch -p1 < $KPM_FIX_PATCH
-            echo "🕑Retrying patch_linux..."
-            if ./patch_linux; then
-              echo "✅Patch succeeded on retry."
-            else
-              echo "❌Patch failed again after retry. Exiting."
-              exit 1
-            fi
+            echo "❌Patch failed again after retry. Exiting."
+            exit 1
           else
             echo "✅Patch applied successfully."
           fi
         else
-          echo "❌Patch failed. Exiting."
-          exit 1
+          echo "✅Patch applied successfully."
         fi
 
         rm Image
