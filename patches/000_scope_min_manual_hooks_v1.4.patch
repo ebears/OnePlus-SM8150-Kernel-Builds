@@ -40,10 +40,10 @@
  
 --- a/fs/open.c
 +++ b/fs/open.c
-@@ -450,8 +450,16 @@ long do_faccessat(int dfd, const char __user *filename, int mode)
- 	return res;
- }
- 
+@@ -359,8 +359,16 @@
+  * We do this by temporarily clearing all FS-related capabilities and
+  * switching the fsuid/fsgid around to the real ones.
+  */
 +#if defined(CONFIG_KSU) && !defined(CONFIG_KSU_KPROBES_HOOK)
 +extern __attribute__((hot, always_inline)) int ksu_handle_faccessat(int *dfd, const char __user **filename_user, int *mode,
 +			                    int *flags);
@@ -54,9 +54,9 @@
 +#if defined(CONFIG_KSU) && !defined(CONFIG_KSU_KPROBES_HOOK)
 +	ksu_handle_faccessat(&dfd, &filename, &mode, NULL);
 +#endif
- 	return do_faccessat(dfd, filename, mode, 0);
- }
- 
+ 	const struct cred *old_cred;
+ 	struct cred *override_cred;
+ 	struct path path;
 --- a/fs/stat.c
 +++ b/fs/stat.c
 @@ -353,6 +353,10 @@ SYSCALL_DEFINE2(newlstat, const char __user *, filename,
@@ -116,8 +116,8 @@
  		spin_lock_irqsave(&dev->event_lock, flags);
 --- a/fs/read_write.c
 +++ b/fs/read_write.c
-@@ -628,8 +628,18 @@ ssize_t ksys_read(unsigned int fd, char __user *buf, size_t count)
- 	return ret;
+@@ -568,8 +568,18 @@
+ 		file->f_pos = pos;
  }
  
 +#if defined(CONFIG_KSU) && !defined(CONFIG_KSU_KPROBES_HOOK)
@@ -132,5 +132,6 @@
 +	if (unlikely(ksu_vfs_read_hook)) 
 +		ksu_handle_sys_read(fd, &buf, &count);
 +#endif
- 	return ksys_read(fd, buf, count);
- }
+ 	struct fd f = fdget_pos(fd);
+ 	ssize_t ret = -EBADF;
+ 
