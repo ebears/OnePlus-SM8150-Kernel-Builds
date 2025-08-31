@@ -92,7 +92,6 @@ jobs:
         rm -rf $DIR_ANYKERNEL3/.git
     - name: "⚙️Set up Clang"
       run: |
-        echo "🕑Setting up AOSP Clang..."
         mkdir -p toolchains/aosp-clang
         cd $DIR_WORKSPACE/toolchains/aosp-clang
 
