@@ -247,6 +247,10 @@ jobs:
         make $KERNEL_CMDLINE ${{ github.event.inputs.kernel_defconfig }} CC="ccache clang-${{ github.event.inputs.clang_version }}"
     - name: "✍️ Enable required configs"
       run: |
+        export PATH=$(pwd)/toolchains/aosp-clang/clang-${{ github.event.inputs.clang_commit }}/bin/:$PATH
+        export ARCH=arm64
+        export SUBARCH=arm64
+        export LD=ld.lld
         cd $DIR_WORKSPACE/$DIR_KERNEL
 
         echo "🕑 Enabling required kernel configurations for KSU..."
@@ -276,23 +280,22 @@ jobs:
         scripts/config --file out/.config --enable KPM
         scripts/config --file out/.config --enable KALLSYMS
         scripts/config --file out/.config --enable KALLSYMS_ALL
+        scripts/config --file out/.config --enable DEBUG_KERNEL
 
         echo "🕑 Enabling required kernel configurations for Mountify..."
         # Reference: https://github.com/backslashxx/mountify
         scripts/config --file out/.config --enable OVERLAY_FS
         scripts/config --file out/.config --enable TMPFS_XATTR
 
-        # DEBUG
-        echo "🕑 Fixing potentially problematic configs..."
-        scripts/config --file out/.config --enable LTO
-        scripts/config --file out/.config --enable THINLTO
+        # DEBUG / toolchain tuning
         scripts/config --file out/.config --enable LTO_CLANG
         scripts/config --file out/.config --enable LTO_CLANG_THIN
         scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE
-        scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE_03
+        scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE_O3
 
-        echo "✅ Finalizing .config..."
-        make O=out olddefconfig
+        echo "✅ Finalizing .config (non-interactive)..."
+        make $KERNEL_CMDLINE olddefconfig
+
     - name: "👷‍♀️ Build kernel"
       run: |
         export PATH=$(pwd)/toolchains/aosp-clang/clang-${{ github.event.inputs.clang_commit }}/bin/:$PATH
