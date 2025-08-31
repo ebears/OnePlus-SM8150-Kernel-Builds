@@ -391,8 +391,9 @@ jobs:
           echo "⚠️dtb folder not found. Skipping..."
         fi
 
+        cd $DIR_ANYKERNEL3
         echo "🕑Creating ZIP file: OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip"
-        zip -r9 $DIR_WORKSPACE/OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip $DIR_WORKSPACE/$DIR_ANYKERNEL3/*
+        zip -r9 ../OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip *
     - name: "🌬️Upload artifact"
       uses: actions/upload-artifact@v4
       with:
