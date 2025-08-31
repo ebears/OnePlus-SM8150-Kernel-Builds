@@ -105,6 +105,7 @@ jobs:
         KERNEL_SU_PATCH=000_syscall_hooks.patch
         FIX_CRED_PATCH=001_FIX_APATCH_OPENELA.patch
         PATH_UMOUNT_PATCH=002_path_umount.patch
+        FIX_DEBUG_PATCH=003_fix_debug.c.patch
 
         echo "🕑Applying KernelSU patches for ${{ matrix.kernel_variant.tag }}..."
         cd $DIR_WORKSPACE/$DIR_KERNEL
@@ -126,6 +127,11 @@ jobs:
         echo "🕑Applying $PATH_UMOUNT_PATCH to backport umount functionality..."
         aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$PATH_UMOUNT_PATCH
         patch -p1 < $PATH_UMOUNT_PATCH
+
+        # Reference: https://kernelsu.org/guide/how-to-integrate-for-non-gki.html#how-to-backport-path-umount
+        echo "🕑Applying $FIX_DEBUG_PATCH to backport umount functionality..."
+        aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$FIX_DEBUG_PATCH
+        patch -p1 < $FIX_DEBUG_PATCH
 
         echo "🕑Running setup script for ${{ matrix.kernel_variant.tag }}..."
         curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s "${{ matrix.kernel_variant.setup_arg }}"
