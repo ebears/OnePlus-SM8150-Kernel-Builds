@@ -10,7 +10,7 @@ Releases are [AnyKernel3](https://github.com/osm0sis/AnyKernel3) ZIPs. Check out
 ### Versions
 
 | ℹ️KernelSU version                                                | 🕵️‍♀️SusFS    | 🪄Magic Mount | 🛠️KPM    |
-| --- | --- |
+| --- | --- | --- | --- |
 | #️⃣[KernelSU-Rissu](https://github.com/rsuntk/KernelSU)            | ✅ v1.5.9  | ✅            | ❌       |
 | ☯️[KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next) | ✅ v1.5.9  | ✅            | ❌       |
 | 😼[SukiSU-Ultra](https://github.com/SukiSU-Ultra/SukiSU-Ultra)    | ✅ v1.5.10 | ✅            | ⚠️WIP    |
