@@ -49,7 +49,7 @@ jobs:
       CCACHE_NOHASHDIR: "true"
       CCACHE_MAXSIZE: "2G"
 
-      # Not sure if this is needed here, but leaving it to be safe
+      # Command we run when building the kernel
       KERNEL_CMDLINE: "CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM=1 LLVM_IAS=1 O=out"
 
       # Global directory shortcuts
@@ -283,10 +283,16 @@ jobs:
         scripts/config --file out/.config --enable TMPFS_XATTR
 
         # DEBUG
-        echo "🕑 Disabling potentially problematic configs..."
-        scripts/config --file out/.config --disable LTO
-        scripts/config --file out/.config --disable LTO_CLANG
-        scripts/config --file out/.config --disable THINLTO
+        echo "🕑 Fixing potentially problematic configs..."
+        scripts/config --file out/.config --enable LTO
+        scripts/config --file out/.config --enable THINLTO
+        scripts/config --file out/.config --enable LTO_CLANG
+        scripts/config --file out/.config --enable LTO_CLANG_THIN
+        scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE
+        scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE_03
+
+        echo "✅ Finalizing .config..."
+        make O=out olddefconfig
     - name: "👷‍♀️ Build kernel"
       run: |
         export PATH=$(pwd)/toolchains/aosp-clang/clang-${{ github.event.inputs.clang_commit }}/bin/:$PATH
