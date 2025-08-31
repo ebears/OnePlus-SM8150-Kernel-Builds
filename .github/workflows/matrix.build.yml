@@ -125,7 +125,7 @@ jobs:
         aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_SU_PATCH
         patch -p1 < $KERNEL_SU_PATCH
 
-        # Download and apply FIX_APATCH_OPENELA.patch to Revert "cred: switch to using atomic_long_t"
+        # Download and apply FIX_APATCH_OPENELA.patch for APatch support on 4.14.334
         # Reference: https://github.com/midozalouk/android_kernel_oneplus_sm8150/blob/main/patches%20/FIX_APATCH_OPENELA.patch
         echo "🕑Applying $FIX_CRED_PATCH to revert using atomic_long_t..."
         aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$FIX_CRED_PATCH
@@ -154,25 +154,6 @@ jobs:
 
         echo "🕑Running setup script for ${{ matrix.kernel_variant.tag }}..."
         curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s "${{ matrix.kernel_variant.setup_arg }}"
-
-        if [ "${{ matrix.kernel_variant.tag }}" == "SukiSU-Ultra" ]; then
-          # SukiSU-Ultra requires this for KPM functionality
-          # Reference: https://github.com/SukiSU-Ultra/SukiSU-Ultra#kpm-support
-          # YAAP Kernel source seemingly already has set_memory backports from 4.19
-          echo "🕑Enabling KPM support in defconfig for SukiSU-Ultra..."
-          sed -i "/^$CONFIG_KPM[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-          grep -qxF "CONFIG_KPM=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KPM=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}      
-          sed -i "/^$CONFIG_KALLSYMS[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-          grep -qxF "CONFIG_KALLSYMS=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KALLSYMS=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}      
-          sed -i "/^$CONFIG_KALLSYMS_ALL[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
-          grep -qxF "CONFIG_KALLSYMS_ALL=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KALLSYMS_ALL=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}      
-
-          # Apply KPM fix for patch_linux step later on
-          cd $DIR_WORKSPACE/$DIR_KERNEL/KernelSU/kernel/kpm
-          aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KPM_FIX_PATCH
-          echo "🕑Applying $KPM_FIX_PATCH..."
-          patch -p1 < $KPM_FIX_PATCH
-        fi
     - name: "🕵️‍♀️Apply SusFS (if enabled)"
       # https://gitlab.com/simonpunk/susfs4ksu/-/blob/kernel-4.14/README.md
       if: matrix.susfs
@@ -280,10 +261,6 @@ jobs:
           aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_414_SUSFS_PATCH_1510
           echo "🕑Applying $KERNEL_414_SUSFS_PATCH_1510..."
           patch -p1 < $KERNEL_414_SUSFS_PATCH_1510
-        elif [ "${{ matrix.kernel_variant.tag }}" == "KernelSU-Next" ]; then
-          aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_414_SUSFS_PATCH_1510
-          echo "🕑Applying $KERNEL_414_SUSFS_PATCH_1510..."
-          patch -p1 < $KERNEL_414_SUSFS_PATCH_1510
         fi
 
         aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$HIDE_STUFF_PATCH
@@ -314,6 +291,25 @@ jobs:
         $JAVA_HOME/bin/java -jar ./Kernel-Modifier-v4.0.jar
     - name: "👷‍♀️Build kernel"
       run: |
+        if [ "${{ matrix.kernel_variant.tag }}" == "SukiSU-Ultra" ]; then
+          # SukiSU-Ultra requires this for KPM functionality
+          # Reference: https://github.com/SukiSU-Ultra/SukiSU-Ultra#kpm-support
+          # YAAP Kernel source seemingly already has set_memory backports from 4.19
+          echo "🕑Enabling KPM support in defconfig for SukiSU-Ultra..."
+          sed -i "/^$CONFIG_KPM[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+          grep -qxF "CONFIG_KPM=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KPM=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}      
+          sed -i "/^$CONFIG_KALLSYMS[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+          grep -qxF "CONFIG_KALLSYMS=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KALLSYMS=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}      
+          sed -i "/^$CONFIG_KALLSYMS_ALL[= ]/d" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}
+          grep -qxF "CONFIG_KALLSYMS_ALL=y" $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }} || echo "CONFIG_KALLSYMS_ALL=y" >> $DIR_WORKSPACE/$DIR_KERNEL/$DIR_DEFCONFIGS/${{ github.event.inputs.kernel_defconfig }}      
+
+          # Apply KPM fix for patch_linux step later on
+          cd $DIR_WORKSPACE/$DIR_KERNEL/KernelSU/kernel/kpm
+          aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KPM_FIX_PATCH
+          echo "🕑Applying $KPM_FIX_PATCH..."
+          patch -p1 < $KPM_FIX_PATCH
+        fi
+        
         echo "🕑Building kernel..."
         export PATH=$(pwd)/toolchains/aosp-clang/clang-${{ github.event.inputs.clang_commit }}/bin/:$PATH
         export ARCH=arm64 && export SUBARCH=arm64 && export LD=ld.lld
