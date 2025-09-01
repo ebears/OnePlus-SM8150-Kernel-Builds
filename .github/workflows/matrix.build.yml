@@ -247,7 +247,11 @@ jobs:
     - name: "🔧Generate kernel .config"
       run: |
         export PATH=$(pwd)/toolchains/zyc-clang/bin/:$PATH
-        export ARCH=arm64 && export SUBARCH=arm64 && export LD=ld.lld
+        export ARCH=arm64
+        export SUBARCH=arm64
+        export LD=ld.lld
+        export HOSTCC=gcc
+        export HOSTCXX=g++
         cd $DIR_WORKSPACE/$DIR_KERNEL
 
         echo "🕑Generating kernel config from $KERNEL_DEFCONFIG..."
@@ -260,6 +264,8 @@ jobs:
         export ARCH=arm64
         export SUBARCH=arm64
         export LD=ld.lld
+        export HOSTCC=gcc
+        export HOSTCXX=g++
         cd $DIR_WORKSPACE/$DIR_KERNEL
 
         echo "🕑Enabling required kernel configurations for KSU..."
@@ -296,10 +302,10 @@ jobs:
 
         # echo "🕑Enabling debug configurations..."
         # DEBUG / possible fixes for KPM patching (patch_linux step later on)
-        # scripts/config --file out/.config --disable LTO
-        # scripts/config --file out/.config --disable THINLTO
-        # scripts/config --file out/.config --disable LTO_CLANG
-        # scripts/config --file out/.config --disable LTO_CLANG_THIN
+        scripts/config --file out/.config --disable LTO
+        scripts/config --file out/.config --disable THINLTO
+        scripts/config --file out/.config --disable LTO_CLANG
+        scripts/config --file out/.config --disable LTO_CLANG_THIN
         # scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE
         # scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE_O3
 
@@ -310,7 +316,11 @@ jobs:
     - name: "👷‍♀️Build kernel"
       run: |
         export PATH=$(pwd)/toolchains/zyc-clang/bin/:$PATH
-        export ARCH=arm64 && export SUBARCH=arm64 && export LD=ld.lld
+        export ARCH=arm64
+        export SUBARCH=arm64
+        export LD=ld.lld
+        export HOSTCC=gcc
+        export HOSTCXX=g++
         cd $DIR_WORKSPACE/$DIR_KERNEL
 
         echo "ℹ️Using defconfig: $KERNEL_DEFCONFIG"
