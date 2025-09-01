@@ -294,10 +294,10 @@ jobs:
         scripts/config --file out/.config --enable TMPFS_XATTR
 
         # DEBUG / toolchain tuning
-        scripts/config --file out/.config --enable LTO_CLANG
-        scripts/config --file out/.config --enable LTO_CLANG_THIN
-        scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE
-        scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE_O3
+        scripts/config --file out/.config --disable LTO_CLANG
+        scripts/config --file out/.config --disable LTO_CLANG_THIN
+        # scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE
+        # scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE_O3
 
         echo "✅ Finalizing .config (non-interactive)..."
         make $KERNEL_CMDLINE olddefconfig
