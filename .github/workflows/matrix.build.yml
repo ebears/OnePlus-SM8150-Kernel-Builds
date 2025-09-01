@@ -9,11 +9,11 @@ on:
       clang_commit:
         description: 'Shortened clang commit hash (from here: https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+/refs/heads/main)'
         required: true
-        default: 'r547379'
+        default: 'r536225'
       clang_version:
         description: 'Clang binary version (clang-"BB" in clang-r"AAAAAA"/bin/)'
         required: true
-        default: '20'
+        default: '19'
 # NOT COMPATIBLE with workflow_dispatch inputs above.
 #   schedule:
 #     # http://crontab.guru
@@ -287,6 +287,8 @@ jobs:
         scripts/config --file out/.config --enable TMPFS_XATTR
 
         # DEBUG / toolchain tuning
+        scripts/config --file out/.config --disable LTO
+        scripts/config --file out/.config --disable THINLTO
         scripts/config --file out/.config --disable LTO_CLANG
         scripts/config --file out/.config --disable LTO_CLANG_THIN
         # scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE
@@ -415,6 +417,8 @@ jobs:
         PRINTED_KERNELSU_NEXT=0
         PRINTED_SUKISU_ULTRA=0
 
+        echo "📱**Device:** OnePlus SM8150" >> release.md
+        echo "⏱️**Target:** Android 16 (YAAP)" >> release.md
         echo "🛠️Built with Clang v${{ github.event.inputs.clang_version }} (${{ github.event.inputs.clang_commit }})" >> release.md
 
         while read -r file; do
