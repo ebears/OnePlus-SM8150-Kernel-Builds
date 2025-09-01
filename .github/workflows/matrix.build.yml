@@ -75,7 +75,7 @@ jobs:
         echo "🕑Downloading ZyC Clang ver. $ZYC_CLANG_COMMIT..."
         mkdir -p toolchains/zyc-clang
         cd $DIR_WORKSPACE/toolchains/zyc-clang
-        aria2c https://github.com/ZyCromerZ/Clang/releases/download/22.0.0git-20250901-release/Clang-$ZYC_CLANG_COMMIT.tar.gz
+        aria2c https://github.com/ZyCromerZ/Clang/releases/download/$ZYC_CLANG_COMMIT-release/Clang-$ZYC_CLANG_COMMIT.tar.gz
         echo "🕑Extracting ZyC Clang ver. $ZYC_CLANG_COMMIT..."
         tar -xzf Clang-$ZYC_CLANG_COMMIT.tar.gz
         rm Clang-$ZYC_CLANG_COMMIT.tar.gz
