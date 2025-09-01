@@ -250,8 +250,8 @@ jobs:
         export ARCH=arm64
         export SUBARCH=arm64
         export LD=ld.lld
-        export HOSTCC=gcc
-        export HOSTCXX=g++
+        export HOSTCC="clang-$ZYC_CLANG_VERSION"
+        export HOSTCXX="clang++-$ZYC_CLANG_VERSION"
         cd $DIR_WORKSPACE/$DIR_KERNEL
 
         echo "🕑Generating kernel config from $KERNEL_DEFCONFIG..."
@@ -264,8 +264,8 @@ jobs:
         export ARCH=arm64
         export SUBARCH=arm64
         export LD=ld.lld
-        export HOSTCC=gcc
-        export HOSTCXX=g++
+        export HOSTCC="clang-$ZYC_CLANG_VERSION"
+        export HOSTCXX="clang++-$ZYC_CLANG_VERSION"
         cd $DIR_WORKSPACE/$DIR_KERNEL
 
         echo "🕑Enabling required kernel configurations for KSU..."
@@ -319,8 +319,8 @@ jobs:
         export ARCH=arm64
         export SUBARCH=arm64
         export LD=ld.lld
-        export HOSTCC=gcc
-        export HOSTCXX=g++
+        export HOSTCC="clang-$ZYC_CLANG_VERSION"
+        export HOSTCXX="clang++-$ZYC_CLANG_VERSION"
         cd $DIR_WORKSPACE/$DIR_KERNEL
 
         echo "ℹ️Using defconfig: $KERNEL_DEFCONFIG"
