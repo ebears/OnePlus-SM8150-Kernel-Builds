@@ -302,11 +302,11 @@ jobs:
 
         # echo "🕑Enabling debug configurations..."
         # DEBUG / possible fixes for KPM patching (patch_linux step later on)
-        scripts/config --file out/.config --disable LTO
-        scripts/config --file out/.config --disable THINLTO
-        scripts/config --file out/.config --disable LTO_CLANG
-        scripts/config --file out/.config --disable LTO_CLANG_THIN
-        scripts/config --file out/.config --disable CC_STACKPROTECTOR_STRONG
+        # scripts/config --file out/.config --disable LTO
+        # scripts/config --file out/.config --disable THINLTO
+        # scripts/config --file out/.config --disable LTO_CLANG
+        # scripts/config --file out/.config --disable LTO_CLANG_THIN
+        # scripts/config --file out/.config --disable CC_STACKPROTECTOR_STRONG
         # scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE
         # scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE_O3
 
@@ -320,8 +320,6 @@ jobs:
         export ARCH=arm64
         export SUBARCH=arm64
         export LD=ld.lld
-        export HOSTCC="clang-$ZYC_CLANG_VERSION"
-        export HOSTCXX="clang++-$ZYC_CLANG_VERSION"
         cd $DIR_WORKSPACE/$DIR_KERNEL
 
         echo "ℹ️Using defconfig: $KERNEL_DEFCONFIG"
@@ -332,7 +330,7 @@ jobs:
 
         echo "🕑Starting kernel build..."
         # Need to add `KCFLAGS=-Wno-vla` to build with ZyC Clang
-        make $KERNEL_CMDLINE -j$(nproc --all) CC="ccache clang-$ZYC_CLANG_VERSION" KCFLAGS=-Wno-vla
+        make $KERNEL_CMDLINE -j$(nproc --all) CC="ccache clang-$ZYC_CLANG_VERSION" HOSTCC="clang-$ZYC_CLANG_VERSION" HOSTCXX="clang++-$ZYC_CLANG_VERSION" KCFLAGS=-Wno-vla 
         echo "✅Done..."
     - name: "🫸Copy Kernel image to AnyKernel"
       run: |
