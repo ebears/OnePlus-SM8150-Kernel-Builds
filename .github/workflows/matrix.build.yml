@@ -305,7 +305,7 @@ jobs:
 
         echo "✅Finalizing .config..."
         # Need to add `KCFLAGS=-Wno-vla` to build with ZyC Clang
-        make $KERNEL_CMDLINE olddefconfig CC="ccache clang-$ZYC_CLANG_VERSION" KCFLAGS=-Wno-vla
+        make $KERNEL_CMDLINE olddefconfig KCFLAGS=-Wno-vla
         echo "✅Done..."
     - name: "👷‍♀️Build kernel"
       run: |
