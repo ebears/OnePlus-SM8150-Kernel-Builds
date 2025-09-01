@@ -274,11 +274,11 @@ jobs:
         scripts/config --file out/.config --enable OVERLAY_FS
         scripts/config --file out/.config --enable TMPFS_XATTR
 
-        # DEBUG / toolchain tuning
-        scripts/config --file out/.config --disable LTO
-        scripts/config --file out/.config --disable THINLTO
-        scripts/config --file out/.config --disable LTO_CLANG
-        scripts/config --file out/.config --disable LTO_CLANG_THIN
+        # DEBUG / possible fixes for KPM patching (patch_linux step later on)
+        # scripts/config --file out/.config --disable LTO
+        # scripts/config --file out/.config --disable THINLTO
+        # scripts/config --file out/.config --disable LTO_CLANG
+        # scripts/config --file out/.config --disable LTO_CLANG_THIN
         # scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE
         # scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE_O3
 
