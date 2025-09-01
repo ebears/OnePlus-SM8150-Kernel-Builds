@@ -38,8 +38,8 @@ jobs:
       # Command we run when building the kernel
       KERNEL_CMDLINE: "CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM=1 LLVM_IAS=1 O=out"
 
-      ZYC_CLANG_COMMIT: "22.0.0git-20250901"
-      ZYC_CLANG_VERSION: "22"
+      ZYC_CLANG_COMMIT: "21.0.0git-20250715"
+      ZYC_CLANG_VERSION: "21"
 
       # Global directory shortcuts
       DIR_WORKSPACE: "${{ github.workspace }}"
@@ -63,25 +63,30 @@ jobs:
         echo "🕑Installing required packages..."
         sudo apt-get update -y
         sudo apt-get install $APT_INSTALL -y
+        echo "✅Done..."
     - name: "👣Git clone and prepare AnyKernel folder"
       run: |
         echo "🕑Cloning AnyKernel3..."
         git clone https://github.com/ebears/AnyKernel3 -b oneplus7 --depth=1 $DIR_ANYKERNEL3
         rm -rf $DIR_ANYKERNEL3/.git
+        echo "✅Done..."
     - name: "⚙️Set up Clang"
       run: |
-        echo "🕑Setting up ZyC Clang ver. $ZYC_CLANG_COMMIT..."
-
+        echo "🕑Downloading ZyC Clang ver. $ZYC_CLANG_COMMIT..."
         mkdir -p toolchains/zyc-clang
         cd $DIR_WORKSPACE/toolchains/zyc-clang
         aria2c https://github.com/ZyCromerZ/Clang/releases/download/22.0.0git-20250901-release/Clang-$ZYC_CLANG_COMMIT.tar.gz
+        echo "🕑Extracting ZyC Clang ver. $ZYC_CLANG_COMMIT..."
         tar -xzf Clang-$ZYC_CLANG_COMMIT.tar.gz
         rm Clang-$ZYC_CLANG_COMMIT.tar.gz
+        echo "✅Done..."
     - name: "👯‍♀️Clone kernel source"
       run: |
         echo "🕑Cloning kernel source..."
         git clone --depth=1 --branch sixteen https://github.com/yaap/kernel_oneplus_sm8150 $DIR_KERNEL
+        echo "🕑Initializing submodules..."
         cd $DIR_WORKSPACE/$DIR_KERNEL && git submodule update --init --recursive
+        echo "✅Done..."
     - name: "🛠️Apply KernelSU patches"
       # https://kernelsu.org/guide/how-to-integrate-for-non-gki.html
       run: |
@@ -118,12 +123,12 @@ jobs:
 
         echo "🕑Running setup script for ${{ matrix.kernel_variant.tag }}..."
         curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s "${{ matrix.kernel_variant.setup_arg }}"
+        echo "✅Done..."
     - name: "🕵️‍♀️Apply SusFS"
       # https://gitlab.com/simonpunk/susfs4ksu/-/blob/kernel-4.14/README.md
       run: |
-        echo "Applying SusFS patches..."
-        cd $DIR_WORKSPACE/$DIR_KERNEL
         echo "🕑Cloning simonpunk/susfs4ksu repo..."
+        cd $DIR_WORKSPACE/$DIR_KERNEL
         git clone --depth=1 --branch kernel-4.14 https://gitlab.com/simonpunk/susfs4ksu.git susfs4ksu
 
         echo "🕑Copying SusFS files to kernel source..."
@@ -171,69 +176,84 @@ jobs:
 
         # Apply updates to SusFS
         # Reference: https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd/tree/mainline/Patches/Patch
+        echo "🕑Downloading $KERNEL_414_SUSFS_PATCH_157..."
         aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_414_SUSFS_PATCH_157
         echo "🕑Applying $KERNEL_414_SUSFS_PATCH_157..."
         patch -p1 < $KERNEL_414_SUSFS_PATCH_157
 
+        echo "🕑Downloading $KERNEL_414_SUSFS_PATCH_158..."
         aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_414_SUSFS_PATCH_158
         echo "🕑Applying $KERNEL_414_SUSFS_PATCH_158..."
         patch -p1 < $KERNEL_414_SUSFS_PATCH_158
 
         # May be necessary?
         # Ref: https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd/tree/mainline/.github/workflows/patch-susfs#L62
+        echo "🕑Patching susfs_def.h..."
         sed -i '/#define CMD_SUSFS_HIDE_SUS_MNTS_FOR_ALL_PROCS 0x55561/a \#define CMD_SUSFS_UMOUNT_FOR_ZYGOTE_ISO_SERVICE 0x55562' include/linux/susfs_def.h
 
+        echo "🕑Downloading $KERNEL_414_SUSFS_PATCH_159..."
         aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_414_SUSFS_PATCH_159
         echo "🕑Applying $KERNEL_414_SUSFS_PATCH_159..."
         patch -p1 < $KERNEL_414_SUSFS_PATCH_159
 
         # Needs further patching with KernelSU (Rissu and Next) to work
         if [ "${{ matrix.kernel_variant.tag }}" == "SukiSU-Ultra" ]; then
+          echo "🕑Downloading $KERNEL_414_SUSFS_PATCH_1510..."
           aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KERNEL_414_SUSFS_PATCH_1510
           echo "🕑Applying $KERNEL_414_SUSFS_PATCH_1510..."
           patch -p1 < $KERNEL_414_SUSFS_PATCH_1510
         fi
 
+        echo "🕑Downloading $HIDE_STUFF_PATCH..."
         aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$HIDE_STUFF_PATCH
         echo "🕑Applying $HIDE_STUFF_PATCH..."
         patch -p1 < $HIDE_STUFF_PATCH
+        echo "✅Done..."
     - name: "⚠️Search for patch errors (on failure)"
       if: failure()
       run: |
         echo "🕑One or more patching steps failed; searching for .rej files to upload..."
         mkdir $DIR_WORKSPACE/rej_files
         find . -name "*.rej" -exec cp {} $DIR_WORKSPACE/rej_files/ \;
+        echo "✅Done..."
     - name: "📤Upload any found patch rejects (on failure)"
       if: failure()
       uses: actions/upload-artifact@v4
       with:
         name: patch-rejects
         path: rej_files/
-    - name: "🔧Apply Re-Kernel"
+    - name: "🔧Apply Re:Kernel"
       run: |
         export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
-        echo "🕑Patching Re-Kernel support"
         cd $DIR_WORKSPACE/$DIR_KERNEL
+
+        echo "🕑Downloading Re:Kernel..."
         aria2c https://github.com/Sakion-Team/Re-Kernel/releases/download/modifier/Kernel-Modifier-v4.0.jar
+        echo "🕑Patching Re:Kernel support"
         $JAVA_HOME/bin/java -jar ./Kernel-Modifier-v4.0.jar
+        echo "✅Done..."
     - name: "🛠️Apply KPM pre-kernel build (if supported)"
+      # Apply KPM fix for patch_linux step later on
       if: matrix.kernel_variant.tag == 'SukiSU-Ultra'
       run: |
         KPM_FIX_PATCH=200_fix_kpm.patch
-
-        # Apply KPM fix for patch_linux step later on
         cd $DIR_WORKSPACE/$DIR_KERNEL/KernelSU/kernel/kpm
+
+        echo "🕑Downloading $KPM_FIX_PATCH..."
         aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$KPM_FIX_PATCH
         echo "🕑Applying $KPM_FIX_PATCH..."
         patch -p1 < $KPM_FIX_PATCH
-    - name: "🔧 Generate kernel .config"
+        echo "✅Done..."
+    - name: "🔧Generate kernel .config"
       run: |
         export PATH=$(pwd)/toolchains/zyc-clang/bin/:$PATH
         export ARCH=arm64 && export SUBARCH=arm64 && export LD=ld.lld
         cd $DIR_WORKSPACE/$DIR_KERNEL
-        echo "🕑 Generating kernel config from $KERNEL_DEFCONFIG..."
+
+        echo "🕑Generating kernel config from $KERNEL_DEFCONFIG..."
         make $KERNEL_CMDLINE $KERNEL_DEFCONFIG CC="ccache clang-$ZYC_CLANG_VERSION"
-    - name: "✍️ Enable required configs"
+        echo "✅Done..."
+    - name: "✍️Enable required configs"
       run: |
         export PATH=$(pwd)/toolchains/zyc-clang/bin/:$PATH
         export ARCH=arm64
@@ -241,11 +261,11 @@ jobs:
         export LD=ld.lld
         cd $DIR_WORKSPACE/$DIR_KERNEL
 
-        echo "🕑 Enabling required kernel configurations for KSU..."
+        echo "🕑Enabling required kernel configurations for KSU..."
         scripts/config --file out/.config --enable KSU
         scripts/config --file out/.config --enable KSU_MANUAL_HOOK
 
-        echo "🕑 Enabling required kernel configurations for SusFS..."
+        echo "🕑Enabling required kernel configurations for SusFS..."
         scripts/config --file out/.config --enable KSU_SUSFS
         scripts/config --file out/.config --enable KSU_SUSFS_HAS_MAGIC_MOUNT
         scripts/config --file out/.config --enable KSU_SUSFS_SUS_PATH
@@ -262,17 +282,18 @@ jobs:
         scripts/config --file out/.config --enable KSU_SUSFS_OPEN_REDIRECT
         scripts/config --file out/.config --enable KSU_SUSFS_SUS_SU
 
-        echo "🕑 Enabling required kernel configurations for KPM..."
+        echo "🕑Enabling required kernel configurations for KPM..."
         scripts/config --file out/.config --enable KPM
         scripts/config --file out/.config --enable KALLSYMS
         scripts/config --file out/.config --enable KALLSYMS_ALL
         scripts/config --file out/.config --enable DEBUG_KERNEL
 
-        echo "🕑 Enabling required kernel configurations for Mountify..."
+        echo "🕑Enabling required kernel configurations for Mountify..."
         # Reference: https://github.com/backslashxx/mountify
         scripts/config --file out/.config --enable OVERLAY_FS
         scripts/config --file out/.config --enable TMPFS_XATTR
 
+        # echo "🕑Enabling debug configurations..."
         # DEBUG / possible fixes for KPM patching (patch_linux step later on)
         # scripts/config --file out/.config --disable LTO
         # scripts/config --file out/.config --disable THINLTO
@@ -281,10 +302,10 @@ jobs:
         # scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE
         # scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE_O3
 
-        echo "✅ Finalizing .config (non-interactive)..."
+        echo "✅Finalizing .config..."
         make $KERNEL_CMDLINE olddefconfig
-
-    - name: "👷‍♀️ Build kernel"
+        echo "✅Done..."
+    - name: "👷‍♀️Build kernel"
       run: |
         export PATH=$(pwd)/toolchains/zyc-clang/bin/:$PATH
         export ARCH=arm64 && export SUBARCH=arm64 && export LD=ld.lld
@@ -296,8 +317,9 @@ jobs:
         echo "ℹ️Ccache stats before build:"
         ccache -s
 
-        echo "🕑 Starting kernel build..."
+        echo "🕑Starting kernel build..."
         make $KERNEL_CMDLINE -j$(nproc --all) CC="ccache clang-$ZYC_CLANG_VERSION"
+        echo "✅Done..."
     - name: "🫸Copy Kernel image to AnyKernel"
       run: |
         echo "🕑Copying kernel image to AnyKernel3 folder..."
@@ -369,8 +391,10 @@ jobs:
         fi
 
         cd $DIR_ANYKERNEL3
+
         echo "🕑Creating ZIP file: OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}.zip"
         zip -r9 ../OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}.zip *
+        echo "✅Done..."
     - name: "📤Upload defconfig files (on failure)"
       if: failure()
       uses: actions/upload-artifact@v4
