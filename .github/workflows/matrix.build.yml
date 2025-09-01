@@ -304,7 +304,8 @@ jobs:
         # scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE_O3
 
         echo "✅Finalizing .config..."
-        make $KERNEL_CMDLINE olddefconfig
+        # Need to add `KCFLAGS=-Wno-vla` to build with ZyC Clang
+        make $KERNEL_CMDLINE olddefconfig CC="ccache clang-$ZYC_CLANG_VERSION" KCFLAGS=-Wno-vla
         echo "✅Done..."
     - name: "👷‍♀️Build kernel"
       run: |
