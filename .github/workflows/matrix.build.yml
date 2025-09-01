@@ -251,7 +251,8 @@ jobs:
         cd $DIR_WORKSPACE/$DIR_KERNEL
 
         echo "🕑Generating kernel config from $KERNEL_DEFCONFIG..."
-        make $KERNEL_CMDLINE $KERNEL_DEFCONFIG CC="ccache clang-$ZYC_CLANG_VERSION"
+        # Need to add `KCFLAGS=-Wno-vla` to build with ZyC Clang
+        make $KERNEL_CMDLINE $KERNEL_DEFCONFIG CC="ccache clang-$ZYC_CLANG_VERSION" KCFLAGS=-Wno-vla
         echo "✅Done..."
     - name: "✍️Enable required configs"
       run: |
@@ -318,7 +319,8 @@ jobs:
         ccache -s
 
         echo "🕑Starting kernel build..."
-        make $KERNEL_CMDLINE -j$(nproc --all) CC="ccache clang-$ZYC_CLANG_VERSION"
+        # Need to add `KCFLAGS=-Wno-vla` to build with ZyC Clang
+        make $KERNEL_CMDLINE $KERNEL_DEFCONFIG CC="ccache clang-$ZYC_CLANG_VERSION" KCFLAGS=-Wno-vla
         echo "✅Done..."
     - name: "🫸Copy Kernel image to AnyKernel"
       run: |
