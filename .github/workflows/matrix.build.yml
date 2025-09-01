@@ -321,7 +321,7 @@ jobs:
 
         echo "🕑Starting kernel build..."
         # Need to add `KCFLAGS=-Wno-vla` to build with ZyC Clang
-        make $KERNEL_CMDLINE $KERNEL_DEFCONFIG CC="ccache clang-$ZYC_CLANG_VERSION" KCFLAGS=-Wno-vla
+        make $KERNEL_CMDLINE -j$(nproc --all) CC="ccache clang-$ZYC_CLANG_VERSION" KCFLAGS=-Wno-vla
         echo "✅Done..."
     - name: "🫸Copy Kernel image to AnyKernel"
       run: |
