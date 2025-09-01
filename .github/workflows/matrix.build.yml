@@ -1,20 +1,6 @@
 name: "🏗️Build Kernels"
 on:
   workflow_dispatch:
-    inputs:
-      kernel_defconfig:
-        description: 'defconfig file'
-        required: true
-        default: 'gulch_defconfig'
-      clang_commit:
-        description: 'Shortened clang commit hash (from here: https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+/refs/heads/main)'
-        required: true
-        default: 'r536225'
-      clang_version:
-        description: 'Clang binary version (clang-"BB" in clang-r"AAAAAA"/bin/)'
-        required: true
-        default: '19'
-# NOT COMPATIBLE with workflow_dispatch inputs above.
 #   schedule:
 #     # http://crontab.guru
 #     # Runs at 7:00 PM UTC, on the 1st and 15th of every month
@@ -48,8 +34,12 @@ jobs:
       CCACHE_NOHASHDIR: "true"
       CCACHE_MAXSIZE: "2G"
 
+      KERNEL_DEFCONFIG: "gulch_defconfig"
       # Command we run when building the kernel
       KERNEL_CMDLINE: "CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM=1 LLVM_IAS=1 O=out"
+
+      ZYC_CLANG_COMMIT: "22.0.0git-20250901"
+      ZYC_CLANG_VERSION: "22"
 
       # Global directory shortcuts
       DIR_WORKSPACE: "${{ github.workspace }}"
@@ -80,16 +70,14 @@ jobs:
         rm -rf $DIR_ANYKERNEL3/.git
     - name: "⚙️Set up Clang"
       run: |
-        mkdir -p toolchains/aosp-clang
-        cd $DIR_WORKSPACE/toolchains/aosp-clang
+        echo "🕑Setting up ZyC Clang ver. $ZYC_CLANG_COMMIT..."
 
-        # First, clone an empty AOSP Clang repo...
-        echo "🕑Cloning AOSP Clang repo..."
-        git clone --filter=blob:none --sparse -b main https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 .
-
-        # ... And sparse checkout only the required version of Clang (saves A LOT of time and space)
-        echo "🕑Sparse checkout of Clang..."
-        git sparse-checkout set clang-${{ github.event.inputs.clang_commit }}
+        mkdir -p toolchains/zyc-clang
+        cd $DIR_WORKSPACE/toolchains/zyc-clang
+        aria2c https://github.com/ZyCromerZ/Clang/releases/download/22.0.0git-20250901-release/Clang-$ZYC_CLANG_COMMIT.tar.gz
+        tar -xzf Clang-$ZYC_CLANG_COMMIT.tar.gz
+        mv Clang-$ZYC_CLANG_COMMIT/bin ./bin
+        rm -r Clang-$ZYC_CLANG_COMMIT.tar.gz Clang-$ZYC_CLANG_COMMIT
     - name: "👯‍♀️Clone kernel source"
       run: |
         echo "🕑Cloning kernel source..."
@@ -241,14 +229,14 @@ jobs:
         patch -p1 < $KPM_FIX_PATCH
     - name: "🔧 Generate kernel .config"
       run: |
-        export PATH=$(pwd)/toolchains/aosp-clang/clang-${{ github.event.inputs.clang_commit }}/bin/:$PATH
+        export PATH=$(pwd)/toolchains/zyc-clang/bin/:$PATH
         export ARCH=arm64 && export SUBARCH=arm64 && export LD=ld.lld
         cd $DIR_WORKSPACE/$DIR_KERNEL
-        echo "🕑 Generating kernel config from ${{ github.event.inputs.kernel_defconfig }}..."
-        make $KERNEL_CMDLINE ${{ github.event.inputs.kernel_defconfig }} CC="ccache clang-${{ github.event.inputs.clang_version }}"
+        echo "🕑 Generating kernel config from $KERNEL_DEFCONFIG..."
+        make $KERNEL_CMDLINE $KERNEL_DEFCONFIG CC="ccache clang-$ZYC_CLANG_VERSION"
     - name: "✍️ Enable required configs"
       run: |
-        export PATH=$(pwd)/toolchains/aosp-clang/clang-${{ github.event.inputs.clang_commit }}/bin/:$PATH
+        export PATH=$(pwd)/toolchains/zyc-clang/bin/:$PATH
         export ARCH=arm64
         export SUBARCH=arm64
         export LD=ld.lld
@@ -299,18 +287,18 @@ jobs:
 
     - name: "👷‍♀️ Build kernel"
       run: |
-        export PATH=$(pwd)/toolchains/aosp-clang/clang-${{ github.event.inputs.clang_commit }}/bin/:$PATH
+        export PATH=$(pwd)/toolchains/zyc-clang/bin/:$PATH
         export ARCH=arm64 && export SUBARCH=arm64 && export LD=ld.lld
         cd $DIR_WORKSPACE/$DIR_KERNEL
 
-        echo "ℹ️Using defconfig: ${{ github.event.inputs.kernel_defconfig }}"
+        echo "ℹ️Using defconfig: $KERNEL_DEFCONFIG"
         echo "ℹ️Kernel variant: ${{ matrix.kernel_variant.name }}"
-        echo "ℹ️Clang commit: ${{ github.event.inputs.clang_commit }} (version ${{ github.event.inputs.clang_version }})"
+        echo "ℹ️Clang version: clang-$ZYC_CLANG_VERSION"
         echo "ℹ️Ccache stats before build:"
         ccache -s
 
         echo "🕑 Starting kernel build..."
-        make $KERNEL_CMDLINE -j$(nproc --all) CC="ccache clang-${{ github.event.inputs.clang_version }}"
+        make $KERNEL_CMDLINE -j$(nproc --all) CC="ccache clang-$ZYC_CLANG_VERSION"
     - name: "🫸Copy Kernel image to AnyKernel"
       run: |
         echo "🕑Copying kernel image to AnyKernel3 folder..."
@@ -390,7 +378,7 @@ jobs:
       with:
         name: failed-build-configs-${{ matrix.kernel_variant.tag }}
         path: |
-          ${{ env.DIR_KERNEL }}/${{ env.DIR_DEFCONFIGS }}/${{ github.event.inputs.kernel_defconfig }}
+          ${{ env.DIR_KERNEL }}/${{ env.DIR_DEFCONFIGS }}/$KERNEL_DEFCONFIG
           ${{ env.DIR_KERNEL }}/out/.config
     - name: "🌬️Upload artifact"
       uses: actions/upload-artifact@v4
@@ -419,7 +407,7 @@ jobs:
 
         echo "📱**Device:** OnePlus SM8150" >> release.md
         echo "⏱️**Target:** Android 16 (YAAP)" >> release.md
-        echo "🛠️Built with Clang v${{ github.event.inputs.clang_version }} (${{ github.event.inputs.clang_commit }})" >> release.md
+        echo "🛠️Built with [ZyC Clang](https://github.com/ZyCromerZ/Clang) v$ZYC_CLANG_VERSION" >> release.md
 
         while read -r file; do
           FILE_NAME=$(basename "$file")
