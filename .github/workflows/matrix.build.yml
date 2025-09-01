@@ -42,7 +42,6 @@ jobs:
             setup_script: "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh"
             setup_arg: "nongki"
             dir_name: "KernelSU"
-        susfs: [true, false]
     env:
       # Ccache stuff
       CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
@@ -58,9 +57,6 @@ jobs:
       DIR_KERNEL: "kernel-source"
       DIR_DEFCONFIGS: "arch/arm64/configs"
       DIR_BUILD: "out/arch/arm64/boot"
-
-      # If susfs = true, append _SusFS to filename, else append nil/nothing/zilch... waow
-      SUSFS_OUTPUT_NAME_SUFFIX: ${{ matrix.susfs && '_SusFS' || '' }}
     steps:
     - name: "🗃️Ccache"
       # https://github.com/ccache/ccache
@@ -135,9 +131,8 @@ jobs:
 
         echo "🕑Running setup script for ${{ matrix.kernel_variant.tag }}..."
         curl -LSs "${{ matrix.kernel_variant.setup_script }}" | bash -s "${{ matrix.kernel_variant.setup_arg }}"
-    - name: "🕵️‍♀️Apply SusFS (if enabled)"
+    - name: "🕵️‍♀️Apply SusFS"
       # https://gitlab.com/simonpunk/susfs4ksu/-/blob/kernel-4.14/README.md
-      if: matrix.susfs
       run: |
         echo "Applying SusFS patches..."
         cd $DIR_WORKSPACE/$DIR_KERNEL
@@ -263,24 +258,22 @@ jobs:
         scripts/config --file out/.config --enable KSU
         scripts/config --file out/.config --enable KSU_MANUAL_HOOK
 
-        if [ "${{ matrix.susfs }}" == true ]; then
-          echo "🕑 Enabling required kernel configurations for SusFS..."
-          scripts/config --file out/.config --enable KSU_SUSFS
-          scripts/config --file out/.config --enable KSU_SUSFS_HAS_MAGIC_MOUNT
-          scripts/config --file out/.config --enable KSU_SUSFS_SUS_PATH
-          scripts/config --file out/.config --enable KSU_SUSFS_SUS_MOUNT
-          scripts/config --file out/.config --enable KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT
-          scripts/config --file out/.config --enable KSU_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT
-          scripts/config --file out/.config --enable KSU_SUSFS_SUS_KSTAT
-          scripts/config --file out/.config --enable KSU_SUSFS_TRY_UMOUNT
-          scripts/config --file out/.config --enable KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT
-          scripts/config --file out/.config --enable KSU_SUSFS_SPOOF_UNAME
-          scripts/config --file out/.config --enable KSU_SUSFS_ENABLE_LOG
-          scripts/config --file out/.config --enable KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS
-          scripts/config --file out/.config --enable KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
-          scripts/config --file out/.config --enable KSU_SUSFS_OPEN_REDIRECT
-          scripts/config --file out/.config --enable KSU_SUSFS_SUS_SU
-        fi
+        echo "🕑 Enabling required kernel configurations for SusFS..."
+        scripts/config --file out/.config --enable KSU_SUSFS
+        scripts/config --file out/.config --enable KSU_SUSFS_HAS_MAGIC_MOUNT
+        scripts/config --file out/.config --enable KSU_SUSFS_SUS_PATH
+        scripts/config --file out/.config --enable KSU_SUSFS_SUS_MOUNT
+        scripts/config --file out/.config --enable KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT
+        scripts/config --file out/.config --enable KSU_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT
+        scripts/config --file out/.config --enable KSU_SUSFS_SUS_KSTAT
+        scripts/config --file out/.config --enable KSU_SUSFS_TRY_UMOUNT
+        scripts/config --file out/.config --enable KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT
+        scripts/config --file out/.config --enable KSU_SUSFS_SPOOF_UNAME
+        scripts/config --file out/.config --enable KSU_SUSFS_ENABLE_LOG
+        scripts/config --file out/.config --enable KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS
+        scripts/config --file out/.config --enable KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
+        scripts/config --file out/.config --enable KSU_SUSFS_OPEN_REDIRECT
+        scripts/config --file out/.config --enable KSU_SUSFS_SUS_SU
 
         echo "🕑 Enabling required kernel configurations for KPM..."
         scripts/config --file out/.config --enable KPM
@@ -309,9 +302,8 @@ jobs:
         cd $DIR_WORKSPACE/$DIR_KERNEL
 
         echo "ℹ️Using defconfig: ${{ github.event.inputs.kernel_defconfig }}"
-        echo "ℹ️Kernel variant: ${{ matrix.kernel_variant.name }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}"
+        echo "ℹ️Kernel variant: ${{ matrix.kernel_variant.name }}"
         echo "ℹ️Clang commit: ${{ github.event.inputs.clang_commit }} (version ${{ github.event.inputs.clang_version }})"
-        echo "ℹ️SusFS enabled: ${{ matrix.susfs }}"
         echo "ℹ️Ccache stats before build:"
         ccache -s
 
@@ -388,21 +380,21 @@ jobs:
         fi
 
         cd $DIR_ANYKERNEL3
-        echo "🕑Creating ZIP file: OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip"
-        zip -r9 ../OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip *
+        echo "🕑Creating ZIP file: OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}.zip"
+        zip -r9 ../OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}.zip *
     - name: "📤Upload defconfig files (on failure)"
       if: failure()
       uses: actions/upload-artifact@v4
       with:
-        name: failed-build-configs-${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}
+        name: failed-build-configs-${{ matrix.kernel_variant.tag }}
         path: |
           ${{ env.DIR_KERNEL }}/${{ env.DIR_DEFCONFIGS }}/${{ github.event.inputs.kernel_defconfig }}
           ${{ env.DIR_KERNEL }}/out/.config
     - name: "🌬️Upload artifact"
       uses: actions/upload-artifact@v4
       with:
-        name: OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}
-        path: "OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}${{ env.SUSFS_OUTPUT_NAME_SUFFIX }}.zip"
+        name: OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}
+        path: "OnePlus-SM8150_YAAP-16_${{ matrix.kernel_variant.tag }}.zip"
         retention-days: 2
   release:
     name: "🍊Aggregate and publish"
