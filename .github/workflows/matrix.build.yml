@@ -76,8 +76,7 @@ jobs:
         cd $DIR_WORKSPACE/toolchains/zyc-clang
         aria2c https://github.com/ZyCromerZ/Clang/releases/download/22.0.0git-20250901-release/Clang-$ZYC_CLANG_COMMIT.tar.gz
         tar -xzf Clang-$ZYC_CLANG_COMMIT.tar.gz
-        mv Clang-$ZYC_CLANG_COMMIT/bin ./bin
-        rm -r Clang-$ZYC_CLANG_COMMIT.tar.gz Clang-$ZYC_CLANG_COMMIT
+        rm Clang-$ZYC_CLANG_COMMIT.tar.gz
     - name: "👯‍♀️Clone kernel source"
       run: |
         echo "🕑Cloning kernel source..."
