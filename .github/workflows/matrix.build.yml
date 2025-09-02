@@ -253,13 +253,11 @@ jobs:
         cd $DIR_WORKSPACE/$DIR_KERNEL
 
         echo "🕑Generating kernel config from $KERNEL_DEFCONFIG..."
-        # Need to add `KCFLAGS=-Wno-vla` to build with ZyC Clang
         make $KERNEL_CMDLINE $KERNEL_DEFCONFIG \
           CC="ccache clang-$ZYC_CLANG_VERSION" \
-          HOSTCC=gcc-14 \
-          HOSTCXX=g++-14 \
-          HOSTLD=gcc-14 \
-          KCFLAGS=-Wno-vla
+          HOSTCC=gcc-14 HOSTCXX=g++-14 HOSTLD=gcc-14 \
+          KCFLAGS="-Wno-vla -mllvm -regalloc-enable-advisor=none" \
+          HOSTCFLAGS="-mllvm -regalloc-enable-advisor=none"
 
         echo "✅Done..."
     - name: "✍️Enable required configs"
@@ -313,13 +311,11 @@ jobs:
         # scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE_O3
 
         echo "✅Finalizing .config..."
-        # Need to add `KCFLAGS=-Wno-vla` to build with ZyC Clang
         make $KERNEL_CMDLINE olddefconfig \
           CC="ccache clang-$ZYC_CLANG_VERSION" \
-          HOSTCC=gcc-14 \
-          HOSTCXX=g++-14 \
-          HOSTLD=gcc-14 \
-          KCFLAGS=-Wno-vla
+          HOSTCC=gcc-14 HOSTCXX=g++-14 HOSTLD=gcc-14 \
+          KCFLAGS="-Wno-vla -mllvm -regalloc-enable-advisor=none" \
+          HOSTCFLAGS="-mllvm -regalloc-enable-advisor=none"
 
         echo "✅Done..."
     - name: "👷‍♀️Build kernel"
@@ -337,14 +333,12 @@ jobs:
         ccache -s
 
         echo "🕑Starting kernel build..."
-        # Need to add `KCFLAGS=-Wno-vla` to build with ZyC Clang
         make $KERNEL_CMDLINE \
           -j$(nproc --all) \
-          CC="ccache clang-$ZYC_CLANG_VERSION" \
-          HOSTCC=gcc-14 \
-          HOSTCXX=g++-14 \
-          HOSTLD=gcc-14 \
-          KCFLAGS=-Wno-vla
+            CC="ccache clang-$ZYC_CLANG_VERSION" \
+            HOSTCC=gcc-14 HOSTCXX=g++-14 HOSTLD=gcc-14 \
+            KCFLAGS="-Wno-vla -mllvm -regalloc-enable-advisor=none" \
+            HOSTCFLAGS="-mllvm -regalloc-enable-advisor=none"
 
         echo "✅Done..."
     - name: "🫸Copy Kernel image to AnyKernel"
