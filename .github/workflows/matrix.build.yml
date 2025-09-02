@@ -36,7 +36,7 @@ jobs:
 
       KERNEL_DEFCONFIG: "gulch_defconfig"
       # Command we run when building the kernel
-      KERNEL_CMDLINE: "CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LD=ld.lld O=out ARCH=arm64"
+      KERNEL_CMDLINE: "ARCH=arm64 CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM=1 LLVM_IAS=1 LD=ld.lld O=out"
 
       # Global directory shortcuts
       DIR_WORKSPACE: "${{ github.workspace }}"
@@ -243,14 +243,16 @@ jobs:
         echo "✅Done..."
     - name: "🔧Generate kernel .config"
       run: |
+        export PATH="$HOME/toolchains/neutron-clang/bin:$PATH"
         cd $DIR_WORKSPACE/$DIR_KERNEL
 
         echo "🕑Generating kernel config from $KERNEL_DEFCONFIG..."
-        make O=out ARCH=arm64 $KERNEL_DEFCONFIG
+        make $KERNEL_CMDLINE CC="ccache clang" $KERNEL_DEFCONFIG
 
         echo "✅Done..."
     - name: "✍️Enable required configs"
       run: |
+        export PATH="$HOME/toolchains/neutron-clang/bin:$PATH"
         cd $DIR_WORKSPACE/$DIR_KERNEL
 
         echo "🕑Enabling required kernel configurations for KSU..."
@@ -296,7 +298,7 @@ jobs:
         # scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE_O3
 
         echo "✅Finalizing .config..."
-        make O=out ARCH=arm64 olddefconfig
+        make $KERNEL_CMDLINE CC="ccache clang" olddefconfig
 
         echo "✅Done..."
     - name: "👷‍♀️Build kernel"
@@ -311,7 +313,6 @@ jobs:
 
         echo "🕑Starting kernel build..."
         make $KERNEL_CMDLINE CC="ccache clang" -j$(nproc --all)
-
         echo "✅Done..."
     - name: "🫸Copy Kernel image to AnyKernel"
       run: |
