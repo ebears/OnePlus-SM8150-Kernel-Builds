@@ -300,6 +300,8 @@ jobs:
 
         # echo "🕑Enabling debug configurations..."
         # DEBUG / possible fixes for KPM patching (patch_linux step later on)
+        scripts/config --file out/.config --disable CC_STACKPROTECTOR_STRONG
+        scripts/config --file out/.config --enable CC_STACKPROTECTOR_NONE
         # scripts/config --file out/.config --disable LTO
         # scripts/config --file out/.config --disable THINLTO
         # scripts/config --file out/.config --disable LTO_CLANG
@@ -445,7 +447,7 @@ jobs:
 
         echo "📱**Device:** OnePlus SM8150" >> release.md
         echo "⏱️**Target:** Android 16 (YAAP)" >> release.md
-        echo "🛠️Built with [ZyC Clang](https://github.com/ZyCromerZ/Clang) v$ZYC_CLANG_VERSION" >> release.md
+        echo "🛠️Built with [ZyC Clang](https://github.com/ZyCromerZ/Clang)" >> release.md
 
         while read -r file; do
           FILE_NAME=$(basename "$file")
