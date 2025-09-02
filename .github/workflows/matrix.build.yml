@@ -55,7 +55,7 @@ jobs:
       run: |
         # The following list of packages is installed by default: "make, python3, libssl-dev, bc, bison, flex, unzip, xz-utils, cpio, git, aria2, binutils, kmod, ca-certificates, libc6-dev, ccache, pigz, parallel"
         # APT packages required:
-        APT_INSTALL="gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi libelf-dev libarchive-tools lld llvm build-essential mkbootimg device-tree-compiler openjdk-17-jdk-headless libtfm-dev coccinelle"
+        APT_INSTALL="gcc-15 g++-15 gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi libelf-dev libarchive-tools lld llvm build-essential mkbootimg device-tree-compiler openjdk-17-jdk-headless libtfm-dev coccinelle"
         
         echo "🕑Removing unneeded pre-installed packages..."
         sudo rm -rf /opt/ghc "/usr/local/share/boost" /usr/share/dotnet "$AGENT_TOOLSDIRECTORY"
@@ -250,8 +250,8 @@ jobs:
         export ARCH=arm64
         export SUBARCH=arm64
         export LD=ld.lld
-        export HOSTCC="clang-$ZYC_CLANG_VERSION"
-        export HOSTCXX="clang++-$ZYC_CLANG_VERSION"
+        export HOSTCC=gcc-15
+        export HOSTCXX=g++-15
         cd $DIR_WORKSPACE/$DIR_KERNEL
 
         echo "🕑Generating kernel config from $KERNEL_DEFCONFIG..."
@@ -264,8 +264,8 @@ jobs:
         export ARCH=arm64
         export SUBARCH=arm64
         export LD=ld.lld
-        export HOSTCC="clang-$ZYC_CLANG_VERSION"
-        export HOSTCXX="clang++-$ZYC_CLANG_VERSION"
+        export HOSTCC=gcc-15
+        export HOSTCXX=g++-15
         cd $DIR_WORKSPACE/$DIR_KERNEL
 
         echo "🕑Enabling required kernel configurations for KSU..."
@@ -330,7 +330,7 @@ jobs:
 
         echo "🕑Starting kernel build..."
         # Need to add `KCFLAGS=-Wno-vla` to build with ZyC Clang
-        make $KERNEL_CMDLINE -j$(nproc --all) CC="ccache clang-$ZYC_CLANG_VERSION" HOSTCC="clang-$ZYC_CLANG_VERSION" HOSTCXX="clang++-$ZYC_CLANG_VERSION" KCFLAGS=-Wno-vla 
+        make $KERNEL_CMDLINE -j$(nproc --all) CC="ccache clang-$ZYC_CLANG_VERSION" HOSTCC=gcc-15 HOSTCXX=g++-15 KCFLAGS=-Wno-vla 
         echo "✅Done..."
     - name: "🫸Copy Kernel image to AnyKernel"
       run: |
