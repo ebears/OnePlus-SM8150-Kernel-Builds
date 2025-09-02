@@ -36,7 +36,7 @@ jobs:
 
       KERNEL_DEFCONFIG: "gulch_defconfig"
       # Command we run when building the kernel
-      KERNEL_CMDLINE: "ARCH=arm64 SUBARCH=arm64 CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM=1 LLVM_IAS=1 LD=ld.lld O=out KCFLAGS='-fno-openmp -fno-openmp-simd -fno-polly -fno-vectorize -fno-slp-vectorize -fno-unroll-loops'"
+      KERNEL_CMDLINE: "ARCH=arm64 SUBARCH=arm64 CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM=1 LLVM_IAS=1 LD=ld.lld O=out"
 
       # Global directory shortcuts
       DIR_WORKSPACE: "${{ github.workspace }}"
@@ -296,6 +296,8 @@ jobs:
           scripts/config --file out/.config --disable CC_STACKPROTECTOR_STRONG
           # scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE
           # scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE_O3
+          
+          scripts/config --file out/.config --disable QCA_CLD_WLAN
         fi
 
         echo "✅Finalizing .config..."
