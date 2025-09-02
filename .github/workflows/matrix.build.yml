@@ -38,8 +38,8 @@ jobs:
       # Command we run when building the kernel
       KERNEL_CMDLINE: "CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LD=ld.lld O=out"
 
-      ZYC_CLANG_COMMIT: "22.0.0git-20250901"
-      ZYC_CLANG_VERSION: "22"
+      ZYC_CLANG_COMMIT: "16.0.6-20250721"
+      ZYC_CLANG_VERSION: "16"
 
       # Global directory shortcuts
       DIR_WORKSPACE: "${{ github.workspace }}"
