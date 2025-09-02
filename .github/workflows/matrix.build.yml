@@ -36,7 +36,7 @@ jobs:
 
       KERNEL_DEFCONFIG: "gulch_defconfig"
       # Command we run when building the kernel
-      KERNEL_CMDLINE: "CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM=1 LLVM_IAS=1 O=out"
+      KERNEL_CMDLINE: "CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LD=ld.lld O=out"
 
       ZYC_CLANG_COMMIT: "22.0.0git-20250901"
       ZYC_CLANG_VERSION: "22"
@@ -254,7 +254,13 @@ jobs:
 
         echo "🕑Generating kernel config from $KERNEL_DEFCONFIG..."
         # Need to add `KCFLAGS=-Wno-vla` to build with ZyC Clang
-        make $KERNEL_CMDLINE $KERNEL_DEFCONFIG CC="ccache clang-$ZYC_CLANG_VERSION" HOSTCC=gcc-14 HOSTCXX=g++-14 HOSTLD=gcc-14 KCFLAGS=-Wno-vla
+        make $KERNEL_CMDLINE $KERNEL_DEFCONFIG \
+          CC="ccache clang-$ZYC_CLANG_VERSION" \
+          HOSTCC=gcc-14 \
+          HOSTCXX=g++-14 \
+          HOSTLD=gcc-14 \
+          KCFLAGS=-Wno-vla
+
         echo "✅Done..."
     - name: "✍️Enable required configs"
       run: |
@@ -308,7 +314,13 @@ jobs:
 
         echo "✅Finalizing .config..."
         # Need to add `KCFLAGS=-Wno-vla` to build with ZyC Clang
-        make $KERNEL_CMDLINE olddefconfig HOSTCC=gcc-14 HOSTCXX=g++-14 HOSTLD=gcc-14 KCFLAGS=-Wno-vla
+        make $KERNEL_CMDLINE olddefconfig \
+          CC="ccache clang-$ZYC_CLANG_VERSION" \
+          HOSTCC=gcc-14 \
+          HOSTCXX=g++-14 \
+          HOSTLD=gcc-14 \
+          KCFLAGS=-Wno-vla
+
         echo "✅Done..."
     - name: "👷‍♀️Build kernel"
       run: |
@@ -326,7 +338,14 @@ jobs:
 
         echo "🕑Starting kernel build..."
         # Need to add `KCFLAGS=-Wno-vla` to build with ZyC Clang
-        make $KERNEL_CMDLINE -j$(nproc --all) CC="ccache clang-$ZYC_CLANG_VERSION" HOSTCC=gcc-14 HOSTCXX=g++-14 HOSTLD=gcc-14 KCFLAGS=-Wno-vla
+        make $KERNEL_CMDLINE \
+          -j$(nproc --all) \
+          CC="ccache clang-$ZYC_CLANG_VERSION" \
+          HOSTCC=gcc-14 \
+          HOSTCXX=g++-14 \
+          HOSTLD=gcc-14 \
+          KCFLAGS=-Wno-vla
+
         echo "✅Done..."
     - name: "🫸Copy Kernel image to AnyKernel"
       run: |
