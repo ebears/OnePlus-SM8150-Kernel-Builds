@@ -332,9 +332,7 @@ jobs:
         make $KERNEL_CMDLINE \
           -j$(nproc --all) \
             CC="ccache clang-$ZYC_CLANG_VERSION" \
-            HOSTCC=gcc-14 HOSTCXX=g++-14 HOSTLD=gcc-14 \
-            KCFLAGS="-Wno-vla -mllvm -regalloc-enable-advisor=none" \
-            HOSTCFLAGS="-mllvm -regalloc-enable-advisor=none"
+            HOSTCC=gcc-14 HOSTCXX=g++-14 HOSTLD=gcc-14
 
         echo "✅Done..."
     - name: "🫸Copy Kernel image to AnyKernel"
