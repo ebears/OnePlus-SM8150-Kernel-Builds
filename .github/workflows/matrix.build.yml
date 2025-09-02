@@ -36,7 +36,7 @@ jobs:
 
       KERNEL_DEFCONFIG: "gulch_defconfig"
       # Command we run when building the kernel
-      KERNEL_CMDLINE: "ARCH=arm64 CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM=1 LLVM_IAS=1 LD=ld.lld O=out"
+      KERNEL_CMDLINE: "ARCH=arm64 SUBARCH=arm64 CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM=1 LLVM_IAS=1 LD=ld.lld O=out"
 
       # Global directory shortcuts
       DIR_WORKSPACE: "${{ github.workspace }}"
@@ -104,9 +104,9 @@ jobs:
 
         # Download and apply FIX_APATCH_OPENELA.patch for APatch support on 4.14.334
         # Reference: https://github.com/midozalouk/android_kernel_oneplus_sm8150/blob/main/patches%20/FIX_APATCH_OPENELA.patch
-        # echo "🕑Applying $FIX_CRED_PATCH to revert using atomic_long_t..."
-        # aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$FIX_CRED_PATCH
-        # patch -p1 < $FIX_CRED_PATCH
+        echo "🕑Applying $FIX_CRED_PATCH to revert using atomic_long_t..."
+        aria2c https://raw.githubusercontent.com/ebears/OnePlus-SM8150-Kernel-Builds/refs/heads/main/patches/$FIX_CRED_PATCH
+        patch -p1 < $FIX_CRED_PATCH
 
         # Reference: https://kernelsu.org/guide/how-to-integrate-for-non-gki.html#how-to-backport-path-umount
         echo "🕑Applying $PATH_UMOUNT_PATCH to backport umount functionality..."
@@ -243,7 +243,7 @@ jobs:
         echo "✅Done..."
     - name: "🔧Generate kernel .config"
       run: |
-        export PATH="$HOME/toolchains/neutron-clang/bin:$PATH"
+        export PATH="$DIR_WORKSPACE/toolchains/neutron-clang/bin:$PATH"
         cd $DIR_WORKSPACE/$DIR_KERNEL
 
         echo "🕑Generating kernel config from $KERNEL_DEFCONFIG..."
@@ -252,7 +252,7 @@ jobs:
         echo "✅Done..."
     - name: "✍️Enable required configs"
       run: |
-        export PATH="$HOME/toolchains/neutron-clang/bin:$PATH"
+        export PATH="$DIR_WORKSPACE/toolchains/neutron-clang/bin:$PATH"
         cd $DIR_WORKSPACE/$DIR_KERNEL
 
         echo "🕑Enabling required kernel configurations for KSU..."
@@ -298,12 +298,12 @@ jobs:
         # scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE_O3
 
         echo "✅Finalizing .config..."
-        make $KERNEL_CMDLINE CC="ccache clang" olddefconfig
+        make $KERNEL_CMDLINE olddefconfig
 
         echo "✅Done..."
     - name: "👷‍♀️Build kernel"
       run: |
-        export PATH="$HOME/toolchains/neutron-clang/bin:$PATH"
+        export PATH="$DIR_WORKSPACE/toolchains/neutron-clang/bin:$PATH"
         cd $DIR_WORKSPACE/$DIR_KERNEL
 
         echo "ℹ️Using defconfig: $KERNEL_DEFCONFIG"
