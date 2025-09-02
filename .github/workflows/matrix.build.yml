@@ -36,10 +36,7 @@ jobs:
 
       KERNEL_DEFCONFIG: "gulch_defconfig"
       # Command we run when building the kernel
-      KERNEL_CMDLINE: "CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LD=ld.lld O=out KCFLAGS=-Wno-vla"
-
-      ZYC_CLANG_COMMIT: "17.0.0-20230725"
-      ZYC_CLANG_VERSION: "17"
+      KERNEL_CMDLINE: "CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LD=ld.lld O=out"
 
       # Global directory shortcuts
       DIR_WORKSPACE: "${{ github.workspace }}"
@@ -54,7 +51,7 @@ jobs:
     - name: "💥Install APT package dependencies"
       # The following list of packages is installed by default: "make, python3, libssl-dev, bc, bison, flex, unzip, xz-utils, cpio, git, aria2, binutils, kmod, ca-certificates, libc6-dev, ccache, pigz, parallel, gcc-14, g++-14"
       run: |
-        APT_INSTALL="gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi libelf-dev libarchive-tools lld llvm build-essential mkbootimg device-tree-compiler openjdk-17-jdk-headless libtfm-dev coccinelle"
+        APT_INSTALL="libelf-dev libarchive-tools lld llvm build-essential mkbootimg device-tree-compiler openjdk-17-jdk-headless"
         
         echo "🕑Removing unneeded pre-installed packages..."
         sudo rm -rf /opt/ghc "/usr/local/share/boost" /usr/share/dotnet "$AGENT_TOOLSDIRECTORY"
@@ -71,13 +68,14 @@ jobs:
         echo "✅Done..."
     - name: "⚙️Set up Clang"
       run: |
-        echo "🕑Downloading ZyC Clang ver. $ZYC_CLANG_COMMIT..."
-        mkdir -p toolchains/zyc-clang
-        cd $DIR_WORKSPACE/toolchains/zyc-clang
-        aria2c https://github.com/ZyCromerZ/Clang/releases/download/$ZYC_CLANG_COMMIT-release/Clang-$ZYC_CLANG_COMMIT.tar.gz
-        echo "🕑Extracting ZyC Clang ver. $ZYC_CLANG_COMMIT..."
-        tar -xzf Clang-$ZYC_CLANG_COMMIT.tar.gz
-        rm Clang-$ZYC_CLANG_COMMIT.tar.gz
+        echo "🕑Downloading AntMan to sync Neutron Clang..."
+        mkdir -p "$DIR_WORKSPACE/toolchains/neutron-clang"
+        cd "$DIR_WORKSPACE/toolchains/neutron-clang"
+        aria2c https://raw.githubusercontent.com/Neutron-Toolchains/antman/main/antman
+        echo "🕑Running AntMan to sync Clang..."
+        chmod +x antman
+        ./antman -S
+        ./antman -I
         echo "✅Done..."
     - name: "👯‍♀️Clone kernel source"
       run: |
@@ -245,24 +243,14 @@ jobs:
         echo "✅Done..."
     - name: "🔧Generate kernel .config"
       run: |
-        export PATH=$(pwd)/toolchains/zyc-clang/bin/:$PATH
-        export ARCH=arm64
-        export SUBARCH=arm64
-        export LD=ld.lld
         cd $DIR_WORKSPACE/$DIR_KERNEL
 
         echo "🕑Generating kernel config from $KERNEL_DEFCONFIG..."
-        make $KERNEL_CMDLINE $KERNEL_DEFCONFIG \
-          CC="ccache clang-$ZYC_CLANG_VERSION" \
-          HOSTCC=gcc-14 HOSTCXX=g++-14 HOSTLD=gcc-14
+        make O=out ARCH=arm64 $KERNEL_DEFCONFIG
 
         echo "✅Done..."
     - name: "✍️Enable required configs"
       run: |
-        export PATH=$(pwd)/toolchains/zyc-clang/bin/:$PATH
-        export ARCH=arm64
-        export SUBARCH=arm64
-        export LD=ld.lld
         cd $DIR_WORKSPACE/$DIR_KERNEL
 
         echo "🕑Enabling required kernel configurations for KSU..."
@@ -299,8 +287,6 @@ jobs:
 
         # echo "🕑Enabling debug configurations..."
         # DEBUG / possible fixes for KPM patching (patch_linux step later on)
-        scripts/config --file out/.config --disable CC_STACKPROTECTOR_STRONG
-        scripts/config --file out/.config --enable CC_STACKPROTECTOR_NONE
         # scripts/config --file out/.config --disable LTO
         # scripts/config --file out/.config --disable THINLTO
         # scripts/config --file out/.config --disable LTO_CLANG
@@ -310,30 +296,21 @@ jobs:
         # scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE_O3
 
         echo "✅Finalizing .config..."
-        make $KERNEL_CMDLINE olddefconfig \
-          CC="ccache clang-$ZYC_CLANG_VERSION" \
-          HOSTCC=gcc-14 HOSTCXX=g++-14 HOSTLD=gcc-14
+        make O=out ARCH=arm64 olddefconfig
 
         echo "✅Done..."
     - name: "👷‍♀️Build kernel"
       run: |
-        export PATH=$(pwd)/toolchains/zyc-clang/bin/:$PATH
-        export ARCH=arm64
-        export SUBARCH=arm64
-        export LD=ld.lld
+        export PATH="$HOME/toolchains/neutron-clang/bin:$PATH"
         cd $DIR_WORKSPACE/$DIR_KERNEL
 
         echo "ℹ️Using defconfig: $KERNEL_DEFCONFIG"
         echo "ℹ️Kernel variant: ${{ matrix.kernel_variant.name }}"
-        echo "ℹ️Clang version: clang-$ZYC_CLANG_VERSION"
         echo "ℹ️Ccache stats before build:"
         ccache -s
 
         echo "🕑Starting kernel build..."
-        make $KERNEL_CMDLINE \
-          -j$(nproc --all) \
-            CC="ccache clang-$ZYC_CLANG_VERSION" \
-            HOSTCC=gcc-14 HOSTCXX=g++-14 HOSTLD=gcc-14
+        make $KERNEL_CMDLINE CC="ccache clang" -j$(nproc --all)
 
         echo "✅Done..."
     - name: "🫸Copy Kernel image to AnyKernel"
