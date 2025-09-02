@@ -294,8 +294,8 @@ jobs:
           scripts/config --file out/.config --disable LTO_CLANG
           scripts/config --file out/.config --disable LTO_CLANG_THIN
           scripts/config --file out/.config --disable CC_STACKPROTECTOR_STRONG
-          # scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE
-          # scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE_O3
+          scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE
+          scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE_O3
           
           scripts/config --file out/.config --disable QCA_CLD_WLAN
         fi
