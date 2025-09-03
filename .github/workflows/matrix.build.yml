@@ -286,18 +286,6 @@ jobs:
           scripts/config --file out/.config --enable KALLSYMS
           scripts/config --file out/.config --enable KALLSYMS_ALL
           scripts/config --file out/.config --enable DEBUG_KERNEL
-
-          echo "🕑Enabling debug configurations..."
-          # DEBUG / possible fixes for KPM patching (patch_linux step later on)
-          scripts/config --file out/.config --disable LTO
-          scripts/config --file out/.config --disable THINLTO
-          scripts/config --file out/.config --disable LTO_CLANG
-          scripts/config --file out/.config --disable LTO_CLANG_THIN
-          scripts/config --file out/.config --disable CC_STACKPROTECTOR_STRONG
-          scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE
-          scripts/config --file out/.config --enable CC_OPTIMIZE_FOR_PERFORMANCE_O3
-          
-          scripts/config --file out/.config --disable QCA_CLD_WLAN
         fi
 
         echo "✅Finalizing .config..."
