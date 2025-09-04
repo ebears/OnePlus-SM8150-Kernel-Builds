@@ -7,11 +7,11 @@
 
 ### Versions
 
-| ℹ️KernelSU version                                                | 🕵️‍♀️SusFS    | 🪄Magic Mount | 🛠️KPM  | ⚙️Re:Kernel | 📂Mountify |
+| ℹ️KernelSU version                                                | 🕵️‍♀️SusFS    | 🪄Magic Mount | ⚙️Re:Kernel | 📂Mountify | 🛠️KPM  |
 | --- | --- | --- | --- | --- | --- |
-| #️⃣[KernelSU-Rissu](https://github.com/rsuntk/KernelSU)            | ✅ v1.5.9  | ✅            | ❌     | ✅          | ✅         |
-| ☯️[KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next) | ✅ v1.5.9  | ✅            | ❌     | ✅          | ✅         |
-| 😼[SukiSU-Ultra](https://github.com/SukiSU-Ultra/SukiSU-Ultra)    | ✅ v1.5.9  | ✅            | ⚠️ WIP | ✅          | ✅         |
+| #️⃣[KernelSU-Rissu](https://github.com/rsuntk/KernelSU)            | ✅ v1.5.9  | ✅            | ✅          | ✅         | ❌     |
+| ☯️[KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next) | ✅ v1.5.9  | ✅            | ✅          | ✅         | ❌     |
+| 😼[SukiSU-Ultra](https://github.com/SukiSU-Ultra/SukiSU-Ultra)    | ✅ v1.5.9  | ✅            | ✅          | ✅         | ⚠️ WIP |
 
 [AnyKernel3](https://github.com/osm0sis/AnyKernel3) compatible ZIP Kernel downloads are found under the [releases](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/releases). Check out the [actions](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/actions) and [workflow file](https://github.com/ebears/OnePlus-SM8150-Kernel-Builds/tree/main/.github/workflows) for details.
 
