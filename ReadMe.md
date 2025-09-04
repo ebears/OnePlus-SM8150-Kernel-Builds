@@ -48,6 +48,16 @@ Flash at your own risk.
 4) Switch apps back to the OTA update and reboot.
 
 ---
+### Useful Modules
+
+- [bindhosts](https://github.com/bindhosts/bindhosts)
+- [susfs4ksu-module](https://github.com/sidex15/susfs4ksu-module)
+    - [wiki](https://github.com/sidex15/susfs4ksu-module/wiki/)
+- [mountify](https://github.com/backslashxx/mountify)
+- [ReZygisk](https://github.com/PerformanC/ReZygisk)
+- [zygisk-detach](https://github.com/j-hc/zygisk-detach)
+
+---
 #### Credits
 
 Thanks all ❤️
